@@ -20,7 +20,7 @@ def correr(puntos, datos, sps, beta, taps, ruido, cfo, epsilon, semilla, n):
     tb = gr.top_block()
     fuente = blocks.vector_source_b(datos.tolist(), False)
     mapa = digital.chunks_to_symbols_bc([complex(p) for p in puntos], 1)
-    rrc = firdes.root_raised_cosine(FILTROS, FILTROS, 1.0 / sps, beta, int(11 * sps * FILTROS) | 1)
+    rrc = firdes.root_raised_cosine(FILTROS, FILTROS, 1.0, beta, (11 * FILTROS) | 1)
     interp = gr_filter.pfb_arb_resampler_ccf(sps, rrc, FILTROS)
     canal = channels.channel_model(noise_voltage=ruido, frequency_offset=cfo, epsilon=epsilon,
                                    taps=[complex(t) for t in taps], noise_seed=semilla, block_tags=False)
