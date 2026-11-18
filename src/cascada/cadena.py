@@ -1,24 +1,53 @@
 """Une normalización, recuperación y autofoco hasta obtener símbolos."""
 import numpy as np
 
-from src.cascada.autofoco import autofoco
-from src.cascada.clasica import simbolos_clasicos, simbolos_sin_ecualizar, tomar_simbolos
+from src.cascada.autofoco import autofoco, entropia
+from src.cascada.clasica import (LARGO_FSE, filtro_adaptado, pesos_cma, peso_inicial, refinar_ciego,
+                                 simbolos_t2, ventanas_t2)
 from src.cascada.normalizador import normalizar
 from src.cascada.recuperador import aplicar_recuperador
 
 MIN_SIMBOLOS = 24
 MAX_MUESTRAS = 32768
+MAX_ENTROPIA = 1024
+MAX_AJUSTE = 3072
+DF_FINO = 0.004
 
 
-def simbolos_de(iq8, cadena="red", recuperador=None):
+def _inicio(iq8, ruta, recuperador):
+    """Señal a dos muestras por símbolo y pesos iniciales de cada ruta."""
     iq8 = np.asarray(iq8)[:MAX_MUESTRAS]
-    if cadena == "red":
-        return tomar_simbolos(aplicar_recuperador(recuperador, iq8))[4:-4]
-    if cadena == "clasica":
-        return simbolos_clasicos(iq8)[8:]
-    if cadena == "directa":
-        return simbolos_sin_ecualizar(iq8)[8:-8]
-    raise ValueError(f"Cadena desconocida: {cadena}")
+    if ruta == "red":
+        return simbolos_t2(aplicar_recuperador(recuperador, iq8)), peso_inicial()
+    x2 = simbolos_t2(filtro_adaptado(iq8))
+    return x2, pesos_cma(x2[:MAX_AJUSTE]) if ruta == "clasica" else peso_inicial()
+
+
+def _enfocar_ruta(iq8, ruta, recuperador, refinar):
+    x2, w = _inicio(iq8, ruta, recuperador)
+    if len(x2) < 2 * MIN_SIMBOLOS + LARGO_FSE:
+        return None
+    _, df, nitidez = autofoco(ventanas_t2(x2[:MAX_AJUSTE]) @ w)
+    x2 = x2 * np.exp(-1j * np.pi * df * np.arange(len(x2)))
+    if refinar:
+        w = refinar_ciego(x2[:MAX_AJUSTE], w, lambda y: entropia(y[:MAX_ENTROPIA]))
+    z, ajuste, _ = autofoco(ventanas_t2(x2) @ w, df_max=DF_FINO)
+    return z, df + ajuste, nitidez
+
+
+def enfocar(iq8, cadena="red", recuperador=None, refinar=True):
+    """Devuelve (símbolos, df, nitidez, ruta). `mixta` elige la salida de menor entropía."""
+    rutas = ("red", "clasica", "directa") if cadena == "mixta" else (cadena,)
+    mejor = None
+    for ruta in rutas:
+        salida = _enfocar_ruta(iq8, ruta, recuperador, refinar)
+        if salida is None:
+            continue
+        z, df, nitidez = salida
+        h = entropia(z[:MAX_ENTROPIA])
+        if mejor is None or h < mejor[0]:
+            mejor = (h, z, df, nitidez, ruta)
+    return None if mejor is None else mejor[1:]
 
 
 def recuperar(iq, cadena="red", recuperador=None, sps=None):
@@ -27,11 +56,11 @@ def recuperar(iq, cadena="red", recuperador=None, sps=None):
     for h in normalizar(iq, sps=sps):
         if len(h.iq) < MIN_SIMBOLOS * 8:
             continue
-        crudos = simbolos_de(h.iq, cadena, recuperador)
-        if len(crudos) < MIN_SIMBOLOS:
+        salida = enfocar(h.iq, cadena, recuperador)
+        if salida is None:
             continue
-        z, df, nitidez = autofoco(crudos)
+        z, df, nitidez, ruta = salida
         if mejor is None or nitidez > mejor["nitidez"]:
             mejor = {"simbolos": z, "df": df, "nitidez": nitidez, "sps_origen": h.sps_origen,
-                     "puntaje_tasa": h.puntaje, "cfo_grueso": h.cfo_grueso}
+                     "puntaje_tasa": h.puntaje, "cfo_grueso": h.cfo_grueso, "ruta": ruta}
     return mejor

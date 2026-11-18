@@ -24,7 +24,7 @@ _MODELO = None
 
 def _modelo(cadena):
     global _MODELO
-    if cadena != "red":
+    if cadena not in ("red", "mixta"):
         return None
     if _MODELO is None:
         torch.set_num_threads(1)

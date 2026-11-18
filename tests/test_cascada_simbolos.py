@@ -2,7 +2,8 @@ import numpy as np
 
 from src.cascada import geometria as g
 from src.cascada.autofoco import autofoco, entropia
-from src.cascada.clasica import simbolos_clasicos, simbolos_sin_ecualizar
+from src.cascada.cadena import enfocar
+from src.cascada.clasica import modos_constelacion, simbolos_clasicos, simbolos_sin_ecualizar
 from src.cascada.evaluacion import evm_ciego
 from src.cascada.sintesis import Condicion, transmitir
 
@@ -41,3 +42,20 @@ def test_cma_mejora_multitrayecto():
     sin, _, _ = autofoco(simbolos_sin_ecualizar(r["iq"]))
     con, _, _ = autofoco(simbolos_clasicos(r["iq"]))
     assert evm_ciego(con[300:], g.psk(4)) < evm_ciego(sin[300:], g.psk(4))
+
+
+def test_modos_encuentran_el_alfabeto():
+    rng = np.random.default_rng(6)
+    z = g.psk(4)[rng.integers(0, 4, 800)] + 0.05 * (rng.normal(size=800) + 1j * rng.normal(size=800))
+    assert len(modos_constelacion(z)) == 4
+
+
+def test_refinado_ciego_no_empeora_16qam_con_multitrayecto():
+    taps = np.zeros(13, dtype=complex)
+    taps[0], taps[12] = 1.0, 0.45j
+    puntos = g.qam(16)
+    r = _recibir(puntos, Condicion(snr_db=28.0, taps=taps, tau=2.0), 7, 1500)
+    sin = enfocar(r["iq"], "clasica", refinar=False)[0]
+    con = enfocar(r["iq"], "clasica", refinar=True)[0]
+    assert entropia(con[:1024]) <= entropia(sin[:1024])
+    assert evm_ciego(con[300:], puntos) < evm_ciego(sin[300:], puntos)

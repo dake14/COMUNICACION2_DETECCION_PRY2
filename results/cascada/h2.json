@@ -1,0 +1,113 @@
+{
+ "ninguno": {
+  "clasica_pura": -18.81,
+  "directa": -19.03,
+  "clasica": -19.0,
+  "red": -22.47,
+  "mixta": -19.42
+ },
+ "shift0": {
+  "clasica_pura": -7.43,
+  "directa": -3.67,
+  "clasica": -7.53,
+  "red": -11.6,
+  "mixta": -10.53
+ },
+ "shift1": {
+  "clasica_pura": -16.91,
+  "directa": -4.04,
+  "clasica": -17.98,
+  "red": -19.65,
+  "mixta": -18.14
+ },
+ "denso32": {
+  "clasica_pura": -1.49,
+  "directa": -0.86,
+  "clasica": -1.52,
+  "red": -1.49,
+  "mixta": -2.62
+ },
+ "media_con_canal_db": {
+  "clasica_pura": -10.54,
+  "directa": -4.35,
+  "clasica": -12.4,
+  "red": -11.22,
+  "mixta": -13.38
+ },
+ "mejora_db_red_vs_clasica_con_canal": 0.68,
+ "mejora_db_mixta_vs_clasica_con_canal": 2.84,
+ "desconocidas_sin_canal_red_menos_directa_db": -1.15,
+ "por_modulacion_con_canal": {
+  "BPSK": {
+   "clasica_pura": -3.15,
+   "directa": -3.07,
+   "clasica": -3.24,
+   "red": -10.9,
+   "mixta": -4.93
+  },
+  "QPSK": {
+   "clasica_pura": -17.49,
+   "directa": -7.87,
+   "clasica": -18.09,
+   "red": -17.29,
+   "mixta": -18.98
+  },
+  "8PSK": {
+   "clasica_pura": -17.01,
+   "directa": -2.61,
+   "clasica": -17.76,
+   "red": -17.81,
+   "mixta": -17.81
+  },
+  "16QAM": {
+   "clasica_pura": -9.9,
+   "directa": -1.72,
+   "clasica": -10.09,
+   "red": -17.11,
+   "mixta": -10.09
+  },
+  "64QAM": {
+   "clasica_pura": -3.08,
+   "directa": -0.57,
+   "clasica": -3.17,
+   "red": -1.59,
+   "mixta": -4.62
+  },
+  "4PAM": {
+   "clasica_pura": -1.36,
+   "directa": -1.9,
+   "clasica": -1.38,
+   "red": -2.65,
+   "mixta": -2.58
+  },
+  "6PSK": {
+   "clasica_pura": -17.37,
+   "directa": -7.71,
+   "clasica": -18.05,
+   "red": -21.94,
+   "mixta": -18.8
+  },
+  "24QAM": {
+   "clasica_pura": -16.12,
+   "directa": -0.53,
+   "clasica": -17.6,
+   "red": -5.71,
+   "mixta": -17.6
+  },
+  "HEX19": {
+   "clasica_pura": -7.73,
+   "directa": -1.01,
+   "clasica": -7.88,
+   "red": -1.51,
+   "mixta": -7.88
+  },
+  "ANILLOS12": {
+   "clasica_pura": -15.57,
+   "directa": -5.34,
+   "clasica": -17.37,
+   "red": -16.8,
+   "mixta": -17.39
+  }
+ },
+ "cadena_elegida": "clasica"
+}

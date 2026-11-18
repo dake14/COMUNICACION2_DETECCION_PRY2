@@ -1,6 +1,7 @@
 """Inscribe el catálogo, ajusta el fondo y calibra con el generador del repositorio."""
 import argparse
 import json
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -18,13 +19,39 @@ from src.cascada.pipeline import analizar_cascada, cargar_paquete, guardar_paque
 from src.cascada.recuperador import cargar_recuperador
 
 _CACHE = {}
+USAN_RED = ("red", "mixta")
+VENTAJA_MINIMA = 0.01
+
+
+def ruta_paquete(cadena):
+    return DIR_MODELOS / f"paquete_{cadena}.joblib"
+
+
+def ruta_validacion(cadena):
+    return Path(f"results/cascada/h3_validacion_{cadena}.json")
+
+
+def puntaje(resumen):
+    m = resumen["snr_ge_10"]
+    return (m["exactitud_abierta"] + m["rechazo_desconocidas"]) / 2
+
+
+def elegir():
+    """La clásica pasó la regla de H2; la mixta solo la reemplaza si gana en validación."""
+    p = {c: puntaje(json.loads(ruta_validacion(c).read_text(encoding="utf-8"))) for c in ("clasica", "mixta")}
+    cadena = "mixta" if p["mixta"] > p["clasica"] + VENTAJA_MINIMA else "clasica"
+    shutil.copyfile(ruta_paquete(cadena), RUTA_PAQUETE)
+    shutil.copyfile(ruta_validacion(cadena), "results/cascada/h3_validacion.json")
+    Path("results/cascada/h3_eleccion.json").write_text(
+        json.dumps({"puntajes": p, "ventaja_minima": VENTAJA_MINIMA, "cadena": cadena}, indent=1), encoding="utf-8")
+    print(cadena, p, flush=True)
 
 
 def _piezas(cadena):
     if "d" not in _CACHE:
         torch.set_num_threads(1)
         _CACHE["d"] = cargar_descriptor(RUTA_DESCRIPTOR)
-        _CACHE["r"] = cargar_recuperador(RUTA_RECUPERADOR) if cadena == "red" else None
+        _CACHE["r"] = cargar_recuperador(RUTA_RECUPERADOR) if cadena in USAN_RED else None
     return _CACHE["d"], _CACHE["r"]
 
 
@@ -57,8 +84,12 @@ def analizar_item(item, ruta, cadena):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--cadena", required=True)
+    p.add_argument("--cadena")
+    p.add_argument("--elegir", action="store_true")
     a = p.parse_args()
+    if a.elegir:
+        return elegir()
+    salida = ruta_paquete(a.cadena)
     catalogo = {}
     for i, (nombre, puntos) in enumerate(g.catalogo().items()):
         catalogo[nombre] = inscribir_modulacion(puntos, a.cadena, 24, 2026111810 + i)
@@ -77,19 +108,19 @@ def main():
     decisor.calibrar(z_val, [it["etiqueta"] for it, _ in validos])
     print(json.dumps({"temperatura": decisor.temperatura, "previa_fondo": decisor.log_previa_fondo,
                       "umbral": decisor.umbral, "dim_pca": int(decisor.pca.n_components_)}), flush=True)
-    guardar_paquete(RUTA_PAQUETE, decisor, a.cadena,
-                    RUTA_RECUPERADOR.name if a.cadena == "red" else None, RUTA_DESCRIPTOR.name,
+    guardar_paquete(salida, decisor, a.cadena,
+                    RUTA_RECUPERADOR.name if a.cadena in USAN_RED else None, RUTA_DESCRIPTOR.name,
                     {"vistas_por_geometria": VISTAS})
 
     nombres = list(g.catalogo())
     items_ind = conjunto_repo(2026111831, grupo_val, por_caso=4)
-    resultados = Parallel(n_jobs=12)(delayed(analizar_item)(it, RUTA_PAQUETE, a.cadena) for it in items_ind)
+    resultados = Parallel(n_jobs=12)(delayed(analizar_item)(it, salida, a.cadena) for it in items_ind)
     filas = [fila_resultado(it, r, nombres) for it, r in zip(items_ind, resultados)]
     resumen = {"todas": metricas(filas, nombres)}
     for s in (0, 5, 10, 15, 20, 30):
         resumen[f"snr_{s}"] = metricas([f for f in filas if f["snr"] == s], nombres)
     resumen["snr_ge_10"] = metricas([f for f in filas if f["snr"] >= 10], nombres)
-    Path("results/cascada/h3_validacion.json").write_text(json.dumps(resumen, indent=1), encoding="utf-8")
+    ruta_validacion(a.cadena).write_text(json.dumps(resumen, indent=1), encoding="utf-8")
     print(json.dumps(resumen["snr_ge_10"], indent=1), flush=True)
 
 
