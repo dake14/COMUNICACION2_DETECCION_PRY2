@@ -132,6 +132,15 @@ Para ejecutar la prueba de interoperabilidad automática:
 
 Evaluación experimental de la hipótesis de selección dinámica de acciones (`SVM256`, `SVM512`, red neuronal) guiada por riesgo y latencia. En `results/paper_research/ablation_and_policy_metrics.json` (`data/adaptive_dataset/test`), Fast LBAP alcanzó 51,625% nominal frente a 51,5833% de `MultiDomainAMCNet` sola; la validación completa de paquete desplegable, latencia integral y contrastes pareados corresponde al Nivel 3 del plan de trabajo ([Plan y Criterios](docs/PLAN_MODIFICACIONES_Y_CRITERIOS_DE_ACEPTACION.md)). [Protocolo Adaptativo](docs/ADAPTATIVO_PROTOCOLO.md)
 
+## Clasificador en cascada (independiente del generador)
+
+Motor opcional que no necesita conocer la tasa de símbolo, entrega probabilidades y puede responder `DESCONOCIDA` o `INDETERMINADA`. Admite modulaciones nuevas sin reentrenar las redes. En generadores no usados al entrenar, a SNR ≥ 10 dB, obtuvo 85,9 % de exactitud con GNU Radio y 79,2 % con un generador independiente; este último no alcanza la meta de 85 %. [Resultados, limitaciones y reproducción](docs/CASCADA_RESULTADOS.md)
+
+```powershell
+python -m src.cascada.lote carpeta_de_senales --salida results/cascada/lote
+python -m src.monitor --input senal.c64 --motor cascada --output salida.json --plot salida.png
+```
+
 ## Estructura del Directorio
 ```text
 COM2_Proyecto2/

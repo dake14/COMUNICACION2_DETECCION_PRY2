@@ -1,0 +1,672 @@
+{
+ "paquete_sha256": "5a8861f7bda021583f2e2b0881f7c6e7ba3a12dcd810bd8d056b5f76624c722e",
+ "cadena": "mixta",
+ "generadores": {
+  "gnuradio": {
+   "cascada": {
+    "todas": {
+     "n": 560,
+     "exactitud_cerrada": 0.325,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.275,
+     "por_clase_cerrada": {
+      "BPSK": 0.125,
+      "QPSK": 0.0,
+      "8PSK": 0.15,
+      "16QAM": 0.175,
+      "64QAM": 0.575,
+      "4PAM": 0.925
+     },
+     "f1_macro_cerrada": 0.25559734093067427,
+     "rechazo_desconocidas": 0.321875,
+     "falsa_aceptacion": 0.003125,
+     "auroc_desconocidas": 0.571015625,
+     "conocidas_rechazadas_al_95": 0.8625,
+     "ece": 0.03654960917047608
+    },
+    "snr_ge_10": {
+     "n": 448,
+     "exactitud_cerrada": 0.3177083333333333,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.2604166666666667,
+     "por_clase_cerrada": {
+      "BPSK": 0.09375,
+      "QPSK": 0.0,
+      "8PSK": 0.1875,
+      "16QAM": 0.1875,
+      "64QAM": 0.53125,
+      "4PAM": 0.90625
+     },
+     "f1_macro_cerrada": 0.25159909226739363,
+     "rechazo_desconocidas": 0.31640625,
+     "falsa_aceptacion": 0.00390625,
+     "auroc_desconocidas": 0.5802408854166666,
+     "conocidas_rechazadas_al_95": 0.8333333333333334,
+     "ece": 0.03871945862323417
+    },
+    "meta_snr_ge_10_y_512_simbolos": {
+     "n": 448,
+     "exactitud_cerrada": 0.3177083333333333,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.2604166666666667,
+     "por_clase_cerrada": {
+      "BPSK": 0.09375,
+      "QPSK": 0.0,
+      "8PSK": 0.1875,
+      "16QAM": 0.1875,
+      "64QAM": 0.53125,
+      "4PAM": 0.90625
+     },
+     "f1_macro_cerrada": 0.25159909226739363,
+     "rechazo_desconocidas": 0.31640625,
+     "falsa_aceptacion": 0.00390625,
+     "auroc_desconocidas": 0.5802408854166666,
+     "conocidas_rechazadas_al_95": 0.8333333333333334,
+     "ece": 0.03871945862323417
+    },
+    "tiempo_s_mediana": 0.11009009999543196,
+    "tiempo_s_p95": 1.0977579749946016,
+    "detectadas": 1.0,
+    "snr_5": {
+     "n": 112,
+     "exactitud_cerrada": 0.3541666666666667,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.3333333333333333,
+     "por_clase_cerrada": {
+      "BPSK": 0.25,
+      "QPSK": 0.0,
+      "8PSK": 0.0,
+      "16QAM": 0.125,
+      "64QAM": 0.75,
+      "4PAM": 1.0
+     },
+     "f1_macro_cerrada": 0.26576354679802955,
+     "rechazo_desconocidas": 0.34375,
+     "falsa_aceptacion": 0.0,
+     "auroc_desconocidas": 0.5432942708333334,
+     "conocidas_rechazadas_al_95": 0.875,
+     "ece": 0.0652912532504202
+    },
+    "snr_10": {
+     "n": 112,
+     "exactitud_cerrada": 0.375,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.2708333333333333,
+     "por_clase_cerrada": {
+      "BPSK": 0.0,
+      "QPSK": 0.0,
+      "8PSK": 0.125,
+      "16QAM": 0.25,
+      "64QAM": 0.875,
+      "4PAM": 1.0
+     },
+     "f1_macro_cerrada": 0.26657088122605366,
+     "rechazo_desconocidas": 0.359375,
+     "falsa_aceptacion": 0.0,
+     "auroc_desconocidas": 0.5703125,
+     "conocidas_rechazadas_al_95": 0.8125,
+     "ece": 0.0764134022420813
+    },
+    "snr_15": {
+     "n": 112,
+     "exactitud_cerrada": 0.22916666666666666,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.3333333333333333,
+     "por_clase_cerrada": {
+      "BPSK": 0.25,
+      "QPSK": 0.0,
+      "8PSK": 0.0,
+      "16QAM": 0.125,
+      "64QAM": 0.25,
+      "4PAM": 0.75
+     },
+     "f1_macro_cerrada": 0.18185347261434218,
+     "rechazo_desconocidas": 0.390625,
+     "falsa_aceptacion": 0.0,
+     "auroc_desconocidas": 0.5758463541666666,
+     "conocidas_rechazadas_al_95": 0.8541666666666666,
+     "ece": 0.1446932013882127
+    },
+    "snr_20": {
+     "n": 112,
+     "exactitud_cerrada": 0.3958333333333333,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.20833333333333334,
+     "por_clase_cerrada": {
+      "BPSK": 0.0,
+      "QPSK": 0.0,
+      "8PSK": 0.375,
+      "16QAM": 0.25,
+      "64QAM": 0.75,
+      "4PAM": 1.0
+     },
+     "f1_macro_cerrada": 0.3134487734487734,
+     "rechazo_desconocidas": 0.34375,
+     "falsa_aceptacion": 0.015625,
+     "auroc_desconocidas": 0.62109375,
+     "conocidas_rechazadas_al_95": 0.8333333333333334,
+     "ece": 0.04586382744616101
+    },
+    "snr_30": {
+     "n": 112,
+     "exactitud_cerrada": 0.2708333333333333,
+     "exactitud_abierta": 0.0,
+     "cobertura_conocidas": 0.22916666666666666,
+     "por_clase_cerrada": {
+      "BPSK": 0.125,
+      "QPSK": 0.0,
+      "8PSK": 0.25,
+      "16QAM": 0.125,
+      "64QAM": 0.25,
+      "4PAM": 0.875
+     },
+     "f1_macro_cerrada": 0.2176004072555797,
+     "rechazo_desconocidas": 0.171875,
+     "falsa_aceptacion": 0.0,
+     "auroc_desconocidas": 0.55078125,
+     "conocidas_rechazadas_al_95": 0.8541666666666666,
+     "ece": 0.054438980686907765
+    }
+   },
+   "confusion": {
+    "columnas": [
+     "BPSK",
+     "QPSK",
+     "8PSK",
+     "16QAM",
+     "64QAM",
+     "4PAM",
+     "DESCONOCIDA",
+     "INDETERMINADA"
+    ],
+    "filas": {
+     "BPSK": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      8,
+      31
+     ],
+     "QPSK": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      10,
+      30
+     ],
+     "8PSK": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      15,
+      25
+     ],
+     "16QAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      15,
+      25
+     ],
+     "64QAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      11,
+      29
+     ],
+     "4PAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      34
+     ],
+     "32QAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      15,
+      25
+     ],
+     "128QAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      10,
+      30
+     ],
+     "16APSK": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      12,
+      27
+     ],
+     "32APSK": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      12,
+      28
+     ],
+     "12PSK": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      11,
+      29
+     ],
+     "8QAM_ESTRELLA": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      17,
+      23
+     ],
+     "ARB_A": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      16,
+      24
+     ],
+     "ARB_B": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      10,
+      30
+     ]
+    }
+   },
+   "svm_referencia": {
+    "exactitud_cerrada": 0.1625,
+    "snr_ge_10": 0.16666666666666666,
+    "sps_8_snr_ge_10": 0.1388888888888889
+   },
+   "tasa_correcta": 0.0
+  },
+  "independiente": {
+   "cascada": {
+    "todas": {
+     "n": 560,
+     "exactitud_cerrada": 0.7333333333333333,
+     "exactitud_abierta": 0.475,
+     "cobertura_conocidas": 0.6375,
+     "por_clase_cerrada": {
+      "BPSK": 0.8,
+      "QPSK": 0.75,
+      "8PSK": 0.775,
+      "16QAM": 0.55,
+      "64QAM": 0.8,
+      "4PAM": 0.725
+     },
+     "f1_macro_cerrada": 0.7348979285603919,
+     "rechazo_desconocidas": 0.490625,
+     "falsa_aceptacion": 0.021875,
+     "auroc_desconocidas": 0.8087369791666666,
+     "conocidas_rechazadas_al_95": 0.5041666666666667,
+     "ece": 0.03820307883282586
+    },
+    "snr_ge_10": {
+     "n": 448,
+     "exactitud_cerrada": 0.7916666666666666,
+     "exactitud_abierta": 0.5208333333333334,
+     "cobertura_conocidas": 0.6666666666666666,
+     "por_clase_cerrada": {
+      "BPSK": 0.84375,
+      "QPSK": 0.75,
+      "8PSK": 0.84375,
+      "16QAM": 0.59375,
+      "64QAM": 0.90625,
+      "4PAM": 0.8125
+     },
+     "f1_macro_cerrada": 0.7909821424471667,
+     "rechazo_desconocidas": 0.515625,
+     "falsa_aceptacion": 0.01953125,
+     "auroc_desconocidas": 0.8391316731770834,
+     "conocidas_rechazadas_al_95": 0.4583333333333333,
+     "ece": 0.05249560298473916
+    },
+    "meta_snr_ge_10_y_512_simbolos": {
+     "n": 448,
+     "exactitud_cerrada": 0.7916666666666666,
+     "exactitud_abierta": 0.5208333333333334,
+     "cobertura_conocidas": 0.6666666666666666,
+     "por_clase_cerrada": {
+      "BPSK": 0.84375,
+      "QPSK": 0.75,
+      "8PSK": 0.84375,
+      "16QAM": 0.59375,
+      "64QAM": 0.90625,
+      "4PAM": 0.8125
+     },
+     "f1_macro_cerrada": 0.7909821424471667,
+     "rechazo_desconocidas": 0.515625,
+     "falsa_aceptacion": 0.01953125,
+     "auroc_desconocidas": 0.8391316731770834,
+     "conocidas_rechazadas_al_95": 0.4583333333333333,
+     "ece": 0.05249560298473916
+    },
+    "tiempo_s_mediana": 0.44100150000303984,
+    "tiempo_s_p95": 0.5658938650085472,
+    "detectadas": 1.0,
+    "snr_5": {
+     "n": 112,
+     "exactitud_cerrada": 0.5,
+     "exactitud_abierta": 0.2916666666666667,
+     "cobertura_conocidas": 0.5208333333333334,
+     "por_clase_cerrada": {
+      "BPSK": 0.625,
+      "QPSK": 0.75,
+      "8PSK": 0.5,
+      "16QAM": 0.375,
+      "64QAM": 0.375,
+      "4PAM": 0.375
+     },
+     "f1_macro_cerrada": 0.510207336523126,
+     "rechazo_desconocidas": 0.390625,
+     "falsa_aceptacion": 0.03125,
+     "auroc_desconocidas": 0.6643880208333334,
+     "conocidas_rechazadas_al_95": 0.6666666666666666,
+     "ece": 0.07848085529416098
+    },
+    "snr_10": {
+     "n": 112,
+     "exactitud_cerrada": 0.7083333333333334,
+     "exactitud_abierta": 0.375,
+     "cobertura_conocidas": 0.5625,
+     "por_clase_cerrada": {
+      "BPSK": 0.875,
+      "QPSK": 0.5,
+      "8PSK": 0.75,
+      "16QAM": 0.625,
+      "64QAM": 0.75,
+      "4PAM": 0.75
+     },
+     "f1_macro_cerrada": 0.7061041083099907,
+     "rechazo_desconocidas": 0.453125,
+     "falsa_aceptacion": 0.03125,
+     "auroc_desconocidas": 0.76171875,
+     "conocidas_rechazadas_al_95": 0.625,
+     "ece": 0.08954363724653125
+    },
+    "snr_15": {
+     "n": 112,
+     "exactitud_cerrada": 0.8125,
+     "exactitud_abierta": 0.6041666666666666,
+     "cobertura_conocidas": 0.6875,
+     "por_clase_cerrada": {
+      "BPSK": 0.875,
+      "QPSK": 1.0,
+      "8PSK": 1.0,
+      "16QAM": 0.375,
+      "64QAM": 0.875,
+      "4PAM": 0.75
+     },
+     "f1_macro_cerrada": 0.8032837776258828,
+     "rechazo_desconocidas": 0.46875,
+     "falsa_aceptacion": 0.0,
+     "auroc_desconocidas": 0.8626302083333334,
+     "conocidas_rechazadas_al_95": 0.375,
+     "ece": 0.07111892948283345
+    },
+    "snr_20": {
+     "n": 112,
+     "exactitud_cerrada": 0.8125,
+     "exactitud_abierta": 0.5,
+     "cobertura_conocidas": 0.625,
+     "por_clase_cerrada": {
+      "BPSK": 0.75,
+      "QPSK": 0.625,
+      "8PSK": 0.875,
+      "16QAM": 0.625,
+      "64QAM": 1.0,
+      "4PAM": 1.0
+     },
+     "f1_macro_cerrada": 0.8078722447143499,
+     "rechazo_desconocidas": 0.515625,
+     "falsa_aceptacion": 0.03125,
+     "auroc_desconocidas": 0.8714192708333334,
+     "conocidas_rechazadas_al_95": 0.3958333333333333,
+     "ece": 0.09212974565531658
+    },
+    "snr_30": {
+     "n": 112,
+     "exactitud_cerrada": 0.8333333333333334,
+     "exactitud_abierta": 0.6041666666666666,
+     "cobertura_conocidas": 0.7916666666666666,
+     "por_clase_cerrada": {
+      "BPSK": 0.875,
+      "QPSK": 0.875,
+      "8PSK": 0.75,
+      "16QAM": 0.75,
+      "64QAM": 1.0,
+      "4PAM": 0.75
+     },
+     "f1_macro_cerrada": 0.8345969089390142,
+     "rechazo_desconocidas": 0.625,
+     "falsa_aceptacion": 0.015625,
+     "auroc_desconocidas": 0.85546875,
+     "conocidas_rechazadas_al_95": 0.375,
+     "ece": 0.07964957811410761
+    }
+   },
+   "confusion": {
+    "columnas": [
+     "BPSK",
+     "QPSK",
+     "8PSK",
+     "16QAM",
+     "64QAM",
+     "4PAM",
+     "DESCONOCIDA",
+     "INDETERMINADA"
+    ],
+    "filas": {
+     "BPSK": [
+      28,
+      0,
+      1,
+      0,
+      0,
+      1,
+      2,
+      8
+     ],
+     "QPSK": [
+      0,
+      27,
+      0,
+      0,
+      0,
+      0,
+      5,
+      8
+     ],
+     "8PSK": [
+      0,
+      0,
+      13,
+      0,
+      0,
+      0,
+      5,
+      22
+     ],
+     "16QAM": [
+      0,
+      0,
+      0,
+      17,
+      0,
+      0,
+      6,
+      17
+     ],
+     "64QAM": [
+      0,
+      0,
+      0,
+      0,
+      9,
+      0,
+      9,
+      22
+     ],
+     "4PAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      20,
+      10,
+      10
+     ],
+     "32QAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      21,
+      19
+     ],
+     "128QAM": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      31
+     ],
+     "16APSK": [
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      23,
+      15
+     ],
+     "32APSK": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      28,
+      12
+     ],
+     "12PSK": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      6,
+      33
+     ],
+     "8QAM_ESTRELLA": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      12,
+      24
+     ],
+     "ARB_A": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      32,
+      8
+     ],
+     "ARB_B": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      26,
+      14
+     ]
+    }
+   },
+   "svm_referencia": {
+    "exactitud_cerrada": 0.48333333333333334,
+    "snr_ge_10": 0.515625,
+    "sps_8_snr_ge_10": 0.5714285714285714
+   },
+   "tasa_correcta": 0.9482142857142857
+  }
+ },
+ "extension_catalogo_16APSK": {
+  "n": 24,
+  "antes": {
+   "INDETERMINADA": 7,
+   "DESCONOCIDA": 17
+  },
+  "despues": {
+   "16APSK": 24
+  },
+  "reconocida_antes": 0.0,
+  "reconocida_despues": 1.0
+ }
+}
