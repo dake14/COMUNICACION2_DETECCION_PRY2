@@ -74,6 +74,20 @@ def test_inscribir_sin_reajustar_pca():
     assert d.decidir(_nube(rng, nueva, 1))["modulacion"] == "C"
 
 
+def test_inscribir_despues_de_calibrar():
+    rng = np.random.default_rng(4)
+    d, c = _decisor(rng)
+    raro = np.array([-4, 4, -4, 4, -4, 4.0])
+    z = np.vstack([_nube(rng, c["A"], 50), _nube(rng, c["B"], 50), _nube(rng, raro, 50)])
+    calidad = rng.normal(size=(150, 3))
+    d.calibrar(z, ["A"] * 50 + ["B"] * 50 + [DESCONOCIDA] * 50, calidad)
+    nueva = np.array([0, 0, 3.0, 0, 0, 0])
+    d.inscribir("C", _nube(rng, nueva))
+    p = d.probabilidades(_nube(rng, nueva, 1), calidad[:1])
+    assert p.shape == (1, 4) and np.isclose(p.sum(), 1.0)
+    assert p[0, :-1].argmax() == d.nombres.index("C")
+
+
 def test_detector_ciego_y_snr():
     rng = np.random.default_rng(3)
     ruido = rng.normal(size=4096) + 1j * rng.normal(size=4096)

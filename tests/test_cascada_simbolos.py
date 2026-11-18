@@ -2,9 +2,11 @@ import numpy as np
 
 from src.cascada import geometria as g
 from src.cascada.autofoco import autofoco, entropia
+from src.cascada import cadena
 from src.cascada.cadena import enfocar
 from src.cascada.clasica import modos_constelacion, simbolos_clasicos, simbolos_sin_ecualizar
 from src.cascada.evaluacion import evm_ciego
+from src.cascada.normalizador import Hipotesis
 from src.cascada.sintesis import Condicion, transmitir
 
 
@@ -42,6 +44,14 @@ def test_cma_mejora_multitrayecto():
     sin, _, _ = autofoco(simbolos_sin_ecualizar(r["iq"]))
     con, _, _ = autofoco(simbolos_clasicos(r["iq"]))
     assert evm_ciego(con[300:], g.psk(4)) < evm_ciego(sin[300:], g.psk(4))
+
+
+def test_recuperar_usa_la_linea_ciclica_mas_fuerte(monkeypatch):
+    r = _recibir(g.psk(4), Condicion(snr_db=25.0), 8)
+    debil = Hipotesis(r["iq"], 5.0, 0.1, 0.0)
+    fuerte = Hipotesis(r["iq"], 8.0, 0.9, 0.0)
+    monkeypatch.setattr(cadena, "normalizar", lambda iq, sps=None: [debil, fuerte])
+    assert cadena.recuperar(r["iq"], "directa")["sps_origen"] == 8.0
 
 
 def test_modos_encuentran_el_alfabeto():

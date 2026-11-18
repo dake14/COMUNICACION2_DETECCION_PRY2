@@ -4,7 +4,8 @@ from pathlib import Path
 import joblib
 import numpy as np
 
-from src.cascada.cadena import recuperar
+from src.cascada.autofoco import entropia
+from src.cascada.cadena import MAX_ENTROPIA, recuperar
 from src.cascada.decisor import INDETERMINADA
 from src.cascada.descriptor import calcular_huellas, cargar_descriptor, imagen_densidad
 from src.cascada.detector import detectar_ciego, snr_ciega_db
@@ -39,6 +40,11 @@ def huella_de_simbolos(simbolos, paquete):
     return calcular_huellas(paquete["descriptor"], imagen_densidad(simbolos)[None])
 
 
+def calidad_de(recuperada, snr):
+    """Rasgos de calidad de la recuperación: entropía, nitidez y SNR ciega."""
+    return np.array([[entropia(recuperada["simbolos"][:MAX_ENTROPIA]), recuperada["nitidez"], float(snr)]])
+
+
 def analizar_cascada(iq, paquete, sps=None):
     x = np.asarray(iq, dtype=np.complex128).ravel()
     if len(x) < MIN_MUESTRAS:
@@ -51,7 +57,7 @@ def analizar_cascada(iq, paquete, sps=None):
     if r is None:
         return _indeterminada("tasa_no_identificada", deteccion, snr)
     z, g = huella_de_simbolos(r["simbolos"], paquete)
-    decision = paquete["decisor"].decidir(z)
+    decision = paquete["decisor"].decidir(z, calidad_de(r, snr))
     return {**decision, "estado": "clasificada", "deteccion": deteccion, "snr_ciega_db": snr,
             "descripcion": {"puntos_aprox": int(round(2 ** float(g[0, 0] * 7))),
                             "anillos_aprox": max(1, int(round(float(g[0, 1] * 6))))},

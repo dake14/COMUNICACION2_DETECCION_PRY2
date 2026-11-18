@@ -51,16 +51,14 @@ def enfocar(iq8, cadena="red", recuperador=None, refinar=True):
 
 
 def recuperar(iq, cadena="red", recuperador=None, sps=None):
-    """Prueba cada hipótesis de tasa y conserva la constelación más nítida."""
-    mejor = None
-    for h in normalizar(iq, sps=sps):
+    """Usa la hipótesis de tasa con la línea cíclica más fuerte que dé símbolos suficientes."""
+    for h in sorted(normalizar(iq, sps=sps), key=lambda h: -h.puntaje):
         if len(h.iq) < MIN_SIMBOLOS * 8:
             continue
         salida = enfocar(h.iq, cadena, recuperador)
         if salida is None:
             continue
         z, df, nitidez, ruta = salida
-        if mejor is None or nitidez > mejor["nitidez"]:
-            mejor = {"simbolos": z, "df": df, "nitidez": nitidez, "sps_origen": h.sps_origen,
-                     "puntaje_tasa": h.puntaje, "cfo_grueso": h.cfo_grueso, "ruta": ruta}
-    return mejor
+        return {"simbolos": z, "df": df, "nitidez": nitidez, "sps_origen": h.sps_origen,
+                "puntaje_tasa": h.puntaje, "cfo_grueso": h.cfo_grueso, "ruta": ruta}
+    return None

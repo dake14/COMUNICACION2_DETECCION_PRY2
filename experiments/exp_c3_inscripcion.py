@@ -9,13 +9,15 @@ import torch
 from joblib import Parallel, delayed
 
 from experiments.comun_cascada import (DIR_MODELOS, RUTA_DESCRIPTOR, RUTA_PAQUETE, RUTA_RECUPERADOR,
-                                       conjunto_repo, fila_resultado, grupo_validacion, metricas)
+                                       conjunto_procedural, conjunto_repo, fila_resultado, grupo_validacion,
+                                       metricas)
 from experiments.exp_c2_descriptor import VISTAS, grupo
 from src.cascada import geometria as g
 from src.cascada.cadena import recuperar
 from src.cascada.decisor import Decisor
 from src.cascada.descriptor import calcular_huellas, cargar_descriptor, imagen_densidad
-from src.cascada.pipeline import analizar_cascada, cargar_paquete, guardar_paquete
+from src.cascada.detector import snr_ciega_db
+from src.cascada.pipeline import analizar_cascada, calidad_de, cargar_paquete, guardar_paquete
 from src.cascada.recuperador import cargar_recuperador
 
 _CACHE = {}
@@ -63,10 +65,12 @@ def huellas_de(imagenes):
 
 def huella_item(item, cadena):
     d, r = _piezas(cadena)
-    salida = recuperar(item["iq"], cadena, r)
+    x = np.asarray(item["iq"], dtype=np.complex128)
+    salida = recuperar(x, cadena, r)
     if salida is None:
         return None
-    return calcular_huellas(d, imagen_densidad(salida["simbolos"])[None])[0][0]
+    return (calcular_huellas(d, imagen_densidad(salida["simbolos"])[None])[0][0],
+            calidad_de(salida, snr_ciega_db(x))[0])
 
 
 def inscribir_modulacion(puntos, cadena, n_grupos, semilla):
@@ -101,19 +105,20 @@ def main():
     decisor = Decisor().ajustar(fondo, catalogo)
 
     grupo_val = grupo_validacion()
-    items = conjunto_repo(2026111830, grupo_val, por_caso=10)
-    z = Parallel(n_jobs=12)(delayed(huella_item)(it, a.cadena) for it in items)
-    validos = [(it, v) for it, v in zip(items, z) if v is not None]
-    z_val = np.stack([v for _, v in validos])
-    decisor.calibrar(z_val, [it["etiqueta"] for it, _ in validos])
-    print(json.dumps({"temperatura": decisor.temperatura, "previa_fondo": decisor.log_previa_fondo,
-                      "umbral": decisor.umbral, "dim_pca": int(decisor.pca.n_components_)}), flush=True)
+    items = (conjunto_repo(2026111830, grupo_val, por_caso=10) + conjunto_repo(2026111831, grupo_val, por_caso=4)
+             + conjunto_procedural(2026111833, 200, 1200))
+    salidas = Parallel(n_jobs=12)(delayed(huella_item)(it, a.cadena) for it in items)
+    validos = [(it, v) for it, v in zip(items, salidas) if v is not None]
+    decisor.calibrar(np.stack([v[0] for _, v in validos]), [it["etiqueta"] for it, _ in validos],
+                     np.stack([v[1] for _, v in validos]))
+    print(json.dumps({"temperatura": decisor.temperatura, "umbral": decisor.umbral,
+                      "archivos_calibracion": len(validos), "dim_pca": int(decisor.pca.n_components_)}), flush=True)
     guardar_paquete(salida, decisor, a.cadena,
                     RUTA_RECUPERADOR.name if a.cadena in USAN_RED else None, RUTA_DESCRIPTOR.name,
                     {"vistas_por_geometria": VISTAS})
 
     nombres = list(g.catalogo())
-    items_ind = conjunto_repo(2026111831, grupo_val, por_caso=4)
+    items_ind = conjunto_repo(2026111832, grupo_val, por_caso=10)
     resultados = Parallel(n_jobs=12)(delayed(analizar_item)(it, salida, a.cadena) for it in items_ind)
     filas = [fila_resultado(it, r, nombres) for it, r in zip(items_ind, resultados)]
     resumen = {"todas": metricas(filas, nombres)}

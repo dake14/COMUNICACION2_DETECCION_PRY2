@@ -6,6 +6,7 @@ import numpy as np
 
 from src.cascada import geometria as g
 from src.cascada.decisor import DESCONOCIDA, INDETERMINADA
+from src.cascada.sintesis import condicion_aleatoria, transmitir
 from src.channels import add_awgn, apply_carrier_impairments, apply_multipath
 from src.waveform import pulse_shape
 
@@ -47,6 +48,21 @@ def conjunto_repo(semilla, nombres_puntos, por_caso, snrs=(0, 5, 10, 15, 20, 30)
                 cfo = float(rng.uniform(-0.0125, 0.0125)) * 8 / sps
                 iq = transmitir_repo(puntos, n, rng, snr, sps, float(rng.choice([0.25, 0.35, 0.5])), taps, cfo)
                 items.append({"iq": iq, "real": nombre, "etiqueta": etiqueta, "snr": snr, "sps": sps})
+    return items
+
+
+def conjunto_procedural(semilla, por_clase, desconocidas):
+    """Catálogo y geometrías aleatorias con el generador de entrenamiento y tasa desconocida."""
+    rng = np.random.default_rng(semilla)
+    planes = [(k, v, k) for k, v in g.catalogo().items() for _ in range(por_clase)]
+    planes += [("ALEATORIA", None, DESCONOCIDA)] * desconocidas
+    items = []
+    for real, puntos, etiqueta in planes:
+        p = puntos if puntos is not None else g.geometria_aleatoria(rng)
+        sps = float(rng.choice([4.0, 8.0, 10.0, 5.3, 6.0, 12.0]))
+        cond = condicion_aleatoria(rng, snr_rango=(0.0, 30.0), cfo_max=0.008, prob_canal=0.6)
+        iq = transmitir(p, int(rng.choice([512, 1024, 2048])), cond, rng, sps_salida=sps)["iq"]
+        items.append({"iq": iq, "real": real, "etiqueta": etiqueta, "snr": cond.snr_db, "sps": sps})
     return items
 
 

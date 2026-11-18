@@ -2,10 +2,14 @@
 import numpy as np
 from scipy.special import logsumexp
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
 from sklearn.mixture import GaussianMixture
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 DESCONOCIDA = "DESCONOCIDA"
 INDETERMINADA = "INDETERMINADA"
+N_CALIDAD = 3
 
 
 class Decisor:
@@ -16,8 +20,9 @@ class Decisor:
         self.semilla = semilla
         self.modelos = {}
         self.temperatura = 1.0
-        self.log_previa_fondo = 0.0
         self.umbral = 0.5
+        self.puerta = None
+        self.calidad_tipica = np.zeros(N_CALIDAD)
 
     def _mezcla(self, z, k):
         k = max(1, min(k, len(z) // (self.pca.n_components_ + 2)))
@@ -51,30 +56,53 @@ class Decisor:
         return np.column_stack([*(m.score_samples(v) for m in self.modelos.values()),
                                 self.fondo.score_samples(v)])
 
-    def _posterior(self, l, temperatura, previa_fondo):
-        previa = np.zeros(l.shape[1])
-        previa[-1] = previa_fondo
-        a = l / temperatura + previa
+    @staticmethod
+    def _softmax(a):
         return np.exp(a - logsumexp(a, axis=1, keepdims=True))
 
-    def probabilidades(self, z):
-        return self._posterior(self._verosimilitudes(z), self.temperatura, self.log_previa_fondo)
+    def _cerrado(self, l, temperatura):
+        return self._softmax(l[:, :-1] / temperatura)
 
-    def calibrar(self, z, etiquetas, exactitud_objetivo=0.85):
-        """Ajusta temperatura, previa del fondo y umbral con datos de validación."""
+    def _rasgos(self, l, calidad):
+        """Rasgos que no dependen de cuántas modulaciones haya inscritas."""
+        orden = np.sort(l[:, :-1], axis=1)
+        mejor = orden[:, -1]
+        segundo = orden[:, -2] if orden.shape[1] > 1 else mejor
+        p = self._cerrado(l, self.temperatura)
+        h = -np.sum(p * np.log(np.maximum(p, 1e-12)), axis=1)
+        return np.c_[mejor - l[:, -1], mejor - segundo, h, mejor, l[:, -1], calidad]
+
+    def _calidad(self, n, calidad):
+        if calidad is None:
+            return np.tile(self.calidad_tipica, (n, 1))
+        return np.nan_to_num(np.atleast_2d(np.asarray(calidad, dtype=float)), posinf=100.0, neginf=-100.0)
+
+    def probabilidades(self, z, calidad=None):
+        l = self._verosimilitudes(z)
+        if self.puerta is None:
+            return self._softmax(l / self.temperatura)
+        p_fondo = self.puerta.predict_proba(self._rasgos(l, self._calidad(len(l), calidad)))[:, 1]
+        return np.c_[self._cerrado(l, self.temperatura) * (1 - p_fondo)[:, None], p_fondo]
+
+    def calibrar(self, z, etiquetas, calidad=None, exactitud_objetivo=0.85, C=1.0):
+        """Ajusta temperatura del catálogo, puerta de desconocidas y umbral."""
         l = self._verosimilitudes(z)
         nombres = self.nombres
         y = np.array([nombres.index(e) for e in etiquetas])
-        filas = np.arange(len(y))
-        mejor = (np.inf, 1.0, 0.0)
-        for t in np.geomspace(1, 200, 40):
-            for previa in np.linspace(-6, 6, 25):
-                p = self._posterior(l, t, previa)
-                nll = -np.mean(np.log(np.maximum(p[filas, y], 1e-12)))
-                if nll < mejor[0]:
-                    mejor = (nll, float(t), float(previa))
-        _, self.temperatura, self.log_previa_fondo = mejor
-        p = self.probabilidades(z)
+        fondo = len(nombres) - 1
+        conocidas = y != fondo
+        filas = np.arange(conocidas.sum())
+        mejor = (np.inf, 1.0)
+        for t in np.geomspace(0.5, 100, 40):
+            nll = -np.mean(np.log(np.maximum(self._cerrado(l[conocidas], t)[filas, y[conocidas]], 1e-12)))
+            if nll < mejor[0]:
+                mejor = (nll, float(t))
+        self.temperatura = mejor[1]
+        q = self._calidad(len(l), calidad) if calidad is not None else np.zeros((len(l), N_CALIDAD))
+        self.calidad_tipica = np.median(q, axis=0)
+        self.puerta = make_pipeline(StandardScaler(), LogisticRegression(C=C, max_iter=4000)).fit(
+            self._rasgos(l, q), (y == fondo).astype(int))
+        p = self.probabilidades(z, q)
         confianza, acierto = p.max(1), p.argmax(1) == y
         self.umbral = 0.95
         for u in np.linspace(0.3, 0.95, 66):
@@ -84,8 +112,8 @@ class Decisor:
                 break
         return self
 
-    def decidir(self, z):
-        p = self.probabilidades(z)[0]
+    def decidir(self, z, calidad=None):
+        p = self.probabilidades(z, calidad)[0]
         k = int(p.argmax())
         nombre = self.nombres[k]
         confianza = float(p[k])
