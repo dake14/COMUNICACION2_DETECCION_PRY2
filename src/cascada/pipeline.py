@@ -42,7 +42,8 @@ def huella_de_simbolos(simbolos, paquete):
 
 def calidad_de(recuperada, snr):
     """Rasgos de calidad de la recuperación: entropía, nitidez y SNR ciega."""
-    return np.array([[entropia(recuperada["simbolos"][:MAX_ENTROPIA]), recuperada["nitidez"], float(snr)]])
+    snr = np.nan if snr is None else float(snr)
+    return np.array([[entropia(recuperada["simbolos"][:MAX_ENTROPIA]), recuperada["nitidez"], snr]])
 
 
 def analizar_cascada(iq, paquete, sps=None):
