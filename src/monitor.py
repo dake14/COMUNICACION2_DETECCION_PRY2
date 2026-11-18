@@ -362,6 +362,7 @@ def analyze_complete(
     gain=1.0,
     signal_metadata=None,
     plot_path=None,
+    classify=True,
 ):
     """Ejecuta el análisis completo de las cinco salidas obligatorias bajo contrato explícito."""
     warnings = []
@@ -381,9 +382,10 @@ def analyze_complete(
     else:
         fs_for_spectrum = None
         fs_source = "unspecified"
-        warnings.append(
-            "Frecuencia de muestreo no especificada; el espectro usa ciclos/muestra y el clasificador queda fuera de alcance."
-        )
+        if classify:
+            warnings.append(
+                "Frecuencia de muestreo no especificada; el espectro usa ciclos/muestra y el clasificador queda fuera de alcance."
+            )
 
     # 1. Detección de presencia multi-ventana controlada por archivo
     det_window_len = 256
@@ -512,7 +514,9 @@ def analyze_complete(
         "windows_evaluated": 0,
     }
 
-    if is_detected is False:
+    if not classify:
+        classification_out["status"] = "delegated"
+    elif is_detected is False:
         classification_out["modulation"] = "NO_SIGNAL"
         classification_out["status"] = "no_signal_detected"
         classification_out["confidence_status"] = "not_applicable_no_signal"
@@ -706,6 +710,9 @@ def main():
     parser.add_argument("--noise-ref", default=None, help="Ruta a archivo de ruido de referencia para calibrar detección y SNR")
     parser.add_argument("--threshold", type=float, default=None, help="Umbral manual opcional de energía (sin calibración estadística)")
     parser.add_argument("--gain", type=float, default=1.0, help="Ganancia declarada de captura para verificar compatibilidad con referencia")
+    parser.add_argument("--motor", choices=("svm", "cascada"), default="svm", help="Clasificador: SVM original o cascada independiente del generador")
+    parser.add_argument("--paquete", default=None, help="Paquete de modelos de la cascada")
+    parser.add_argument("--sps", type=float, default=None, help="Muestras por símbolo, si se conocen (solo cascada)")
 
     args = parser.parse_args()
 
@@ -745,7 +752,13 @@ def main():
             gain=gain_val,
             signal_metadata=sig_meta,
             plot_path=out_plot,
+            classify=args.motor == "svm",
         )
+        if args.motor == "cascada":
+            from src.cascada.pipeline import PAQUETE_DEFECTO, cargar_paquete, clasificacion_monitor
+
+            paquete = cargar_paquete(args.paquete or PAQUETE_DEFECTO)
+            res["classification"] = clasificacion_monitor(iq, res["detection"]["detected"], paquete, args.sps)
     except (FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(2)

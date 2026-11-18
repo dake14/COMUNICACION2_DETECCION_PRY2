@@ -21,7 +21,7 @@ def lote(semilla, n):
     entrada = np.empty((n, N_SIMBOLOS * 8), np.complex64)
     objetivo = np.empty((n, N_SIMBOLOS * 8), np.complex64)
     for i in range(n):
-        r = transmitir(geometria_aleatoria(rng), N_SIMBOLOS, condicion_aleatoria(rng), rng)
+        r = transmitir(geometria_aleatoria(rng), N_SIMBOLOS + 4, condicion_aleatoria(rng), rng)
         entrada[i], objetivo[i] = r["iq"][: N_SIMBOLOS * 8], r["limpia"][: N_SIMBOLOS * 8]
     return entrada, objetivo
 

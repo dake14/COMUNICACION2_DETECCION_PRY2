@@ -50,9 +50,9 @@ def main():
     semillas = np.random.SeedSequence(2026111800).generate_state(4000).tolist()
     tareas = [(n, s, r, b) for n in g.catalogo() for s in SPS for r in SNR for b in BETAS]
     tareas = tareas * 2
-    tasa = Parallel(n_jobs=12)(delayed(caso_tasa)(semillas[i], *t) for i, t in enumerate(tareas))
+    tasa = Parallel(n_jobs=6)(delayed(caso_tasa)(semillas[i], *t) for i, t in enumerate(tareas))
     t_evm = [(n, r, c) for n in g.catalogo() for r in (10, 20, 30) for c in (False, True)] * 8
-    evm = Parallel(n_jobs=12)(delayed(caso_evm)(semillas[2000 + i], *t) for i, t in enumerate(t_evm))
+    evm = Parallel(n_jobs=6)(delayed(caso_evm)(semillas[2000 + i], *t) for i, t in enumerate(t_evm))
 
     resumen = {"tasa_por_snr": {}, "tasa_por_sps": {}, "tasa_por_beta": {}, "evm": {}}
     for r in SNR:

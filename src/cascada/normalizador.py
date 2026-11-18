@@ -26,7 +26,7 @@ def _espectro_exceso(x):
     f, p = f[orden], p[orden]
     p = uniform_filter1d(p, max(3, nperseg // 64), mode="wrap")
     piso = np.percentile(p, 15)
-    return f, np.maximum(p - piso, 0.0)
+    return f, np.maximum(p - 1.35 * piso, 0.0)
 
 
 def _cfo_y_ancho(x):
@@ -40,6 +40,16 @@ def _cfo_y_ancho(x):
     mitad = exceso[dentro] > 0.25 * exceso[dentro].max()
     borde = f[dentro][mitad]
     return float(0.5 * (borde[0] + borde[-1])), float(max(alto - bajo, 1e-3))
+
+
+def _limitar_banda(x, ancho):
+    """Quita el ruido fuera de la banda ocupada antes de buscar líneas cíclicas."""
+    espectro = np.fft.fft(x)
+    f = np.abs(np.fft.fftfreq(len(x)))
+    corte = min(0.5, 0.6 * ancho)
+    transicion = max(0.1 * corte, 2.0 / len(x))
+    espectro *= np.clip((corte + transicion - f) / transicion, 0.0, 1.0)
+    return np.fft.ifft(espectro)
 
 
 def _lineas_ciclicas(x):
@@ -57,7 +67,7 @@ def _lineas_ciclicas(x):
 
 
 def _candidatos(x, ancho, maximo):
-    f, s = _lineas_ciclicas(x)
+    f, s = _lineas_ciclicas(_limitar_banda(x, ancho))
     validos = (f >= 1 / SPS_MAX) & (f <= 1 / SPS_MIN)
     picos, _ = find_peaks(np.where(validos, s, 0.0), distance=max(4, len(f) // 800))
     salida = []
