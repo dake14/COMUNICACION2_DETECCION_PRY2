@@ -42,12 +42,13 @@ def fila_tabla(r):
     detectada = r["deteccion"]["detectada"] if r.get("deteccion") else None
     modulacion = r["modulacion"] if detectada is not False else "NO_SIGNAL"
     snr = r.get("snr_ciega_db") if detectada else None
+    descripcion = (r.get("descripcion") or {}) if detectada is not False else {}
     return {"Señal": r["senal"], "Señal detectada": {True: "Sí", False: "No", None: "Indeterminada"}[detectada],
             "SNR estimada (dB)": "" if snr is None else round(snr, 1), "Modulación estimada": modulacion,
             "Confianza": "" if r["confianza"] is None or detectada is False else round(r["confianza"], 3),
             "Grupo": r.get("grupo") or "",
-            "Puntos aprox.": (r.get("descripcion") or {}).get("puntos_aprox", ""),
-            "Anillos aprox.": (r.get("descripcion") or {}).get("anillos_aprox", "")}
+            "Puntos aprox.": descripcion.get("puntos_aprox", ""),
+            "Anillos aprox.": descripcion.get("anillos_aprox", "")}
 
 
 def main():

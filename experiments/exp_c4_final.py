@@ -1,6 +1,7 @@
 """H5: evaluación final, una sola ejecución, con generadores no usados."""
 import hashlib
 import json
+import time
 from collections import Counter
 from pathlib import Path
 
@@ -35,7 +36,16 @@ def analizar(item, ruta=RUTA_PAQUETE):
     if "p" not in _P:
         torch.set_num_threads(1)
         _P["p"] = cargar_paquete(ruta)
-    return analizar_cascada(item["iq"], _P["p"])
+    inicio = time.perf_counter()
+    r = analizar_cascada(item["iq"], _P["p"])
+    r["tiempo_s"] = time.perf_counter() - inicio
+    return r
+
+
+def fila_final(item, r):
+    deteccion = r.get("deteccion") or {}
+    return {**fila_resultado(item, r, NOMBRES), "n_simbolos": item["n_simbolos"], "tiempo_s": r["tiempo_s"],
+            "detectada": deteccion.get("detectada"), "archivo": item["archivo"]}
 
 
 def entrenar_svm(semilla=2026111840):
@@ -64,7 +74,12 @@ def svm_archivo(modelo, item):
 
 
 def resumir(filas):
-    salida = {"todas": metricas(filas, NOMBRES), "snr_ge_10": metricas([f for f in filas if f["snr"] >= 10], NOMBRES)}
+    meta = [f for f in filas if f["snr"] >= 10 and f["n_simbolos"] >= 512]
+    tiempos = [f["tiempo_s"] for f in filas if f["n_simbolos"] >= 512]
+    salida = {"todas": metricas(filas, NOMBRES), "snr_ge_10": metricas([f for f in filas if f["snr"] >= 10], NOMBRES),
+              "meta_snr_ge_10_y_512_simbolos": metricas(meta, NOMBRES),
+              "tiempo_s_mediana": float(np.median(tiempos)), "tiempo_s_p95": float(np.percentile(tiempos, 95)),
+              "detectadas": float(np.mean([f["detectada"] is True or f["detectada"] == 1 for f in filas]))}
     for s in sorted({f["snr"] for f in filas}):
         salida[f"snr_{s}"] = metricas([f for f in filas if f["snr"] == s], NOMBRES)
     return salida
@@ -102,7 +117,7 @@ def main():
     for generador in ("gnuradio", "independiente"):
         items = cargar_items(generador)
         salidas = Parallel(n_jobs=12)(delayed(analizar)(it) for it in items)
-        filas = [fila_resultado(it, r, NOMBRES) for it, r in zip(items, salidas)]
+        filas = [fila_final(it, r) for it, r in zip(items, salidas)]
         conocidos = [it for it in items if it["etiqueta"] in NOMBRES]
         predicciones = [svm_archivo(svm, it) for it in conocidos]
         aciertos = [p == it["etiqueta"] for p, it in zip(predicciones, conocidos)]
@@ -117,7 +132,8 @@ def main():
         (SALIDA / f"filas_{generador}.json").write_text(json.dumps(filas, default=float), encoding="utf-8")
     resultado["extension_catalogo_16APSK"] = extension_catalogo(paquete["cadena"])
     (SALIDA / "metricas.json").write_text(json.dumps(resultado, indent=1, default=float), encoding="utf-8")
-    print(json.dumps({k: {"cascada_ge10": v["cascada"]["snr_ge_10"], "svm": v["svm_referencia"], "tasa": v["tasa_correcta"]}
+    print(json.dumps({k: {"cascada_meta": v["cascada"]["meta_snr_ge_10_y_512_simbolos"], "svm": v["svm_referencia"],
+                          "tasa": v["tasa_correcta"], "tiempo_s_p95": v["cascada"]["tiempo_s_p95"]}
                       for k, v in resultado["generadores"].items()}, indent=1, default=float))
     print(json.dumps(resultado["extension_catalogo_16APSK"], indent=1))
 

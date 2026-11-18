@@ -92,6 +92,8 @@ def metricas(filas, nombres_catalogo):
         y = np.array([0] * len(conocidas) + [1] * len(desconocidas))
         s = np.array([f["p_desconocida"] for f in conocidas + desconocidas])
         salida["auroc_desconocidas"] = auroc(y, s)
+        corte = np.percentile(s[y == 1], 5)
+        salida["conocidas_rechazadas_al_95"] = float(np.mean(s[y == 0] >= corte))
     decididas = [f for f in filas if f["confianza"] is not None]
     if decididas:
         salida["ece"] = ece([f["confianza"] for f in decididas],

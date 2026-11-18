@@ -37,6 +37,8 @@ def _cfo_y_ancho(x):
     acumulado = np.cumsum(exceso) / total
     bajo, alto = np.interp([0.02, 0.98], acumulado, f)
     dentro = (f >= bajo) & (f <= alto)
+    if not exceso[dentro].any():
+        dentro = exceso > 0
     mitad = exceso[dentro] > 0.25 * exceso[dentro].max()
     borde = f[dentro][mitad]
     return float(0.5 * (borde[0] + borde[-1])), float(max(alto - bajo, 1e-3))

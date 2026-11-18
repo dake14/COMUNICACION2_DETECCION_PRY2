@@ -31,6 +31,12 @@ def test_invariante_a_escala():
     assert np.allclose(a.iq, b.iq, atol=1e-4)
 
 
+@pytest.mark.parametrize("semilla", range(12))
+def test_ruido_puro_no_rompe_el_normalizador(semilla):
+    rng = np.random.default_rng(semilla)
+    assert normalizar(rng.normal(size=8192) + 1j * rng.normal(size=8192))
+
+
 def test_tasa_forzada():
     rng = np.random.default_rng(7)
     iq = transmitir(g.psk(4), 400, Condicion(snr_db=10.0), rng, sps_salida=4)["iq"]

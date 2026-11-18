@@ -1,0 +1,8 @@
+{
+ "puntajes": {
+  "clasica": 0.6125,
+  "mixta": 0.6927083333333333
+ },
+ "ventaja_minima": 0.01,
+ "cadena": "mixta"
+}
