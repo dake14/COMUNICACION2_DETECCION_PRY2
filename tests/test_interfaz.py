@@ -144,6 +144,16 @@ def test_el_motor_integrado_consulta_al_especialista_de_constelacion():
 
 
 @pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")
+def test_una_constelacion_que_no_cabe_sube_la_desconocida():
+    paquete = Modelos().obtener("integrado")
+    assert "consistencia" in paquete and "8PSK" in paquete["plantillas"]
+    limpia = analizar_senal(senal("8PSK", n=4096), paquete)["decision"]
+    assert limpia["modulacion"] == "8PSK" and limpia["no_cabe_en"] == []
+    rara = analizar_senal(senal("12PSK", n=4096), paquete)["decision"]
+    assert rara["no_cabe_en"] and rara["modulacion"] in ("DESCONOCIDA", "INDETERMINADA")
+
+
+@pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")
 def test_el_motor_integrado_avisa_de_las_senales_identicas():
     d = analizar_senal(senal("QPSK"), Modelos().obtener("integrado"))
     assert d["decision"]["modulacion"] == "QPSK" and d["decision"]["misma_senal_que"] == ["DQPSK"]

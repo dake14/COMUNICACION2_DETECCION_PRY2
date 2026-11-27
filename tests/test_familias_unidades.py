@@ -151,3 +151,63 @@ def test_las_vistas_de_constelacion_ven_cada_nivel():
 def test_las_vistas_no_fallan_con_entradas_invalidas(x):
     from src.familias.detalle import vistas_constelacion
     assert not vistas_constelacion(x).any()
+
+
+def test_una_clase_que_no_cabe_cede_su_masa_a_desconocida():
+    from src.familias.integracion import fusionar
+    base = fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2)["probabilidades"]
+    p = fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2, consistentes={"QPSK": 0.0, "2FSK": 0.0})
+    esperado = {"BPSK": 0.12, "QPSK": 0.0, "16QAM": 0.24, "2FSK": 0.05, "4FSK": 0.05, "DESCONOCIDA": 0.54}
+    assert p["probabilidades"] == pytest.approx(esperado, abs=1e-12)
+    medio = fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2, consistentes={"QPSK": 0.5})["probabilidades"]
+    assert medio["QPSK"] == pytest.approx(0.18) and medio["DESCONOCIDA"] == pytest.approx(0.36)
+    assert fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2, consistentes={})["probabilidades"] == base
+    for peso in (1.5, -0.1, float("nan")):
+        with pytest.raises(ValueError):
+            fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2, consistentes={"BPSK": peso})
+
+
+def _sintetica(puntos, snr, rng, n=2048):
+    puntos = puntos / np.sqrt(np.mean(np.abs(puntos) ** 2))
+    s = puntos[rng.integers(0, len(puntos), n)] * 1.7 * np.exp(0.3j)
+    return s + (rng.normal(size=n) + 1j * rng.normal(size=n)) * 1.7 * np.sqrt(10 ** (-snr / 10) / 2)
+
+
+def test_el_ajuste_distingue_una_constelacion_parecida():
+    from src.cascada import geometria as g
+    from src.familias.ajuste import ajuste_plantilla, error_libre, preparar
+    rng = np.random.default_rng(0)
+
+    def razon_y_ocupacion(puntos, plantilla, snr=25):
+        s = preparar(_sintetica(puntos, snr, rng))
+        e, o = ajuste_plantilla(s, plantilla)
+        return np.log(e / error_libre(s)), o
+
+    r, o = razon_y_ocupacion(g.qam(16), g.qam(16))
+    assert r < 1.5 and o > 0.9 and razon_y_ocupacion(g.qam(16), g.psk(8))[0] > 3.5
+    assert razon_y_ocupacion(g.psk(12), g.psk(8))[0] > 3.0 and razon_y_ocupacion(g.psk(8), g.psk(8))[0] < 2.2
+    assert razon_y_ocupacion(g.qam(256), g.qam(256), 30)[1] > 0.9
+    assert razon_y_ocupacion(g.qam_cruz(12, 2), g.qam(256), 30)[1] < 0.8
+
+
+@pytest.mark.parametrize("x", [None, np.ones(100), np.full(500, np.nan + 0j), np.zeros(500, complex)])
+def test_el_ajuste_no_mide_capturas_inservibles(x):
+    from src.familias.ajuste import medir
+    assert medir(x, {"BPSK": np.array([1, -1])}) is None
+
+
+def test_la_consistencia_usa_umbrales_de_cada_clase():
+    from src.familias.ajuste import Consistencia
+    a = [{"libre": 1.0, "plantillas": {"A": {"error": np.exp(k / 2), "ocupacion": 1 - k / 100}}} for k in range(20)]
+    b = [{"libre": 1.0, "plantillas": {"A": {"error": 1.0, "ocupacion": 1.0}, "B": {"error": 1.0, "ocupacion": 1.0}}}
+         for _ in range(5)]
+    c = Consistencia(0.1).ajustar(a + b, ["A"] * 20 + ["B"] * 5)
+    k = np.arange(20)
+    assert c.umbrales == {"A": {"razon": pytest.approx(np.quantile(k / 2, 0.9)),
+                                "ocupacion": pytest.approx(np.quantile(1 - k / 100, 0.1))}}
+    assert c.consistentes(None) == {"A": True}
+    assert c.consistentes({"libre": 1.0, "plantillas": {"A": {"error": np.exp(100), "ocupacion": 1.0}}}) == {"A": False}
+    with pytest.raises(ValueError):
+        Consistencia(0.6)
+    with pytest.raises(ValueError):
+        Consistencia().ajustar(a, ["A"])

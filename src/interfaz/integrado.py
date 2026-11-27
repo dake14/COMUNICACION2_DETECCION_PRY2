@@ -3,6 +3,7 @@ import numpy as np
 import torch
 
 from src.cascada.pipeline import calidad_de, huella_de_simbolos
+from src.familias.ajuste import medir
 from src.familias.conforme import salida_final
 from src.familias.detalle import vistas_constelacion
 from src.familias.especialistas import log_probabilidades
@@ -30,6 +31,21 @@ def _p_especialista(r, paquete):
     modelo, clases = paquete["especialista_modelo"]
     vista = vistas_constelacion(np.asarray(r["simbolos"])[:MAX_SIMBOLOS_ESPECIALISTA])[None]
     return dict(zip(clases, np.exp(log_probabilidades(modelo, vista)[0]).tolist()))
+
+
+def _consistentes(r, paquete):
+    if r is None or "consistencia" not in paquete:
+        return None
+    medicion = medir(r["simbolos"], paquete["plantillas"])
+    peso = float(paquete["peso_inconsistente"])
+    return {c: (1.0 if ok else peso) for c, ok in paquete["consistencia"].consistentes(medicion).items()}
+
+
+def _no_caben(previas, consistentes, n=3):
+    if not consistentes:
+        return []
+    candidatas = sorted((c for c in previas if c in consistentes), key=lambda c: -previas[c])[:n]
+    return [c for c in candidatas if consistentes[c] < 1.0 and previas[c] >= 0.05]
 
 
 def _tonos(x):
@@ -74,14 +90,17 @@ def salida_integrada(x, r, snr, paquete):
     tonos = _tonos(x) if paquete.get("con_tonos", True) else None
     fiable = tonos is not None and tonos["puntaje"] >= paquete.get("puntaje_tonos", 0.8)
     p_especialista = _p_especialista(r, paquete)
-    fusion = fusionar(analisis["familias"], analisis["clases"], p_decisor, paquete["familia_de"],
-                      tonos["tonos"] if fiable else None, grupos=paquete.get("grupos") if p_especialista else None,
-                      p_especialista=p_especialista)
+    argumentos = (analisis["familias"], analisis["clases"], p_decisor, paquete["familia_de"],
+                  tonos["tonos"] if fiable else None)
+    opciones = {"grupos": paquete.get("grupos") if p_especialista else None, "p_especialista": p_especialista}
+    consistentes = _consistentes(r, paquete)
+    fusion = fusionar(*argumentos, **opciones, consistentes=consistentes)
+    previas = fusionar(*argumentos, **opciones)["probabilidades"] if consistentes else {}
     umbral = float(paquete["decisor"].umbral)
     decision = _decision(fusion["probabilidades"], umbral, paquete)
     probabilidades = sorted(({"nombre": n, "valor": round(float(v), 4)} for n, v in fusion["probabilidades"].items()),
                             key=lambda p: -p["valor"])
-    return {"decision": {**decision, "umbral": round(umbral, 3)},
+    return {"decision": {**decision, "umbral": round(umbral, 3), "no_cabe_en": _no_caben(previas, consistentes)},
             "probabilidades": probabilidades,
             "enrutador": _enrutador(analisis, fusion["rama"], tonos, fiable, p_especialista,
                                     paquete.get("grupos") or ())}, huella

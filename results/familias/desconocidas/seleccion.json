@@ -1,0 +1,235 @@
+{
+ "elegida": {
+  "beta": 0.02,
+  "peso": 0.5,
+  "desplazamiento": -1.6,
+  "umbral": 0.35,
+  "conocidas_correctas": 0.7027,
+  "conocidas_como_desconocidas": 0.0581,
+  "conocidas_indeterminadas": 0.0869,
+  "desconocidas_detectadas": 0.4431,
+  "desconocidas_no_aceptadas": 0.5936,
+  "n_conocidas": 2324,
+  "n_desconocidas": 1282,
+  "por_desconocida": {
+   "24QAM": 0.377,
+   "3FSK": 0.423,
+   "6PSK": 0.419,
+   "ANILLOS12": 0.537,
+   "HEX19": 0.465
+  },
+  "puntaje": 0.5729
+ },
+ "filas": [
+  {
+   "beta": null,
+   "peso": null,
+   "desplazamiento": -1.5,
+   "umbral": 0.36,
+   "conocidas_correctas": 0.7078,
+   "conocidas_como_desconocidas": 0.0478,
+   "conocidas_indeterminadas": 0.0981,
+   "desconocidas_detectadas": 0.3058,
+   "desconocidas_no_aceptadas": 0.4906,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.238,
+    "3FSK": 0.423,
+    "6PSK": 0.035,
+    "ANILLOS12": 0.455,
+    "HEX19": 0.385
+   },
+   "puntaje": 0.5068
+  },
+  {
+   "beta": 0.02,
+   "peso": 0.0,
+   "desplazamiento": -1.7,
+   "umbral": 0.36,
+   "conocidas_correctas": 0.6997,
+   "conocidas_como_desconocidas": 0.0529,
+   "conocidas_indeterminadas": 0.0981,
+   "desconocidas_detectadas": 0.4251,
+   "desconocidas_no_aceptadas": 0.5897,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.342,
+    "3FSK": 0.423,
+    "6PSK": 0.426,
+    "ANILLOS12": 0.525,
+    "HEX19": 0.415
+   },
+   "puntaje": 0.5624
+  },
+  {
+   "beta": 0.02,
+   "peso": 0.2,
+   "desplazamiento": -1.6,
+   "umbral": 0.36,
+   "conocidas_correctas": 0.6979,
+   "conocidas_como_desconocidas": 0.0581,
+   "conocidas_indeterminadas": 0.0985,
+   "desconocidas_detectadas": 0.4384,
+   "desconocidas_no_aceptadas": 0.5991,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.365,
+    "3FSK": 0.423,
+    "6PSK": 0.426,
+    "ANILLOS12": 0.533,
+    "HEX19": 0.45
+   },
+   "puntaje": 0.5681
+  },
+  {
+   "beta": 0.02,
+   "peso": 0.5,
+   "desplazamiento": -1.6,
+   "umbral": 0.35,
+   "conocidas_correctas": 0.7027,
+   "conocidas_como_desconocidas": 0.0581,
+   "conocidas_indeterminadas": 0.0869,
+   "desconocidas_detectadas": 0.4431,
+   "desconocidas_no_aceptadas": 0.5936,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.377,
+    "3FSK": 0.423,
+    "6PSK": 0.419,
+    "ANILLOS12": 0.537,
+    "HEX19": 0.465
+   },
+   "puntaje": 0.5729
+  },
+  {
+   "beta": 0.05,
+   "peso": 0.0,
+   "desplazamiento": -2.0,
+   "umbral": 0.38,
+   "conocidas_correctas": 0.6738,
+   "conocidas_como_desconocidas": 0.0813,
+   "conocidas_indeterminadas": 0.0998,
+   "desconocidas_detectadas": 0.4501,
+   "desconocidas_no_aceptadas": 0.624,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.362,
+    "3FSK": 0.431,
+    "6PSK": 0.477,
+    "ANILLOS12": 0.566,
+    "HEX19": 0.423
+   },
+   "puntaje": 0.5619
+  },
+  {
+   "beta": 0.05,
+   "peso": 0.2,
+   "desplazamiento": -2.0,
+   "umbral": 0.37,
+   "conocidas_correctas": 0.6777,
+   "conocidas_como_desconocidas": 0.0779,
+   "conocidas_indeterminadas": 0.0895,
+   "desconocidas_detectadas": 0.4485,
+   "desconocidas_no_aceptadas": 0.6154,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.365,
+    "3FSK": 0.427,
+    "6PSK": 0.477,
+    "ANILLOS12": 0.561,
+    "HEX19": 0.419
+   },
+   "puntaje": 0.5631
+  },
+  {
+   "beta": 0.05,
+   "peso": 0.5,
+   "desplazamiento": -2.0,
+   "umbral": 0.37,
+   "conocidas_correctas": 0.6799,
+   "conocidas_como_desconocidas": 0.0697,
+   "conocidas_indeterminadas": 0.0955,
+   "desconocidas_detectadas": 0.4353,
+   "desconocidas_no_aceptadas": 0.6131,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.346,
+    "3FSK": 0.423,
+    "6PSK": 0.453,
+    "ANILLOS12": 0.549,
+    "HEX19": 0.412
+   },
+   "puntaje": 0.5576
+  },
+  {
+   "beta": 0.1,
+   "peso": 0.0,
+   "desplazamiento": -2.0,
+   "umbral": 0.4,
+   "conocidas_correctas": 0.6398,
+   "conocidas_como_desconocidas": 0.139,
+   "conocidas_indeterminadas": 0.099,
+   "desconocidas_detectadas": 0.5101,
+   "desconocidas_no_aceptadas": 0.6739,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.45,
+    "3FSK": 0.45,
+    "6PSK": 0.527,
+    "ANILLOS12": 0.631,
+    "HEX19": 0.5
+   },
+   "puntaje": 0.575
+  },
+  {
+   "beta": 0.1,
+   "peso": 0.2,
+   "desplazamiento": -2.0,
+   "umbral": 0.39,
+   "conocidas_correctas": 0.6433,
+   "conocidas_como_desconocidas": 0.133,
+   "conocidas_indeterminadas": 0.0968,
+   "desconocidas_detectadas": 0.5055,
+   "desconocidas_no_aceptadas": 0.6685,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.442,
+    "3FSK": 0.442,
+    "6PSK": 0.523,
+    "ANILLOS12": 0.631,
+    "HEX19": 0.496
+   },
+   "puntaje": 0.5744
+  },
+  {
+   "beta": 0.1,
+   "peso": 0.5,
+   "desplazamiento": -2.0,
+   "umbral": 0.38,
+   "conocidas_correctas": 0.6454,
+   "conocidas_como_desconocidas": 0.1213,
+   "conocidas_indeterminadas": 0.0998,
+   "desconocidas_detectadas": 0.4945,
+   "desconocidas_no_aceptadas": 0.6552,
+   "n_conocidas": 2324,
+   "n_desconocidas": 1282,
+   "por_desconocida": {
+    "24QAM": 0.435,
+    "3FSK": 0.438,
+    "6PSK": 0.508,
+    "ANILLOS12": 0.623,
+    "HEX19": 0.477
+   },
+   "puntaje": 0.5699
+  }
+ ]
+}

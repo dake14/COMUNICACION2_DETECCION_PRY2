@@ -5,20 +5,22 @@ CONTRATO (unidad U10, cerrado):
 Dependencias permitidas (lista cerrada): numpy.
 
 - ``fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_conocidos=(2, 4), grupos=None,
-  p_especialista=None) -> dict``
+  p_especialista=None, consistentes=None) -> dict``
   - ``p_familias``: dict familia -> probabilidad (salida del enrutador). ``p_enrutador``: dict clase -> probabilidad
     (las clases del enrutador). ``p_decisor``: dict nombre -> probabilidad de ``Decisor.probabilidades`` (clases
     inscritas más ``"DESCONOCIDA"``), o ``None`` si la cascada no recuperó símbolos. ``familia_de``: dict clase ->
     familia. ``tonos``: int (conteo de ``analizar_fsk``) o ``None``. ``grupos``: lista de tuplas de familias que se
     tratan como un solo grupo (revisión: el especialista QAM+APSK decide también entre esas dos familias), o ``None``.
     ``p_especialista``: dict clase -> probabilidad del especialista de familia (solo las clases que cubre), o ``None``.
+    ``consistentes`` (revisión U10d): dict clase -> peso ``w`` en [0, 1] (1 = los símbolos caben en la constelación
+    de esa clase; ver ``src/familias/ajuste.py``), o ``None`` (todas 1). Una clase ausente del dict pesa 1.
   - Grupos efectivos: los de ``grupos`` en su orden, y luego cada familia de ``p_familias`` que no esté en ninguno,
     como grupo de una sola familia (en el orden de ``p_familias``). Una familia de un grupo que no esté en
     ``p_familias`` cuenta con probabilidad 0.
   - ``ValueError`` si ``p_familias`` está vacío, si alguna de sus claves no es un valor de ``familia_de``, o si falta
     en ``p_enrutador`` alguna clase de ``familia_de``. También si en ``grupos`` hay una familia que no es un valor de
     ``familia_de``, una familia repetida (en el mismo grupo o en dos), o un grupo de más de una familia que incluye
-    ``"frecuencia"``.
+    ``"frecuencia"``. También si algún peso de ``consistentes`` no es finito o está fuera de [0, 1].
   - ``p_fondo = float(p_decisor.get("DESCONOCIDA", 0.0))`` si ``p_decisor`` no es None; si no, 0.0.
   - Para cada grupo efectivo ``g``, con ``p_g`` = suma de ``p_familias.get(f, 0.0)`` para ``f`` en ``g`` y
     ``clases`` = las claves de ``familia_de`` cuya familia está en ``g`` (en el orden de ``familia_de``):
@@ -32,6 +34,10 @@ Dependencias permitidas (lista cerrada): numpy.
       el producto da 78,3 % en la partición de calibración.)
     - ``s = sum(q)``; si ``s <= 1e-12``, ``q`` uniforme (``1.0`` por clase) y ``s = len(clases)``.
     - ``P[c] += p_g * (1 - u) * q[c] / s`` para cada clase y ``P["DESCONOCIDA"] += p_g * u``.
+    - Revisión U10d: en los grupos que no son ``("frecuencia",)``, con ``w[c] = consistentes.get(c, 1.0)``, el
+      término de cada clase pasa a ``p_g * (1 - u) * q[c] * w[c] / s`` y la masa que pierde,
+      ``p_g * (1 - u) * q[c] * (1 - w[c]) / s``, se suma a ``P["DESCONOCIDA"]``. En el grupo de frecuencia
+      ``consistentes`` no se usa.
   - Devuelve ``{"probabilidades": P, "rama": rama}``. ``P``: dict con todas las clases de ``familia_de`` en su orden
     (0.0 las de familias ausentes de ``p_familias``) y ``"DESCONOCIDA"`` al final, todos ``float`` nativos.
     ``rama = "frecuencia"`` si la familia de mayor probabilidad en ``p_familias`` es ``"frecuencia"``, si no
@@ -61,6 +67,10 @@ Criterio de aceptación:
 9. Como el punto 1 con ese ``p_especialista`` y sin ``grupos``: BPSK 0.192, QPSK 0.288, 16QAM 0.24 (±1e-12).
 10. ``grupos`` con ``("fase", "frecuencia")``, con ``("otra",)`` o con ``[("fase",), ("fase", "qam")]`` lanzan
     ``ValueError``. ``grupos = [("frecuencia",)]`` da lo mismo que el punto 1.
+11. Como el punto 1 con ``consistentes = {"QPSK": 0.0, "2FSK": 0.0}``: BPSK 0.12, QPSK 0.0, 16QAM 0.24, 2FSK 0.05,
+    4FSK 0.05, DESCONOCIDA 0.54 (±1e-12); la suma es 1. Con ``{"QPSK": 0.5}``: QPSK 0.18, DESCONOCIDA 0.36.
+    ``consistentes = {}`` o con todos los pesos 1 da lo mismo que el punto 1.
+12. ``consistentes = {"BPSK": 1.5}``, ``{"BPSK": -0.1}`` o ``{"BPSK": float("nan")}`` lanzan ``ValueError``.
 """
 import numpy as np
 
@@ -68,7 +78,7 @@ DESCONOCIDA = "DESCONOCIDA"
 FRECUENCIA = "frecuencia"
 
 
-def _validar_fusion(p_familias, p_enrutador, familia_de, grupos=None):
+def _validar_fusion(p_familias, p_enrutador, familia_de, grupos=None, consistentes=None):
     if not p_familias:
         raise ValueError("p_familias no puede estar vacío")
     familias_validas = set(familia_de.values())
@@ -92,6 +102,15 @@ def _validar_fusion(p_familias, p_enrutador, familia_de, grupos=None):
                 if familia in vistas:
                     raise ValueError(f"Familia repetida en grupos: {familia!r}")
                 vistas.add(familia)
+
+    if consistentes is not None:
+        for clase, peso in consistentes.items():
+            try:
+                w = float(peso)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"Peso inválido en consistentes para {clase!r}: {peso!r}") from exc
+            if not np.isfinite(w) or w < 0.0 or w > 1.0:
+                raise ValueError(f"Peso fuera de [0, 1] o no finito en consistentes para {clase!r}: {peso!r}")
 
 
 def _grupos_efectivos(grupos, p_familias):
@@ -138,8 +157,8 @@ def _pesos_grupo(
 
 
 def fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_conocidos=(2, 4), grupos=None,
-             p_especialista=None):
-    _validar_fusion(p_familias, p_enrutador, familia_de, grupos=grupos)
+             p_especialista=None, consistentes=None):
+    _validar_fusion(p_familias, p_enrutador, familia_de, grupos=grupos, consistentes=consistentes)
 
     p_fondo = float(p_decisor.get(DESCONOCIDA, 0.0)) if p_decisor is not None else 0.0
     probabilidades = {clase: 0.0 for clase in familia_de}
@@ -161,8 +180,11 @@ def fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_c
             tonos_conocidos,
             p_especialista,
         )
+        es_frecuencia = grupo == (FRECUENCIA,)
         for clase, qc in zip(clases, q):
-            probabilidades[clase] = float(probabilidades[clase] + p_g * (1.0 - u) * qc / s)
+            w = 1.0 if (es_frecuencia or consistentes is None) else float(consistentes.get(clase, 1.0))
+            probabilidades[clase] = float(probabilidades[clase] + p_g * (1.0 - u) * qc * w / s)
+            probabilidades[DESCONOCIDA] = float(probabilidades[DESCONOCIDA] + p_g * (1.0 - u) * qc * (1.0 - w) / s)
         probabilidades[DESCONOCIDA] = float(probabilidades[DESCONOCIDA] + p_g * u)
 
     familia_top = max(p_familias, key=lambda fam: float(p_familias[fam]))

@@ -311,8 +311,88 @@ integración.
   - El especialista vota 16APSK con 89,5 %.
   - La fusión responde 16APSK con 95,2 %.
 
+## Etapa 5: desconocidas parecidas a una conocida (2026-11-27)
+
+`experiments/exp_f4_desconocidas.py` y `src/familias/ajuste.py` (U14, agy). Mediciones y selección en
+`results/familias/desconocidas/`.
+
+**La idea.** Antes de responder una clase, se comprueba que los símbolos recuperados caben en su constelación ideal.
+Es física pura y no se entrena con desconocidas.
+
+**Cómo se mide**, para cada clase de constelación (14 plantillas; PI4DQPSK se ve como 8PSK):
+- **Error contra la plantilla.**
+  - Se buscan el giro y la ganancia que mejor la ajustan: 48 giros más 3 pasos de mínimos cuadrados.
+  - El error se divide por el de un ajuste libre, k-means con 64 puntos. Así no hace falta conocer la SNR.
+  - Si los símbolos forman nubes apretadas que no caen sobre la plantilla, la razón se dispara. Es el caso de una
+    12PSK contra 8PSK.
+- **Ocupación.** Es el número efectivo de puntos de la plantilla que se usan (entropía de las cuentas). Una 128QAM
+  cae sobre parte de la rejilla de 256QAM y deja vacías las esquinas.
+
+**Dos intentos fallidos con el prototipo:**
+- Tomar «la plantilla que mejor ajusta» no sirve: la de 256QAM ajusta cualquier señal, y la plantilla correcta ganaba
+  solo el 8 % de las veces.
+- Comparar con un k-means del doble de puntos que la plantilla tampoco: BPSK y OOK «pasaban» con cualquier señal.
+
+**Calibración.**
+- Umbrales de cada clase:
+  - Salen de `digitales_entreno`: unos 400 archivos por clase a SNR ≥ 10 dB.
+  - Con los ~100 archivos de la partición de calibración, el cuantil del 2 % era ruidoso.
+  - Una clase no cabe si su razón supera el cuantil 1 − β de su propia clase, o su ocupación queda bajo el cuantil β.
+- Fusión:
+  - Una clase que no cabe conserva un peso w de su masa.
+  - El resto pasa a «Desconocida» (`fusionar(..., consistentes=...)`, revisión U10d, agy).
+- β y w:
+  - Se eligieron con la partición de calibración y la misma regla de la puerta: como mucho un 10 % de conocidas
+    marcadas desconocidas a SNR ≥ 10 dB.
+  - Quedaron β = 0,02 y w = 0,5. Con β = 0,1 se detectaba más, pero marcaba el 14 % de las conocidas.
+  - La puerta pasó a −1,6 y el umbral a 0,35.
+
+**Selección en la partición de calibración** (SNR ≥ 10 dB; desconocidas de validación):
+
+| | Sin ajuste | β 0,02, w 0,5 |
+|---|---|---|
+| Conocidas correctas | 70,8 % | 70,3 % |
+| Conocidas marcadas desconocidas | 4,8 % | 5,8 % |
+| Desconocidas detectadas | 30,6 % | 44,3 % |
+| 6PSK | 3,5 % | 41,9 % |
+| 24QAM | 23,8 % | 37,7 % |
+
+**Resultado en la partición de evaluación**, SNR ≥ 10 dB. Es la primera vez que se miran 12PSK y 128QAM:
+
+| | Etapa 4 | Con ajuste | Con ajuste, sin umbral |
+|---|---|---|---|
+| Conocidas correctas | 71,2 % | 70,4 % | 72,5 % |
+| Conocidas sin decidir | 8,9 % | 8,7 % | 0 % |
+| Conocidas marcadas desconocidas | 4,1 % | 5,1 % | 8,0 % |
+| Desconocidas detectadas | 30,2 % | **38,4 %** | 44,4 % |
+| Desconocidas no aceptadas como conocida | 47,2 % | **52,1 %** | 44,4 % |
+
+| Desconocida | Etapa 4 | Con ajuste |
+|---|---|---|
+| 12PSK | 5,0 % | **25,4 %** |
+| 8QAM estrella | 24,1 % | **48,2 %** |
+| 128QAM | 11,7 % | 10,5 % |
+| ARB_A | 64,2 % | 66,4 % |
+| ARB_B | 56,5 % | 58,9 % |
+| 8FSK | 19,0 % | 19,4 % |
+
+- **128QAM** no mejora. En las sintéticas a 30 dB la ocupación la separa (0,68 frente a 0,94 de una 256QAM), pero a
+  15–20 dB queda en 0,85–0,88 frente a 0,93. Las nubes de una 256QAM ya se tocan y la rejilla ocupada no se distingue.
+  Es el mismo límite físico que tiene 256QAM frente a 64QAM.
+- **Lo que cuesta.**
+  - En conocidas se pierde 0,8 puntos. Casi todo es OOK, de 85,8 % a 78,7 %: 10 de sus 92 archivos de evaluación
+    no caben, frente al ~4 % esperado (4,3 % en entreno y 3,9 % en calibración).
+  - Los que fallan están repartidos entre generadores y canales; con 92 archivos parece azar. No se ajustó nada mirando
+    la evaluación.
+  - Las demás clases pierden de 0 a 2 puntos.
+- La lista «también puede ser» cubre el 90,7 % con 3,4 opciones de media.
+- **Tiempo:** la prueba agrega unos 0,8 s por señal en la interfaz (15 plantillas y un k-means).
+
+**Interfaz.** Debajo de la decisión aparece una nota cuando una de las tres clases más probables no cabe. Por ejemplo,
+con una 12PSK de `gr_polifase` con deriva de reloj, la respuesta es «Desconocida» y la nota dice: «Los símbolos no caben
+en la constelación ideal de 8PSK, 32QAM, 64QAM».
+
 ## Falta
-- Desconocidas parecidas a una conocida (12PSK 5 %, 128QAM 12 %): la puerta del decisor no basta, y el especialista
-  de constelación las empuja hacia la clase vecina. Haría falta un especialista que también vea desconocidas al entrenar.
+- 128QAM frente a 256QAM: haría falta más SNR o más símbolos; la prueba no puede inventar la separación.
 - GMSK frente a MSK: U8 no separa BT 0,3.
 - El multitrayecto sigue débil, como en la cascada.

@@ -52,6 +52,8 @@ ALFA_CONFORME = 0.1  # con todas las SNR: cobertura 88-90 % en evaluación, 3,6 
 PUNTAJE_TONOS = 0.8  # elegido con la partición de calibración: 1,7 % de FSK conocidas marcadas, 42,7 % de 3FSK
 GRUPOS_FUSION = [("qam", "apsk")]  # el especialista QAM+APSK también decide entre esas dos familias
 ESPECIALISTA = "qam+apsk"
+BETA_AJUSTE = 0.02  # elegido con exp_f4_desconocidas (partición de calibración, seleccion.json)
+PESO_INCONSISTENTE = 0.5
 _C = {}
 
 
@@ -170,8 +172,9 @@ def fusion_lote(decisor, d, p_dec, con_tonos=True):
         pd = dict(zip(nombres, p_dec[i].tolist())) if d["ok"][i] else None
         tonos = int(d["tonos"][i]) if con_tonos and d["puntaje_tonos"][i] >= PUNTAJE_TONOS else None
         pe = dict(zip(d["clases_especialista"], d["p_especialista"][i].tolist())) if "p_especialista" in d else None
+        w = d["consistentes"][i] if "consistentes" in d else None
         salida.append(fusionar(pf, pr, pd, FAMILIA_DE, tonos, grupos=GRUPOS_FUSION if pe else None,
-                               p_especialista=pe)["probabilidades"])
+                               p_especialista=pe, consistentes=w)["probabilidades"])
     orden = [*clases, DESCONOCIDA]
     return orden, np.array([[s[k] for k in orden] for s in salida])
 
@@ -219,9 +222,22 @@ def _rutas_desde_integracion(datos):
             "ruta_descriptor": relativa(datos["ruta_descriptor"]), "metadatos": meta}
 
 
+def _ajuste(d, trabajos, consistencia=None):
+    """Agrega los pesos de consistencia con la constelación (exp_f4); umbrales de digitales_entreno si no se dan."""
+    from experiments import exp_f4_desconocidas as f4
+    lista = f4.como_dicts(f4.mediciones("evaluacion", trabajos))
+    assert (f4.mediciones("evaluacion", trabajos)["archivo"] == d["archivo"]).all()
+    if consistencia is None:
+        consistencia = f4.consistencia_entreno(BETA_AJUSTE, trabajos)
+    return f4.con_ajuste(d, lista, consistencia, PESO_INCONSISTENTE), consistencia
+
+
 def inscribir(trabajos=12, con_tonos=True):
     entreno, evaluacion = huellas("entreno", trabajos), con_especialista(huellas("evaluacion", trabajos))
     calibracion, _ = _particion(evaluacion)
+    consistencia = None
+    if BETA_AJUSTE is not None:
+        evaluacion, consistencia = _ajuste(evaluacion, trabajos)
     datos, decisor = inscribir_decisor(entreno, _sub(evaluacion, calibracion))
     desplazamiento = calibrar_fusion(decisor, evaluacion, calibracion, con_tonos)
     orden, p = fusion_lote(decisor, _sub(evaluacion, calibracion), _p_decisor(decisor, _sub(evaluacion, calibracion)),
@@ -240,6 +256,11 @@ def inscribir(trabajos=12, con_tonos=True):
                "metadatos": {**base["metadatos"], "integracion": {
                    "inscritas": CLASES_CONSTELACION, "desplazamiento_puerta": desplazamiento,
                    "calibracion": "digitales: catalogo con indice 0 + validacion"}}}
+    if consistencia is not None:
+        from experiments.exp_f4_desconocidas import plantillas
+        paquete.update({"consistencia": consistencia, "plantillas": plantillas(),
+                        "peso_inconsistente": PESO_INCONSISTENTE})
+        paquete["metadatos"]["integracion"]["ajuste"] = {"beta": BETA_AJUSTE, "peso": PESO_INCONSISTENTE}
     joblib.dump(paquete, PAQUETE_INTEGRADO, compress=3)
     print("guardado", PAQUETE_INTEGRADO, flush=True)
 
@@ -269,7 +290,10 @@ def evaluar(trabajos=12):
     _, m = _particion(d)
     alta = m & (d["snr"] >= SNR_OPERACION)
     etiqueta = d["etiqueta"]
-    orden, p = fusion_lote(decisor, d, _p_decisor(decisor, d), paquete["con_tonos"])
+    _, p_sin_ajuste = fusion_lote(decisor, d, _p_decisor(decisor, d), paquete["con_tonos"])
+    d_final = _ajuste(d, trabajos, paquete["consistencia"])[0] if "consistencia" in paquete else d
+    orden, p = fusion_lote(decisor, d_final, _p_decisor(decisor, d), paquete["con_tonos"])
+    sin_ajuste = _salidas(p_sin_ajuste, orden, decisor.umbral)
     fusionada = _salidas(p, orden, decisor.umbral)
     sin_esp = {k: v for k, v in d.items() if k not in ("p_especialista", "clases_especialista")}
     _, p_sin = fusion_lote(decisor, sin_esp, _p_decisor(decisor, d), paquete["con_tonos"])
@@ -296,6 +320,11 @@ def evaluar(trabajos=12):
         "fusion": {"todas": _tasas(fusionada, etiqueta, m), "snr>=10": _tasas(fusionada, etiqueta, alta)},
         "fusion_sin_umbral": {"snr>=10": _tasas(argmax, etiqueta, alta)},
         "fusion_sin_especialista_sin_umbral": {"snr>=10": _tasas(np.array(orden)[p_sin.argmax(1)], etiqueta, alta)},
+        "fusion_sin_ajuste": {"snr>=10": _tasas(sin_ajuste, etiqueta, alta),
+                              "sin_umbral_snr>=10": _tasas(np.array(orden)[p_sin_ajuste.argmax(1)], etiqueta, alta),
+                              "desconocidas_snr>=10": {
+                                  mod: round(float(np.mean(sin_ajuste[alta & (d["modulacion"] == mod)] == DESCONOCIDA)), 3)
+                                  for mod in sorted(set(d["modulacion"][alta & (etiqueta == DESCONOCIDA)]))}},
         "lista_conforme": {"alfa": paquete["conforme"].alfa, "corte": paquete["conforme"].corte,
                            "snr<10": lista(m & (d["snr"] < SNR_OPERACION)), "snr>=10": lista(alta),
                            "conocidas_snr>=10": lista(alta & (etiqueta != DESCONOCIDA)),
@@ -318,7 +347,7 @@ def evaluar(trabajos=12):
     }
     (SALIDA / "resumen.json").write_text(json.dumps(resumen, indent=1, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({k: resumen[k] for k in ("umbral", "desplazamiento_puerta", "lista_conforme", "fusion",
-                                              "fusion_sin_umbral",
+                                              "fusion_sin_umbral", "fusion_sin_ajuste",
                                               "enrutador_solo", "cascada_original_6_clases", "fusion_en_las_6_clases",
                                               "familia_snr>=10", "desconocidas_snr>=10")}, indent=1),
           flush=True)

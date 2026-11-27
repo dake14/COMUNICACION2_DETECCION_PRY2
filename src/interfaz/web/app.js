@@ -307,6 +307,16 @@ function pintarAlternativas(d) {
   } else {
     eq.hidden = true;
   }
+  pintarNoCabe(dec);
+}
+
+function pintarNoCabe(dec) {
+  const nota = $("d-no-cabe");
+  const clases = Array.isArray(dec.no_cabe_en) ? dec.no_cabe_en : [];
+  nota.textContent = clases.length
+    ? `Los símbolos no caben en la constelación ideal de ${clases.join(", ")}: por eso sube «Desconocida».`
+    : "";
+  nota.hidden = clases.length === 0;
 }
 
 function nombreModulacion(m) {
