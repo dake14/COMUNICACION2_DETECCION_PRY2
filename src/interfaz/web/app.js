@@ -145,7 +145,9 @@ function pintarProbabilidades(d) {
   const lista = $("probabilidades");
   lista.replaceChildren();
   const maximo = Math.max(...d.probabilidades.map((p) => p.valor));
+  const muchas = d.probabilidades.length > 8;
   for (const p of d.probabilidades) {
+    if (muchas && p.valor < 0.005 && p.nombre !== "DESCONOCIDA") continue;
     const li = document.createElement("li");
     li.classList.toggle("elegida", p.valor === maximo);
     li.classList.toggle("desconocida", p.nombre === "DESCONOCIDA");
@@ -167,6 +169,98 @@ function pintarProbabilidades(d) {
     lista.append(li);
   }
   $("p-umbral").textContent = `Responde una modulación si su probabilidad llega a ${textoPorcentaje(d.decision.umbral)}.`;
+}
+
+const NOMBRES_FAMILIA = { amplitud: "Amplitud", fase: "Fase", qam: "QAM", apsk: "APSK", frecuencia: "Frecuencia" };
+const NOMBRES_VISTA = { espectro: "Espectro", potencias: "Potencias", envolvente: "Envolvente", frecuencia: "Frecuencia" };
+
+// CONTRATO (unidad U11, cerrado). Rellenar solo el cuerpo de pintarEnrutador.
+// d es la respuesta de /api/analizar o /api/ejemplo. Con un motor sin enrutador, d.enrutador no existe:
+//   ocultar document.querySelector(".panel-familias") (hidden = true) y salir.
+// Si existe, mostrar el panel (hidden = false). Forma:
+//   d.enrutador = { familias: [{ nombre, valor }] (5, ordenadas de mayor a menor valor),
+//                   especialistas: [{ vista, clase, valor }] (4, en el orden espectro, potencias, envolvente, frecuencia),
+//                   rama: "constelacion" | "frecuencia",
+//                   tonos: null | { tonos: int, h: float, sps: float | null } }
+// - #familias: vaciar y crear un <li> por familia con la misma estructura que pintarProbabilidades:
+//   span.etiqueta (NOMBRES_FAMILIA[nombre] || nombre), span.pista > span.relleno (display block, width valor*100 %),
+//   span.valor (textoPorcentaje(valor)); clase "elegida" en la de mayor valor;
+//   dataset.globo = `${NOMBRES_FAMILIA[nombre] || nombre}: ${textoPorcentaje(valor)}`.
+// - #p-rama: con rama "constelacion": "La constelación decide la modulación dentro de la familia.";
+//   con "frecuencia": "Familia de frecuencia: deciden los especialistas y el conteo de tonos."
+// - #especialistas: vaciar y crear un <li> por especialista con span.vista (NOMBRES_VISTA[vista] || vista),
+//   span.clase (clase) y span.valor (textoPorcentaje(valor)).
+// - #p-tonos: si tonos es null, hidden = true. Si no, hidden = false y el texto
+//   `${tonos.tonos} tonos · índice h ≈ ${tonos.h.toFixed(2)}`, más ` · ${tonos.sps.toFixed(1)} muestras por símbolo`
+//   cuando sps no es null.
+// - Solo createElement, textContent, classList, dataset, style y replaceChildren: nada de innerHTML. Sin dependencias.
+// - No tocar ninguna otra función ni archivo.
+function pintarEnrutador(d) {
+  const panel = document.querySelector(".panel-familias");
+  const enr = d?.enrutador;
+  if (!enr) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+
+  const familias = enr.familias || [];
+  const maximo = familias.length ? Math.max(...familias.map((f) => f.valor)) : 0;
+  $("familias").replaceChildren(...familias.map((f) => {
+    const nombre = NOMBRES_FAMILIA[f.nombre] || f.nombre;
+    const li = document.createElement("li");
+    li.classList.toggle("elegida", f.valor === maximo);
+    li.dataset.globo = `${nombre}: ${textoPorcentaje(f.valor)}`;
+    const etiqueta = document.createElement("span");
+    etiqueta.classList.add("etiqueta");
+    etiqueta.textContent = nombre;
+    const pista = document.createElement("span");
+    pista.classList.add("pista");
+    const relleno = document.createElement("span");
+    relleno.classList.add("relleno");
+    relleno.style.display = "block";
+    relleno.style.width = `${f.valor * 100}%`;
+    pista.replaceChildren(relleno);
+    const valor = document.createElement("span");
+    valor.classList.add("valor");
+    valor.textContent = textoPorcentaje(f.valor);
+    li.replaceChildren(etiqueta, pista, valor);
+    return li;
+  }));
+
+  $("p-rama").textContent = enr.rama === "frecuencia"
+    ? "Familia de frecuencia: deciden los especialistas y el conteo de tonos."
+    : enr.rama === "constelacion"
+      ? "La constelación decide la modulación dentro de la familia."
+      : "";
+
+  $("especialistas").replaceChildren(...(enr.especialistas || []).map((e) => {
+    const li = document.createElement("li");
+    const vista = document.createElement("span");
+    vista.classList.add("vista");
+    vista.textContent = NOMBRES_VISTA[e.vista] || e.vista;
+    const clase = document.createElement("span");
+    clase.classList.add("clase");
+    clase.textContent = e.clase;
+    const valor = document.createElement("span");
+    valor.classList.add("valor");
+    valor.textContent = textoPorcentaje(e.valor);
+    li.replaceChildren(vista, clase, valor);
+    return li;
+  }));
+
+  const pTonos = $("p-tonos");
+  if (!enr.tonos) {
+    pTonos.hidden = true;
+    pTonos.textContent = "";
+  } else {
+    pTonos.hidden = false;
+    const fiabilidad = enr.tonos.fiable === false ? " (conteo poco fiable: no se usa para decidir)" : "";
+    const base = `${enr.tonos.tonos} tonos${fiabilidad} · índice h ≈ ${enr.tonos.h.toFixed(2)}`;
+    pTonos.textContent = enr.tonos.sps != null
+      ? `${base} · ${enr.tonos.sps.toFixed(1)} muestras por símbolo`
+      : base;
+  }
 }
 
 function nombreModulacion(m) {
@@ -241,6 +335,7 @@ function mostrar(d) {
   $("resultado").hidden = false;
   $("nombre-archivo").textContent = d.nombre;
   pintarDecision(d);
+  pintarEnrutador(d);
   $("v-recuperada").disabled = !d.constelacion;
   if (!d.constelacion) cambiarVista("entrada", false);
   document.querySelector(".panel-cnn").hidden = !d.cnn;
@@ -352,6 +447,8 @@ function globoImagen(evento, canvas, ejes) {
 function conectarGlobos() {
   $("probabilidades").addEventListener("mousemove", (e) => mostrarGlobo(e, e.target.closest("li")?.dataset.globo));
   $("probabilidades").addEventListener("mouseleave", (e) => mostrarGlobo(e, ""));
+  $("familias").addEventListener("mousemove", (e) => mostrarGlobo(e, e.target.closest("li")?.dataset.globo));
+  $("familias").addEventListener("mouseleave", (e) => mostrarGlobo(e, ""));
   const pos = (v) => ((v + 0.5) / 64) * 4.4 - 2.2;
   $("c-cart").addEventListener("mousemove", (e) => globoImagen(e, e.currentTarget, (x, y) => `I ${pos(x).toFixed(2)}, Q ${pos(y).toFixed(2)}`));
   $("c-polar").addEventListener("mousemove", (e) => globoImagen(e, e.currentTarget, (x, y) => `ángulo ${(((x + 0.5) / 64) * 360 - 180).toFixed(0)}°, radio ${(((y + 0.5) / 64) * 2.2).toFixed(2)}`));

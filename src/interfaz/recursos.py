@@ -8,11 +8,13 @@ from pathlib import Path
 import numpy as np
 
 from src.cascada.pipeline import cargar_paquete
+from src.familias.enrutador import Enrutador
 
 # ─────────────────────────────  Config  ──────────────────────────────
 RAIZ = Path(__file__).resolve().parents[2]
-MANIFIESTO_BANCO = RAIZ / "data" / "banco" / "base" / "manifiesto.jsonl"
-MOTOR_DEFECTO = "red"
+BANCOS = [RAIZ / "data" / "banco" / b / "manifiesto.jsonl" for b in ("digitales", "base")]
+MANIFIESTO_BANCO = next((b for b in BANCOS if b.exists()), BANCOS[-1])
+MOTOR_DEFECTO = "integrado"
 
 
 # ──────────────────────────────  Tipos  ──────────────────────────────
@@ -30,6 +32,8 @@ MOTORES = {
                    RAIZ / "results/cascada/modelos_multi/paquete.joblib"),
     "robusto": Motor("Canales variados", "32 canales, recuperador nuevo y CNN adversaria de dominio",
                      RAIZ / "results/cascada/modelos_robustos/paquete_adversaria_desplazada.joblib"),
+    "integrado": Motor("Familias + constelación", "18 modulaciones: el enrutador elige la familia y la constelación "
+                       "afina dentro de ella", RAIZ / "results/familias/integracion/paquete_integrado.joblib"),
 }
 
 
@@ -46,7 +50,10 @@ class Modelos:
             raise ValueError(f"El modelo «{MOTORES[clave].nombre}» todavía no está disponible.")
         with self._cerrojo:
             if clave not in self._cargados:
-                self._cargados[clave] = cargar_paquete(MOTORES[clave].ruta)
+                paquete = cargar_paquete(MOTORES[clave].ruta)
+                if "enrutador" in paquete:
+                    paquete["enrutador_modelo"] = Enrutador.cargar(RAIZ / paquete["enrutador"])
+                self._cargados[clave] = paquete
             return self._cargados[clave]
 
     @staticmethod

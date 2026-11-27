@@ -83,3 +83,34 @@ def test_el_conjunto_conforme_valida_sus_entradas():
         ConjuntoConforme().conjunto(np.ones(3) / 3)
     with pytest.raises(ValueError):
         ConjuntoConforme().ajustar(np.ones((2, 3)) / 3, np.array([0, 3]))
+
+
+FAMILIA_PRUEBA = {"BPSK": "fase", "QPSK": "fase", "16QAM": "qam", "2FSK": "frecuencia", "4FSK": "frecuencia"}
+P_FAMILIAS = {"fase": 0.6, "qam": 0.3, "frecuencia": 0.1}
+P_DECISOR = {"BPSK": 0.1, "QPSK": 0.3, "16QAM": 0.4, "DESCONOCIDA": 0.2}
+PAREJO = {c: 0.2 for c in FAMILIA_PRUEBA}
+
+
+def test_la_fusion_multiplica_familia_por_modulacion_dentro_de_ella():
+    from src.familias.integracion import fusionar
+    p = fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2)["probabilidades"]
+    esperado = {"BPSK": 0.12, "QPSK": 0.36, "16QAM": 0.24, "2FSK": 0.05, "4FSK": 0.05, "DESCONOCIDA": 0.18}
+    assert p == pytest.approx(esperado, abs=1e-12)
+    sesgado = {"BPSK": 0.6, "QPSK": 0.1, "16QAM": 0.1, "2FSK": 0.1, "4FSK": 0.1}
+    p = fusionar(P_FAMILIAS, sesgado, P_DECISOR, FAMILIA_PRUEBA, 2)["probabilidades"]
+    assert p["BPSK"] == pytest.approx(0.32) and p["QPSK"] == pytest.approx(0.16)
+
+
+def test_tres_tonos_vuelven_desconocida_la_rama_de_frecuencia():
+    from src.familias.integracion import fusionar
+    p = fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 3)["probabilidades"]
+    assert p["2FSK"] == 0 and p["DESCONOCIDA"] == pytest.approx(0.28)
+
+
+def test_sin_constelacion_decide_el_enrutador():
+    from src.familias.integracion import decidir, fusionar
+    r = fusionar({"frecuencia": 0.9, "fase": 0.1}, PAREJO, None, FAMILIA_PRUEBA)
+    assert r["rama"] == "frecuencia" and r["probabilidades"]["DESCONOCIDA"] == 0
+    assert decidir({"A": 0.7, "B": 0.3}, 0.8)["modulacion"] == "INDETERMINADA"
+    with pytest.raises(ValueError):
+        fusionar({"otra": 1.0}, PAREJO, None, FAMILIA_PRUEBA)

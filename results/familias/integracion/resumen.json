@@ -1,0 +1,202 @@
+{
+ "particion": "evaluación: catalogo con indice 1 + prueba (desconocidas nuevas)",
+ "umbral": 0.31,
+ "temperatura": 1.6981534290429632,
+ "desplazamiento_puerta": -1.7,
+ "con_tonos": true,
+ "fusion": {
+  "todas": {
+   "conocidas_correctas": 0.6128,
+   "conocidas_como_desconocidas": 0.0492,
+   "conocidas_indeterminadas": 0.138,
+   "desconocidas_detectadas": 0.2648,
+   "desconocidas_no_aceptadas": 0.5056,
+   "n_conocidas": 3456,
+   "n_desconocidas": 2304
+  },
+  "snr>=10": {
+   "conocidas_correctas": 0.6968,
+   "conocidas_como_desconocidas": 0.0391,
+   "conocidas_indeterminadas": 0.0809,
+   "desconocidas_detectadas": 0.3022,
+   "desconocidas_no_aceptadas": 0.4812,
+   "n_conocidas": 2249,
+   "n_desconocidas": 1565
+  }
+ },
+ "fusion_sin_umbral": {
+  "snr>=10": {
+   "conocidas_correctas": 0.7074,
+   "conocidas_como_desconocidas": 0.068,
+   "conocidas_indeterminadas": 0.0,
+   "desconocidas_detectadas": 0.3687,
+   "desconocidas_no_aceptadas": 0.3687,
+   "n_conocidas": 2249,
+   "n_desconocidas": 1565
+  }
+ },
+ "enrutador_solo": {
+  "todas": {
+   "conocidas_correctas": 0.6207,
+   "conocidas_como_desconocidas": 0.0,
+   "conocidas_indeterminadas": 0.0,
+   "desconocidas_detectadas": 0.0,
+   "desconocidas_no_aceptadas": 0.0,
+   "n_conocidas": 3456,
+   "n_desconocidas": 2304
+  },
+  "snr>=10": {
+   "conocidas_correctas": 0.6959,
+   "conocidas_como_desconocidas": 0.0,
+   "conocidas_indeterminadas": 0.0,
+   "desconocidas_detectadas": 0.0,
+   "desconocidas_no_aceptadas": 0.0,
+   "n_conocidas": 2249,
+   "n_desconocidas": 1565
+  }
+ },
+ "cascada_original_6_clases": {
+  "snr>=10": {
+   "conocidas_correctas": 0.4191,
+   "conocidas_como_desconocidas": 0.1005,
+   "conocidas_indeterminadas": 0.4752,
+   "desconocidas_detectadas": 0.4358,
+   "desconocidas_no_aceptadas": 0.9508,
+   "n_conocidas": 766,
+   "n_desconocidas": 1565
+  }
+ },
+ "fusion_en_las_6_clases": {
+  "snr>=10": {
+   "conocidas_correctas": 0.6619,
+   "conocidas_como_desconocidas": 0.047,
+   "conocidas_indeterminadas": 0.0966,
+   "desconocidas_detectadas": 0.3022,
+   "desconocidas_no_aceptadas": 0.4812,
+   "n_conocidas": 766,
+   "n_desconocidas": 1565
+  }
+ },
+ "familia_snr>=10": {
+  "fusion": 0.8066,
+  "enrutador": 0.8319
+ },
+ "por_clase_snr>=10": {
+  "fusion": {
+   "16APSK": 0.5593,
+   "16QAM": 0.5556,
+   "256QAM": 0.2833,
+   "2FSK": 0.8413,
+   "32APSK": 0.6083,
+   "32QAM": 0.418,
+   "4ASK": 0.9091,
+   "4FSK": 0.947,
+   "4PAM": 0.8992,
+   "64QAM": 0.2243,
+   "8PSK": 0.7133,
+   "BPSK": 0.8,
+   "GMSK": 0.7869,
+   "MSK": 0.8174,
+   "OOK": 0.8583,
+   "OQPSK": 0.7308,
+   "PI4DQPSK": 0.7647,
+   "QPSK": 0.6905
+  },
+  "enrutador": {
+   "16APSK": 0.5932,
+   "16QAM": 0.3889,
+   "256QAM": 0.3667,
+   "2FSK": 0.873,
+   "32APSK": 0.6667,
+   "32QAM": 0.3934,
+   "4ASK": 0.8864,
+   "4FSK": 0.9545,
+   "4PAM": 0.9147,
+   "64QAM": 0.2243,
+   "8PSK": 0.7203,
+   "BPSK": 0.8222,
+   "GMSK": 0.7869,
+   "MSK": 0.8174,
+   "OOK": 0.8819,
+   "OQPSK": 0.7154,
+   "PI4DQPSK": 0.7143,
+   "QPSK": 0.6746
+  }
+ },
+ "por_familia_snr>=10": {
+  "fusion": {
+   "amplitud": 0.8892,
+   "apsk": 0.584,
+   "fase": 0.7397,
+   "frecuencia": 0.8505,
+   "qam": 0.3768
+  },
+  "enrutador": {
+   "amplitud": 0.8943,
+   "apsk": 0.6303,
+   "fase": 0.7305,
+   "frecuencia": 0.8606,
+   "qam": 0.3474
+  }
+ },
+ "por_canal_snr>=10": {
+  "amplificador": 0.84,
+  "cuantizacion": 0.8986,
+  "deriva_portadora": 0.9157,
+  "deriva_reloj": 0.9014,
+  "dos_rayos": 0.5915,
+  "ecos_largos": 0.4769,
+  "gr_dinamico": 0.4203,
+  "gr_imperfecciones": 0.8923,
+  "gr_multitrayecto": 0.3623,
+  "gr_selectivo": 0.4557,
+  "ideal": 0.9118,
+  "impulsivo": 0.803,
+  "int_adyacente": 0.65,
+  "int_barrido": 0.7368,
+  "int_cocanal": 0.7353,
+  "int_pulsos": 0.7838,
+  "interferencia": 0.75,
+  "iq_dc": 0.8676,
+  "lte_epa": 0.9114,
+  "lte_etu": 0.5821,
+  "lte_eva": 0.6667,
+  "mp_corto": 0.5352,
+  "mp_largo": 0.2769,
+  "nakagami": 0.875,
+  "plano_lento": 0.8793,
+  "proyecto": 0.7258,
+  "receptor_barato": 0.8289,
+  "ruido_fase": 0.873,
+  "sombra": 0.7681,
+  "tdl_rayleigh": 0.4795,
+  "tdl_rician": 0.403,
+  "watterson": 0.4648
+ },
+ "desconocidas_snr>=10": {
+  "128QAM": {
+   "detectada": 0.144,
+   "no_aceptada": 0.56
+  },
+  "12PSK": {
+   "detectada": 0.042,
+   "no_aceptada": 0.165
+  },
+  "8FSK": {
+   "detectada": 0.19,
+   "no_aceptada": 0.194
+  },
+  "8QAM_ESTRELLA": {
+   "detectada": 0.237,
+   "no_aceptada": 0.42
+  },
+  "ARB_A": {
+   "detectada": 0.631,
+   "no_aceptada": 0.799
+  },
+  "ARB_B": {
+   "detectada": 0.565,
+   "no_aceptada": 0.743
+  }
+ }
+}

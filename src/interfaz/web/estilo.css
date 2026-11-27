@@ -70,7 +70,12 @@ button:disabled { color: var(--texto-3); cursor: not-allowed; }
 .etapas dd { font-variant-numeric: tabular-nums; font-weight: 600; }
 
 .rejilla { display: grid; gap: 16px; grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr); }
-.panel-cnn { grid-column: 1 / -1; }
+.panel-cnn, .panel-familias { grid-column: 1 / -1; }
+.especialistas { display: grid; gap: 6px; list-style: none; }
+.especialistas li { align-items: baseline; display: grid; gap: 8px; grid-template-columns: 104px minmax(0, 1fr) 50px; }
+.especialistas .vista { color: var(--texto-3); font-size: 12px; }
+.especialistas .clase { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.especialistas .valor { color: var(--texto-2); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
 .cabecera { align-items: center; display: flex; gap: 8px; justify-content: space-between; margin-bottom: 10px; }
 .segmentos { display: flex; }
 .segmentos button { font-size: 12px; font-weight: 500; min-height: 30px; padding: 3px 9px; width: auto; }

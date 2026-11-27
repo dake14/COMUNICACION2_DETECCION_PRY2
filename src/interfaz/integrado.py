@@ -1,0 +1,56 @@
+# ─────────────────────────────  Imports  ─────────────────────────────
+import numpy as np
+import torch
+
+from src.cascada.pipeline import calidad_de, huella_de_simbolos
+from src.familias.integracion import decidir, fusionar
+from src.familias.tasa import estimar_tasa
+from src.familias.tonos import analizar_fsk
+
+
+# ───────────────────────────────  Core  ──────────────────────────────
+def _p_decisor(r, snr, paquete):
+    if r is None:
+        return None, None
+    z, geometria = huella_de_simbolos(r["simbolos"], paquete)
+    decisor = paquete["decisor"]
+    return dict(zip(decisor.nombres, decisor.probabilidades(z, calidad_de(r, snr))[0].tolist())), (z, geometria)
+
+
+def _tonos(x):
+    tasa = estimar_tasa(x)
+    if not tasa["sps"]:
+        return None
+    t = analizar_fsk(x, tasa["sps"])
+    return {"tonos": int(t["tonos"]), "h": round(float(t["h"]), 3), "sps": round(float(tasa["sps"]), 2),
+            "puntaje": float(t["puntaje"])}
+
+
+def _enrutador(analisis, rama, tonos, fiable):
+    familias = sorted(({"nombre": f, "valor": round(v, 4)} for f, v in analisis["familias"].items()),
+                      key=lambda f: -f["valor"])
+    especialistas = []
+    for vista, votos in analisis["especialistas"].items():
+        clase = max(votos, key=votos.get)
+        especialistas.append({"vista": vista, "clase": clase, "valor": round(votos[clase], 4)})
+    visibles = None if tonos is None or rama != "frecuencia" else {**{k: tonos[k] for k in ("tonos", "h", "sps")},
+                                                                   "fiable": fiable}
+    return {"familias": familias, "especialistas": especialistas, "rama": rama, "tonos": visibles}
+
+
+def salida_integrada(x, r, snr, paquete):
+    with torch.no_grad():
+        analisis = paquete["enrutador_modelo"].analizar(x)
+    p_decisor, huella = _p_decisor(r, snr, paquete)
+    tonos = _tonos(x) if paquete.get("con_tonos", True) else None
+    fiable = tonos is not None and tonos["puntaje"] >= paquete.get("puntaje_tonos", 0.8)
+    fusion = fusionar(analisis["familias"], analisis["clases"], p_decisor, paquete["familia_de"],
+                      tonos["tonos"] if fiable else None)
+    umbral = float(paquete["decisor"].umbral)
+    decision = decidir(fusion["probabilidades"], umbral)
+    probabilidades = sorted(({"nombre": n, "valor": round(float(v), 4)} for n, v in fusion["probabilidades"].items()),
+                            key=lambda p: -p["valor"])
+    return {"decision": {"modulacion": decision["modulacion"], "confianza": round(decision["confianza"], 4),
+                         "umbral": round(umbral, 3)},
+            "probabilidades": probabilidades,
+            "enrutador": _enrutador(analisis, fusion["rama"], tonos, fiable)}, huella

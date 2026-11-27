@@ -7,6 +7,7 @@ from src.cascada.decisor import INDETERMINADA
 from src.cascada.descriptor import imagen_densidad
 from src.cascada.detector import detectar_ciego, snr_ciega_db
 from src.cascada.pipeline import MIN_MUESTRAS, calidad_de, huella_de_simbolos
+from src.interfaz.integrado import salida_integrada
 from src.interfaz.graficas import alinear, muestra_uniforme, puntos_xy, redondear, trazas_ojo, unitaria
 from src.interfaz.recuperacion import recuperar_detalle
 
@@ -43,10 +44,13 @@ def _salida_cnn(r, snr, paquete):
                             key=lambda p: -p["valor"])
     return {"decision": {"modulacion": decision["modulacion"], "confianza": round(decision["confianza"], 4),
                          "umbral": round(float(paquete["decisor"].umbral), 3)},
-            "probabilidades": probabilidades,
-            "cnn": {"entrada": _imagenes_cnn(r["simbolos"]), "huella": redondear(z[0], 4),
-                    "puntos_aprox": int(round(2 ** float(geometria[0, 0] * 7))),
-                    "anillos_aprox": max(1, int(round(float(geometria[0, 1] * 6))))}}
+            "probabilidades": probabilidades, "cnn": _cnn(r, z, geometria)}
+
+
+def _cnn(r, z, geometria):
+    return {"entrada": _imagenes_cnn(r["simbolos"]), "huella": redondear(z[0], 4),
+            "puntos_aprox": int(round(2 ** float(geometria[0, 0] * 7))),
+            "anillos_aprox": max(1, int(round(float(geometria[0, 1] * 6))))}
 
 
 def _etapas(r, snr, deteccion, milisegundos):
@@ -63,10 +67,16 @@ def analizar_senal(iq, paquete, sps=None, inicio=0):
     entrada = puntos_xy(muestra_uniforme(unitaria(x - x.mean()), PUNTOS_ENTRADA))
     base = {"muestras_totales": int(np.size(iq)), "muestras_analizadas": len(x), "inicio": inicio, "entrada": entrada}
     r = recuperar_detalle(x, paquete["cadena"], paquete.get("recuperador"), sps)
-    if r is None:
+    if "enrutador_modelo" in paquete:
+        salida, huella = salida_integrada(x, r, snr, paquete)
+        if r is None:
+            return {**base, **salida, "aviso": "La cascada no recuperó símbolos: decide solo el enrutador de familias."}
+        salida["cnn"] = _cnn(r, *huella)
+    elif r is None:
         return {**base, "decision": {"modulacion": INDETERMINADA, "confianza": None, "umbral": None},
                 "aviso": "No se pudo identificar una tasa de símbolo en esta señal."}
-    salida = _salida_cnn(r, snr, paquete)
+    else:
+        salida = _salida_cnn(r, snr, paquete)
     constelacion = puntos_xy(muestra_uniforme(alinear(r["simbolos"]), PUNTOS_CONSTELACION))
     ojo = trazas_ojo(r)
     milisegundos = 1000 * (time.perf_counter() - comienzo)

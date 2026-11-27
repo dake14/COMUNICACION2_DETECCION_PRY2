@@ -107,10 +107,102 @@ El puntaje no sirve para detectar si hay señal: el ruido puro da una mediana de
 
 Pruebas en `tests/test_familias_unidades.py`.
 
+## Integración con la constelación (2026-11-27)
+
+`experiments/exp_f2_integracion.py`, resultados en `results/familias/integracion/resumen.json` y el paquete en
+`results/familias/integracion/paquete_integrado.joblib` (motor «Familias + constelación» de la interfaz, el de defecto).
+
+**Cómo decide.** P(modulación) = P(familia) × P(modulación | familia).
+- P(familia) es la del enrutador.
+- Dentro de las familias de constelación, P(modulación | familia) es el producto enrutador × decisor de la cascada,
+  renormalizado en la familia.
+- La probabilidad de desconocida viene de la puerta del decisor.
+- En la familia de frecuencia decide el enrutador. El contador de tonos marca desconocida si ve 3 tonos o más,
+  distintos de 4, con puntaje ≥ 0,8.
+
+**Datos.**
+- El decisor aprendió las 14 modulaciones de constelación (OOK … 32APSK) con las huellas de `digitales_entreno`, sin
+  reentrenar la CNN.
+- El banco `digitales` se parte en dos:
+  - Calibración: los archivos con índice 0 del catálogo y las desconocidas de validación.
+  - Evaluación: los archivos con índice 1 y las desconocidas de prueba (128QAM, 12PSK, 8FSK, 8QAM estrella, ARB_A,
+    ARB_B).
+- Los generadores son los mismos del entrenamiento: estos números no son comparables con los de la tabla de arriba, que
+  deja fuera pares de generadores.
+
+**Decisiones tomadas con la partición de calibración.**
+
+| Opción dentro de la familia | Exactitud dentro de la familia | Exactitud en las 14 clases |
+|---|---|---|
+| Enrutador solo | 74,9 % | 66,1 % |
+| Decisor solo | 65,1 % | 57,6 % |
+| Producto | **78,3 %** | **73,1 %** |
+
+- El producto gana: la constelación sube APSK de 81 % a 88,5 % y QAM de 47 % a 56 %.
+- Tonos: sin el corte de puntaje, la regla marcaba como desconocida el 40 % de las FSK conocidas. Con puntaje ≥ 0,8
+  marca el 1,7 % y atrapa el 42,7 % de las 3FSK.
+- Puerta: el intercepto se desplazó −1,7. Es el mayor desplazamiento que deja como mucho un 10 % de conocidas marcadas
+  como desconocidas a SNR ≥ 10 dB.
+- Umbral: 0,31, el mayor que deja como mucho un 10 % de conocidas sin decidir.
+  - El criterio de la cascada (85 % de exactitud entre las aceptadas) daba un umbral de 0,89 y dejaba sin decidir el
+    65 % de las conocidas.
+  - Con 18 clases, la duda debería expresarse con la lista «también puede ser» de la etapa 3, no con un umbral alto.
+
+**Resultado en la partición de evaluación, SNR ≥ 10 dB:**
+
+| | Fusión | Fusión sin umbral | Enrutador solo | Cascada original (sus 6 clases) |
+|---|---|---|---|---|
+| Conocidas correctas | 69,7 % | 70,7 % | 69,6 % | 41,9 % |
+| Conocidas sin decidir | 8,1 % | 0 % | 0 % | 47,5 % |
+| Conocidas marcadas desconocidas | 3,9 % | 6,8 % | 0 % | 10,1 % |
+| Desconocidas detectadas | 30,2 % | 36,9 % | 0 % | 43,6 % |
+| Desconocidas no aceptadas como conocida | 48,1 % | 36,9 % | 0 % | 95,1 % |
+
+- En las 6 clases que la cascada ya conocía, la fusión acierta 66,2 % frente al 41,9 % de la cascada original.
+- En las 18 clases empata con el enrutador, pero agrega lo que el enrutador no tiene: puede decir «desconocida».
+- Por familia, fusión frente a enrutador:
+
+| Familia | Fusión | Enrutador |
+|---|---|---|
+| Amplitud | 88,9 % | 89,4 % |
+| Frecuencia | 85,1 % | 86,1 % |
+| Fase | 74,0 % | 73,1 % |
+| APSK | 58,4 % | 63,0 % |
+| QAM | 37,7 % | 34,7 % |
+
+  Con umbral, las «sin decidir» cuentan como error.
+- La 16QAM mejora de 38,9 % a 55,6 %. La 256QAM empeora de 36,7 % a 28,3 % por el umbral y la puerta.
+- **Desconocidas:**
+
+| Desconocida | Detectada | No aceptada como conocida |
+|---|---|---|
+| ARB_A | 63 % | 80 % |
+| ARB_B | 57 % | 74 % |
+| 8QAM estrella | 24 % | 42 % |
+| 8FSK | 19 % | 19 % |
+| 128QAM | 14 % | 56 % |
+| 12PSK | 4 % | 17 % |
+
+  Con 14 clases inscritas, una 12PSK o una 128QAM se parecen demasiado a 8PSK o 256QAM: la puerta casi no las separa.
+- **Por canal:** de 91 % en ideal, LTE-EPA y deriva de portadora a 28 % en `mp_largo` y 36 % en `gr_multitrayecto`.
+
+**Interfaz.**
+- El motor nuevo devuelve `enrutador` con:
+  - las familias;
+  - la clase que vota cada especialista;
+  - la rama (constelación o frecuencia);
+  - en la rama de frecuencia, los tonos, h, muestras por símbolo y si el conteo es fiable.
+- La tarjeta «Enrutador de familias» lo muestra entre la constelación y la salida de la CNN.
+- El banco de ejemplos pasó a `data/banco/digitales`.
+- Código:
+  - Fusión: `src/familias/integracion.py` (U10, agy; contrato revisado al producto de expertos).
+  - Tarjeta: `pintarEnrutador` en `src/interfaz/web/app.js` (U11, agy).
+  - Pegamento: `src/interfaz/integrado.py`.
+
 ## Falta
 
-- Integrar el enrutador con la CNN de constelación y con la interfaz.
 - Etapa 3: calibrar la lista conforme con las probabilidades reales y mostrar «también puede ser» y «misma señal que» en
   la salida.
 - Especialistas dentro de cada familia: el orden de QAM, APSK frente a QAM, y GMSK frente a MSK con U8.
 - El multitrayecto sigue débil, como en la cascada.
+- La detección de desconocidas parecidas a una conocida (12PSK, 128QAM) necesita algo más que la puerta del decisor.

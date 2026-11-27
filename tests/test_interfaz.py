@@ -20,6 +20,7 @@ from src.interfaz.servidor import crear_servidor
 
 # ─────────────────────────────  Config  ──────────────────────────────
 HAY_MODELO = MOTORES["red"].ruta.exists()
+HAY_INTEGRADO = MOTORES["integrado"].ruta.exists()
 
 
 # ─────────────────────────────  Ayudas  ──────────────────────────────
@@ -115,6 +116,17 @@ def test_analisis_entrega_lo_que_dibuja_la_interfaz():
     assert sum(p["valor"] for p in d["probabilidades"]) == pytest.approx(1, abs=0.01)
     assert len(d["cnn"]["huella"]) == 128 and np.shape(d["cnn"]["entrada"]["polar"]) == (64, 64)
     assert len(d["constelacion"]["x"]) > 500 and np.shape(d["ojo"]["i"])[1] == len(d["ojo"]["t"])
+    json.dumps(d, allow_nan=False)
+
+
+@pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")
+def test_el_motor_integrado_entrega_familias_y_especialistas():
+    d = analizar_senal(senal("16QAM"), Modelos().obtener("integrado"))
+    assert sum(p["valor"] for p in d["probabilidades"]) == pytest.approx(1, abs=0.01)
+    assert len(d["probabilidades"]) == 19 and {p["nombre"] for p in d["probabilidades"]} >= {"256QAM", "GMSK"}
+    e = d["enrutador"]
+    assert [f["nombre"] for f in e["familias"]][0] == "qam" and len(e["especialistas"]) == 4
+    assert e["rama"] == "constelacion" and e["tonos"] is None and len(d["cnn"]["huella"]) == 128
     json.dumps(d, allow_nan=False)
 
 
