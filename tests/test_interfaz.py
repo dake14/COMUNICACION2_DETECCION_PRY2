@@ -172,6 +172,31 @@ def test_sirve_pagina_y_estado(servidor):
     assert estado == 200 and json.loads(datos)["banco"] is None
 
 
+def test_sirve_las_matrices_de_confusion(servidor):
+    assert pedir(servidor, "GET", "/confusion")[0] == 200 and pedir(servidor, "GET", "/confusion.js")[0] == 200
+    from src.interfaz.servidor import CONFUSION
+    estado, datos = pedir(servidor, "GET", "/api/confusion")
+    if not CONFUSION.exists():
+        assert estado == 400
+        return
+    d = json.loads(datos)
+    assert estado == 200 and [c["id"] for c in d["configuraciones"]][-1] == "ajuste"
+    for c in d["configuraciones"]:
+        m = np.array(c["matrices"]["todas"])
+        assert m.shape == (len(d["filas"]), len(c["columnas"])) and m.sum() == d["archivos"]
+        assert (m == np.array(c["matrices"]["snr>=10"]) + np.array(c["matrices"]["snr<10"])).all()
+
+
+@pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")
+def test_cada_etapa_es_un_motor_con_sus_piezas():
+    m = Modelos()
+    assert "consistencia" not in m.obtener("especialista") and "especialista_modelo" in m.obtener("especialista")
+    assert "especialista_modelo" not in m.obtener("fusion") and m.obtener("enrutador")["solo_enrutador"]
+    assert m.obtener("fusion")["decisor"] is m.obtener("integrado")["decisor"]
+    d = analizar_senal(senal("16QAM"), m.obtener("enrutador"))
+    assert d["decision"]["umbral"] == 0 and d["probabilidades"][0]["nombre"] == "16QAM"
+
+
 @pytest.mark.parametrize("ruta", ["/../servidor.py", "/web/app.js", "/api/nada"])
 def test_no_expone_otros_archivos(servidor, ruta):
     assert pedir(servidor, "GET", ruta)[0] == 404

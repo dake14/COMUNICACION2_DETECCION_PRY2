@@ -19,7 +19,10 @@ MAX_BYTES = 512 * 1024 * 1024
 WEB = Path(__file__).with_name("web")
 ESTATICOS = {"/": ("index.html", "text/html; charset=utf-8"),
              "/estilo.css": ("estilo.css", "text/css; charset=utf-8"),
-             "/app.js": ("app.js", "text/javascript; charset=utf-8")}
+             "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+             "/confusion": ("confusion.html", "text/html; charset=utf-8"),
+             "/confusion.js": ("confusion.js", "text/javascript; charset=utf-8")}
+CONFUSION = Path(__file__).resolve().parents[2] / "results" / "familias" / "confusion" / "confusion.json"
 
 
 # ───────────────────────────  Parámetros  ────────────────────────────
@@ -108,6 +111,11 @@ class Manejador(BaseHTTPRequestHandler):
         iq = leer_senal(datos, nombre, _uno(consulta, "formato", "auto"))
         self._analizar(iq, consulta, {"nombre": nombre})
 
+    def _confusion(self):
+        if not CONFUSION.exists():
+            raise ValueError("Faltan las matrices: corre experiments.exp_f5_confusion.")
+        self._responder(200, CONFUSION.read_bytes(), "application/json; charset=utf-8")
+
     def do_GET(self):
         partes = urlsplit(self.path)
         consulta = parse_qs(partes.query)
@@ -118,6 +126,8 @@ class Manejador(BaseHTTPRequestHandler):
             return self._proteger(self._estado)
         if partes.path == "/api/ejemplo":
             return self._proteger(lambda: self._ejemplo(consulta))
+        if partes.path == "/api/confusion":
+            return self._proteger(self._confusion)
         return self._json(404, {"error": "No encontrado."})
 
     def do_POST(self):

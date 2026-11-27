@@ -28,6 +28,7 @@ canvas { display: block; width: 100%; }
 .barra { align-items: center; border-bottom: 1px solid var(--borde); display: flex; gap: 16px; justify-content: space-between; padding: 12px 20px; }
 .barra p { color: var(--texto-3); font-size: 12px; }
 .barra .estado { color: var(--texto-2); text-align: right; }
+.barra-derecha { align-items: flex-end; display: grid; gap: 6px; justify-items: end; }
 
 .distribucion { align-items: start; display: grid; gap: 16px; grid-template-columns: 280px minmax(0, 1fr); padding: 16px 20px 24px; }
 .lateral { display: grid; gap: 16px; position: sticky; top: 16px; }
@@ -113,6 +114,31 @@ figcaption { align-items: center; color: var(--texto-2); display: flex; font-siz
 
 .soltar { align-items: center; background: rgba(17, 17, 16, 0.86); border: 2px dashed var(--serie-1); display: flex; font-size: 20px; font-weight: 600; inset: 10px; justify-content: center; pointer-events: none; position: fixed; z-index: 10; }
 .globo { background: #2c2c2a; border: 1px solid #55554e; border-radius: 6px; font-size: 12px; padding: 4px 7px; pointer-events: none; position: fixed; z-index: 11; }
+
+/* Navegación y matrices de confusión */
+.navegacion { display: flex; gap: 4px; }
+.navegacion a { border: 1px solid var(--borde); border-radius: var(--radio); color: var(--texto-2); font-size: 12px; padding: 6px 10px; text-decoration: none; }
+.navegacion a:hover { background: var(--superficie-2); color: var(--texto); }
+.navegacion a[aria-current="page"] { background: var(--superficie-2); border-color: var(--serie-1); color: var(--texto); }
+.casilla { align-items: center; color: var(--texto-2); display: flex; font-size: 12px; gap: 6px; }
+.casilla input { accent-color: var(--serie-1); flex: none; height: 16px; margin: 0; min-height: 0; padding: 0; width: 16px; }
+.resumen-matriz { color: var(--texto-2); font-size: 12px; margin-bottom: 12px; }
+.matriz-contenedor { overflow-x: auto; }
+.matriz { border-collapse: separate; border-spacing: 2px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.matriz th { color: var(--texto-2); font-weight: 500; padding: 2px 6px; white-space: nowrap; }
+.matriz thead th.col { height: 96px; padding: 4px 0; vertical-align: bottom; }
+.matriz thead th.col span { display: inline-block; transform: rotate(180deg); writing-mode: vertical-rl; }
+.matriz tbody th { text-align: right; }
+.matriz td { border-radius: 3px; height: 24px; min-width: 32px; text-align: center; }
+.matriz td.correcta { box-shadow: inset 0 0 0 2px var(--bien); }
+.matriz td.total, .matriz th.total { color: var(--texto-3); }
+.comparacion { border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; margin-bottom: 8px; width: 100%; }
+.comparacion th, .comparacion td { border-bottom: 1px solid var(--borde); padding: 4px 3px; text-align: right; }
+.comparacion th:first-child, .comparacion td:first-child { text-align: left; }
+.comparacion th { color: var(--texto-3); font-weight: 500; }
+.comparacion tbody tr { cursor: pointer; }
+.comparacion tbody tr:hover { background: var(--superficie-2); }
+.comparacion tr.actual { background: var(--superficie-2); box-shadow: inset 3px 0 0 var(--serie-1); }
 
 @media (max-width: 1100px) {
   .etapas { grid-template-columns: repeat(2, auto); }

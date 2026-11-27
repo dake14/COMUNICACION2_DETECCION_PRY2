@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Matrices de confusión</title>
+  <link rel="stylesheet" href="/estilo.css">
+</head>
+<body>
+  <header class="barra">
+    <div>
+      <h1>Matrices de confusión</h1>
+      <p id="c-particion">Cargando…</p>
+    </div>
+    <nav class="navegacion" aria-label="Páginas">
+      <a href="/">Analizador</a>
+      <a href="/confusion" aria-current="page">Matrices de confusión</a>
+    </nav>
+  </header>
+
+  <div class="distribucion">
+    <aside class="lateral" aria-label="Opciones">
+      <section class="tarjeta">
+        <h2>Configuración</h2>
+        <label class="campo">Versión del clasificador <select id="c-config"></select></label>
+        <p id="c-descripcion" class="ayuda"></p>
+        <label class="campo">SNR
+          <select id="c-snr">
+            <option value="todas">Todas</option>
+            <option value="snr>=10">≥ 10 dB</option>
+            <option value="snr<10">&lt; 10 dB</option>
+          </select>
+        </label>
+        <label class="campo">Nivel
+          <select id="c-nivel">
+            <option value="clase">Modulación</option>
+            <option value="familia">Familia</option>
+          </select>
+        </label>
+        <label class="campo">Celdas
+          <select id="c-valores">
+            <option value="fila">Porcentaje de la fila</option>
+            <option value="cuenta">Número de archivos</option>
+          </select>
+        </label>
+        <label class="casilla"><input id="c-umbral" type="checkbox" checked> Con umbral (puede responder «Sin decidir»)</label>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Comparación</h2>
+        <table id="c-comparacion" class="comparacion"></table>
+        <p class="ayuda">Haz clic en una fila para ver su matriz.</p>
+      </section>
+    </aside>
+
+    <main class="contenido">
+      <div id="c-error" class="alerta" role="alert" hidden></div>
+      <section class="tarjeta">
+        <h2 id="c-titulo">Matriz</h2>
+        <p id="c-resumen" class="resumen-matriz"></p>
+        <div class="matriz-contenedor">
+          <table id="c-tabla" class="matriz"></table>
+        </div>
+        <p class="ayuda">Filas: la modulación real. Columnas: lo que respondió el clasificador. Las celdas con borde son
+          los aciertos; para una desconocida, el acierto es responder «Desconocida».</p>
+      </section>
+    </main>
+  </div>
+  <script src="/confusion.js"></script>
+</body>
+</html>

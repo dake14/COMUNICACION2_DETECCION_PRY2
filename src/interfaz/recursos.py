@@ -25,17 +25,28 @@ class Motor:
     nombre: str
     descripcion: str
     ruta: Path
+    quitar: tuple = ()
+    solo_enrutador: bool = False
 
 
+INTEGRADO = RAIZ / "results/familias/integracion/paquete_integrado.joblib"
 MOTORES = {
-    "red": Motor("Red + refino", "El más eficiente de la comparación", RAIZ / "results/cascada/modelos/paquete_red.joblib"),
-    "mixta": Motor("Mixta + refino", "Tres rutas de recuperación", RAIZ / "results/cascada/modelos/paquete.joblib"),
+    "red": Motor("Cascada · Red + refino", "Primera versión: 6 clases, la más rápida de la comparación",
+                 RAIZ / "results/cascada/modelos/paquete_red.joblib"),
+    "mixta": Motor("Cascada · Mixta + refino", "Primera versión con tres rutas de recuperación (6 clases)",
+                   RAIZ / "results/cascada/modelos/paquete.joblib"),
     "multi": Motor("Multigenerador", "Entrenado con todos los generadores y canales",
                    RAIZ / "results/cascada/modelos_multi/paquete.joblib"),
-    "robusto": Motor("Canales variados", "32 canales, recuperador nuevo y CNN adversaria de dominio",
+    "robusto": Motor("Cascada robusta", "32 canales, recuperador nuevo y CNN adversaria de dominio (6 clases)",
                      RAIZ / "results/cascada/modelos_robustos/paquete_adversaria_desplazada.joblib"),
-    "integrado": Motor("Familias + constelación", "18 modulaciones: el enrutador elige la familia y la constelación "
-                       "afina dentro de ella", RAIZ / "results/familias/integracion/paquete_integrado.joblib"),
+    "enrutador": Motor("Etapa 2 · Enrutador solo", "18 modulaciones con los especialistas 1-D; sin constelación ni "
+                       "«desconocida» (salvo por tonos)", INTEGRADO, ("especialista_modelo", "consistencia"), True),
+    "fusion": Motor("Etapa 2b · Enrutador × decisor", "La constelación afina dentro de la familia",
+                    INTEGRADO, ("especialista_modelo", "consistencia")),
+    "especialista": Motor("Etapa 4 · + especialista QAM/APSK", "Histogramas finos de la constelación dentro de QAM y "
+                          "APSK", INTEGRADO, ("consistencia",)),
+    "integrado": Motor("Etapa 5 · + ajuste a la constelación (actual)", "La clase cuyos símbolos no caben en su "
+                       "constelación ideal cede probabilidad a «desconocida»", INTEGRADO),
 }
 
 
@@ -50,6 +61,7 @@ def _especialista(ruta):
 class Modelos:
     def __init__(self):
         self._cargados = {}
+        self._bases = {}
         self._cerrojo = threading.Lock()
 
     def obtener(self, clave):
@@ -57,15 +69,25 @@ class Modelos:
             raise ValueError(f"Modelo desconocido: {clave}")
         if not MOTORES[clave].ruta.exists():
             raise ValueError(f"El modelo «{MOTORES[clave].nombre}» todavía no está disponible.")
+        motor = MOTORES[clave]
         with self._cerrojo:
             if clave not in self._cargados:
-                paquete = cargar_paquete(MOTORES[clave].ruta)
-                if "enrutador" in paquete:
-                    paquete["enrutador_modelo"] = Enrutador.cargar(RAIZ / paquete["enrutador"])
-                if paquete.get("especialista"):
-                    paquete["especialista_modelo"] = _especialista(RAIZ / paquete["especialista"])
+                base = self._base(motor.ruta)
+                paquete = {k: v for k, v in base.items() if k not in motor.quitar}
+                if motor.solo_enrutador:
+                    paquete["solo_enrutador"] = True
                 self._cargados[clave] = paquete
             return self._cargados[clave]
+
+    def _base(self, ruta):
+        if ruta not in self._bases:
+            paquete = cargar_paquete(ruta)
+            if "enrutador" in paquete:
+                paquete["enrutador_modelo"] = Enrutador.cargar(RAIZ / paquete["enrutador"])
+            if paquete.get("especialista"):
+                paquete["especialista_modelo"] = _especialista(RAIZ / paquete["especialista"])
+            self._bases[ruta] = paquete
+        return self._bases[ruta]
 
     @staticmethod
     def listado():

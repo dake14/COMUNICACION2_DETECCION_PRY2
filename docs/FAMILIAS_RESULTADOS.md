@@ -392,6 +392,44 @@ Es física pura y no se entrena con desconocidas.
 con una 12PSK de `gr_polifase` con deriva de reloj, la respuesta es «Desconocida» y la nota dice: «Los símbolos no caben
 en la constelación ideal de 8PSK, 32QAM, 64QAM».
 
+## Matrices de confusión y comparación por etapas (2026-11-27)
+
+**Cómo se generan.** `experiments/exp_f5_confusion.py` las calcula sobre los 5760 archivos de la partición de
+evaluación de `digitales`.
+- **Datos:** quedan en `results/familias/confusion/confusion.json`.
+- **Cascadas viejas:** red y mixta se corrieron archivo por archivo, en unos 5 minutos cada una.
+- **Etapas 2b y 4:** se reconstruyen quitándole piezas al paquete actual. Comparten su calibración: puerta −1,6 y
+  umbral 0,35.
+
+**Dónde se ven.**
+- **Página `/confusion`** (`confusion.html`, `confusion.js`; U16, agy). Tiene estas opciones:
+  - versión;
+  - SNR;
+  - nivel (modulación o familia);
+  - celdas en porcentaje de la fila o en número de archivos;
+  - con o sin umbral.
+
+  La tabla de comparación cambia de matriz con un clic.
+- **Analizador:** el selector «Modelo» ofrece cada etapa como motor. Así se puede meter una señal propia y ver qué
+  responde cada versión.
+
+| Versión | Conocidas, SNR ≥ 10 | Desconocidas, SNR ≥ 10 | Sin decidir, SNR ≥ 10 | Conocidas, todas | Desconocidas, todas | Sin decidir, todas |
+|---|---|---|---|---|---|---|
+| Cascada «Red + refino» | 14,3 % | 47,7 % | 44,7 % | 11,7 % | 49,3 % | 45,7 % |
+| Cascada «Mixta + refino» | 14,1 % | 43,5 % | 47,5 % | 11,5 % | 42,0 % | 52,3 % |
+| Cascada robusta | 14,3 % | 43,6 % | 57,0 % | 12,0 % | 39,9 % | 60,9 % |
+| Enrutador de familias solo | 69,6 % | 0 % | 0 % | 62,1 % | 0 % | 0 % |
+| Enrutador × decisor | 68,1 % | 29,7 % | 13,2 % | 59,5 % | 25,5 % | 19,9 % |
+| + especialista QAM/APSK | 71,5 % | 28,7 % | 8,7 % | 63,7 % | 24,5 % | 12,8 % |
+| + ajuste a la constelación (actual) | 70,4 % | 38,4 % | 8,7 % | 62,8 % | 32,1 % | 12,3 % |
+| Actual sin umbral | 72,5 % | 44,4 % | 0 % | 64,9 % | 40,6 % | 0 % |
+
+- **Columnas:** «Conocidas» es sobre las 18 clases. «Desconocidas» es el porcentaje de desconocidas respondidas como
+  tales. «Sin decidir» cuenta las conocidas a las que no se respondió nada.
+- **Las cascadas viejas solo conocen 6 clases** (BPSK, QPSK, 8PSK, 16QAM, 64QAM, 4PAM). Las otras 12 nunca pueden
+  acertarlas; en sus 6 clases la robusta da 41,9 %. Su alta tasa de «desconocidas» viene de dudar de todo: dejan sin
+  decidir casi la mitad de las conocidas.
+
 ## Falta
 - 128QAM frente a 256QAM: haría falta más SNR o más símbolos; la prueba no puede inventar la separación.
 - GMSK frente a MSK: U8 no separa BT 0,3.

@@ -90,13 +90,14 @@ def salida_integrada(x, r, snr, paquete):
     tonos = _tonos(x) if paquete.get("con_tonos", True) else None
     fiable = tonos is not None and tonos["puntaje"] >= paquete.get("puntaje_tonos", 0.8)
     p_especialista = _p_especialista(r, paquete)
-    argumentos = (analisis["familias"], analisis["clases"], p_decisor, paquete["familia_de"],
+    solo = bool(paquete.get("solo_enrutador"))
+    argumentos = (analisis["familias"], analisis["clases"], None if solo else p_decisor, paquete["familia_de"],
                   tonos["tonos"] if fiable else None)
     opciones = {"grupos": paquete.get("grupos") if p_especialista else None, "p_especialista": p_especialista}
     consistentes = _consistentes(r, paquete)
     fusion = fusionar(*argumentos, **opciones, consistentes=consistentes)
     previas = fusionar(*argumentos, **opciones)["probabilidades"] if consistentes else {}
-    umbral = float(paquete["decisor"].umbral)
+    umbral = 0.0 if solo else float(paquete["decisor"].umbral)
     decision = _decision(fusion["probabilidades"], umbral, paquete)
     probabilidades = sorted(({"nombre": n, "valor": round(float(v), 4)} for n, v in fusion["probabilidades"].items()),
                             key=lambda p: -p["valor"])
