@@ -1,0 +1,49 @@
+{
+ "clases": [
+  "OOK",
+  "4ASK",
+  "4PAM",
+  "BPSK",
+  "QPSK",
+  "8PSK",
+  "OQPSK",
+  "PI4DQPSK",
+  "16QAM",
+  "32QAM",
+  "64QAM",
+  "256QAM",
+  "16APSK",
+  "32APSK",
+  "2FSK",
+  "4FSK",
+  "MSK",
+  "GMSK"
+ ],
+ "familias": {
+  "OOK": "amplitud",
+  "4ASK": "amplitud",
+  "4PAM": "amplitud",
+  "BPSK": "fase",
+  "QPSK": "fase",
+  "8PSK": "fase",
+  "OQPSK": "fase",
+  "PI4DQPSK": "fase",
+  "16QAM": "qam",
+  "32QAM": "qam",
+  "64QAM": "qam",
+  "256QAM": "qam",
+  "16APSK": "apsk",
+  "32APSK": "apsk",
+  "2FSK": "frecuencia",
+  "4FSK": "frecuencia",
+  "MSK": "frecuencia",
+  "GMSK": "frecuencia"
+ },
+ "pasos": 6000,
+ "validacion_interna": {
+  "espectro": 0.3273056149482727,
+  "potencias": 0.48236891627311707,
+  "envolvente": 0.5698463320732117,
+  "frecuencia": 0.46971067786216736
+ }
+}

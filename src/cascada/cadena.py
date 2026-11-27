@@ -6,6 +6,7 @@ from src.cascada.clasica import (LARGO_FSE, filtro_adaptado, pesos_cma, peso_ini
                                  simbolos_t2, ventanas_t2)
 from src.cascada.normalizador import normalizar
 from src.cascada.recuperador import aplicar_recuperador
+from src.cascada.seguimiento import cma_seguimiento, fase_por_bloques
 
 MIN_SIMBOLOS = 24
 MAX_MUESTRAS = 32768
@@ -24,20 +25,27 @@ def _inicio(iq8, ruta, recuperador):
 
 
 def _enfocar_ruta(iq8, ruta, recuperador, refinar):
-    x2, w = _inicio(iq8, ruta, recuperador)
+    seguir = ruta == "seguimiento"
+    x2, w = _inicio(iq8, "red" if seguir else ruta, recuperador)
     if len(x2) < 2 * MIN_SIMBOLOS + LARGO_FSE:
         return None
     _, df, nitidez = autofoco(ventanas_t2(x2[:MAX_AJUSTE]) @ w)
     x2 = x2 * np.exp(-1j * np.pi * df * np.arange(len(x2)))
     if refinar:
         w = refinar_ciego(x2[:MAX_AJUSTE], w, lambda y: entropia(y[:MAX_ENTROPIA]))
-    z, ajuste, _ = autofoco(ventanas_t2(x2) @ w, df_max=DF_FINO)
+    y = cma_seguimiento(x2, w)[0] if seguir else ventanas_t2(x2) @ w
+    z, ajuste, _ = autofoco(y, df_max=DF_FINO)
+    if seguir:
+        z = fase_por_bloques(z)
     return z, df + ajuste, nitidez
+
+
+RUTAS = {"mixta": ("red", "clasica", "directa"), "mixta_seguimiento": ("red", "clasica", "directa", "seguimiento")}
 
 
 def enfocar(iq8, cadena="red", recuperador=None, refinar=True):
     """Devuelve (símbolos, df, nitidez, ruta). `mixta` elige la salida de menor entropía."""
-    rutas = ("red", "clasica", "directa") if cadena == "mixta" else (cadena,)
+    rutas = RUTAS.get(cadena, (cadena,))
     mejor = None
     for ruta in rutas:
         salida = _enfocar_ruta(iq8, ruta, recuperador, refinar)

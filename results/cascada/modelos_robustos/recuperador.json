@@ -1,0 +1,544 @@
+{
+ "inicial": {
+  "val": 0.1684,
+  "por_canal": {
+   "amplificador": 0.06,
+   "cuantizacion": 0.0494,
+   "deriva_portadora": 0.0606,
+   "deriva_reloj": 0.0592,
+   "dos_rayos": 0.1831,
+   "ecos_largos": 0.2865,
+   "ideal": 0.0485,
+   "impulsivo": 0.2045,
+   "int_adyacente": 0.0606,
+   "int_barrido": 0.116,
+   "int_cocanal": 0.0758,
+   "int_pulsos": 0.1496,
+   "interferencia": 0.0596,
+   "iq_dc": 0.0724,
+   "lte_epa": 0.0733,
+   "lte_etu": 0.326,
+   "lte_eva": 0.2208,
+   "mp_corto": 0.2112,
+   "mp_largo": 0.5503,
+   "nakagami": 0.1203,
+   "plano_lento": 0.0551,
+   "receptor_barato": 0.0912,
+   "ruido_fase": 0.0679,
+   "sombra": 0.4812,
+   "tdl_rayleigh": 0.577,
+   "tdl_rician": 0.5517,
+   "watterson": 0.2531
+  }
+ },
+ "final": {
+  "val": 0.1245,
+  "por_canal": {
+   "amplificador": 0.0516,
+   "cuantizacion": 0.0415,
+   "deriva_portadora": 0.0525,
+   "deriva_reloj": 0.0504,
+   "dos_rayos": 0.125,
+   "ecos_largos": 0.2891,
+   "ideal": 0.0394,
+   "impulsivo": 0.0522,
+   "int_adyacente": 0.0467,
+   "int_barrido": 0.1109,
+   "int_cocanal": 0.0678,
+   "int_pulsos": 0.103,
+   "interferencia": 0.0473,
+   "iq_dc": 0.0614,
+   "lte_epa": 0.0654,
+   "lte_etu": 0.2728,
+   "lte_eva": 0.1651,
+   "mp_corto": 0.1409,
+   "mp_largo": 0.4138,
+   "nakagami": 0.0843,
+   "plano_lento": 0.045,
+   "receptor_barato": 0.08,
+   "ruido_fase": 0.0595,
+   "sombra": 0.1885,
+   "tdl_rayleigh": 0.4655,
+   "tdl_rician": 0.4316,
+   "watterson": 0.1599
+  }
+ },
+ "historia": [
+  {
+   "ronda": 1,
+   "paso": 750,
+   "min": 1.0,
+   "train": 0.1533,
+   "val": 0.1493
+  },
+  {
+   "ronda": 2,
+   "paso": 1500,
+   "min": 2.1,
+   "train": 0.1485,
+   "val": 0.1457
+  },
+  {
+   "ronda": 3,
+   "paso": 2250,
+   "min": 3.5,
+   "train": 0.1476,
+   "val": 0.1425
+  },
+  {
+   "ronda": 4,
+   "paso": 3000,
+   "min": 4.6,
+   "train": 0.1427,
+   "val": 0.1407
+  },
+  {
+   "ronda": 5,
+   "paso": 3750,
+   "min": 5.7,
+   "train": 0.1442,
+   "val": 0.1409
+  },
+  {
+   "ronda": 6,
+   "paso": 4500,
+   "min": 6.8,
+   "train": 0.1407,
+   "val": 0.1384
+  },
+  {
+   "ronda": 7,
+   "paso": 5250,
+   "min": 8.0,
+   "train": 0.1401,
+   "val": 0.1375
+  },
+  {
+   "ronda": 8,
+   "paso": 6000,
+   "min": 9.0,
+   "train": 0.1407,
+   "val": 0.1371
+  },
+  {
+   "ronda": 9,
+   "paso": 6750,
+   "min": 10.1,
+   "train": 0.1405,
+   "val": 0.136
+  },
+  {
+   "ronda": 10,
+   "paso": 7500,
+   "min": 11.1,
+   "train": 0.1416,
+   "val": 0.1358
+  },
+  {
+   "ronda": 11,
+   "paso": 8250,
+   "min": 12.1,
+   "train": 0.1394,
+   "val": 0.135
+  },
+  {
+   "ronda": 12,
+   "paso": 9000,
+   "min": 13.1,
+   "train": 0.1383,
+   "val": 0.1343
+  },
+  {
+   "ronda": 13,
+   "paso": 9750,
+   "min": 14.1,
+   "train": 0.1354,
+   "val": 0.1336
+  },
+  {
+   "ronda": 14,
+   "paso": 10500,
+   "min": 15.2,
+   "train": 0.1365,
+   "val": 0.1335
+  },
+  {
+   "ronda": 15,
+   "paso": 11250,
+   "min": 16.2,
+   "train": 0.1351,
+   "val": 0.1329
+  },
+  {
+   "ronda": 16,
+   "paso": 12000,
+   "min": 17.2,
+   "train": 0.1345,
+   "val": 0.1339
+  },
+  {
+   "ronda": 17,
+   "paso": 12750,
+   "min": 18.2,
+   "train": 0.1382,
+   "val": 0.1331
+  },
+  {
+   "ronda": 18,
+   "paso": 13500,
+   "min": 19.3,
+   "train": 0.1371,
+   "val": 0.1326
+  },
+  {
+   "ronda": 19,
+   "paso": 14250,
+   "min": 20.4,
+   "train": 0.1306,
+   "val": 0.132
+  },
+  {
+   "ronda": 20,
+   "paso": 15000,
+   "min": 21.4,
+   "train": 0.134,
+   "val": 0.1314
+  },
+  {
+   "ronda": 21,
+   "paso": 15750,
+   "min": 22.5,
+   "train": 0.1338,
+   "val": 0.1318
+  },
+  {
+   "ronda": 22,
+   "paso": 16500,
+   "min": 23.5,
+   "train": 0.1342,
+   "val": 0.1312
+  },
+  {
+   "ronda": 23,
+   "paso": 17250,
+   "min": 24.5,
+   "train": 0.1327,
+   "val": 0.1309
+  },
+  {
+   "ronda": 24,
+   "paso": 18000,
+   "min": 25.5,
+   "train": 0.1342,
+   "val": 0.1309
+  },
+  {
+   "ronda": 25,
+   "paso": 18750,
+   "min": 26.5,
+   "train": 0.1339,
+   "val": 0.13
+  },
+  {
+   "ronda": 26,
+   "paso": 19500,
+   "min": 27.6,
+   "train": 0.131,
+   "val": 0.1303
+  },
+  {
+   "ronda": 27,
+   "paso": 20250,
+   "min": 28.6,
+   "train": 0.1313,
+   "val": 0.1295
+  },
+  {
+   "ronda": 28,
+   "paso": 21000,
+   "min": 29.6,
+   "train": 0.1337,
+   "val": 0.1295
+  },
+  {
+   "ronda": 29,
+   "paso": 21750,
+   "min": 30.6,
+   "train": 0.132,
+   "val": 0.1294
+  },
+  {
+   "ronda": 30,
+   "paso": 22500,
+   "min": 31.6,
+   "train": 0.1322,
+   "val": 0.1292
+  },
+  {
+   "ronda": 31,
+   "paso": 23250,
+   "min": 32.6,
+   "train": 0.1311,
+   "val": 0.129
+  },
+  {
+   "ronda": 32,
+   "paso": 24000,
+   "min": 33.6,
+   "train": 0.1315,
+   "val": 0.1294
+  },
+  {
+   "ronda": 33,
+   "paso": 24750,
+   "min": 34.6,
+   "train": 0.1301,
+   "val": 0.1284
+  },
+  {
+   "ronda": 34,
+   "paso": 25500,
+   "min": 35.7,
+   "train": 0.132,
+   "val": 0.1281
+  },
+  {
+   "ronda": 35,
+   "paso": 26250,
+   "min": 36.7,
+   "train": 0.1292,
+   "val": 0.1278
+  },
+  {
+   "ronda": 36,
+   "paso": 27000,
+   "min": 37.7,
+   "train": 0.1303,
+   "val": 0.1276
+  },
+  {
+   "ronda": 37,
+   "paso": 27750,
+   "min": 38.7,
+   "train": 0.1318,
+   "val": 0.1292
+  },
+  {
+   "ronda": 38,
+   "paso": 28500,
+   "min": 39.7,
+   "train": 0.1299,
+   "val": 0.1275
+  },
+  {
+   "ronda": 39,
+   "paso": 29250,
+   "min": 40.8,
+   "train": 0.1275,
+   "val": 0.1273
+  },
+  {
+   "ronda": 40,
+   "paso": 30000,
+   "min": 41.8,
+   "train": 0.1281,
+   "val": 0.1282
+  },
+  {
+   "ronda": 41,
+   "paso": 30750,
+   "min": 42.8,
+   "train": 0.1285,
+   "val": 0.127
+  },
+  {
+   "ronda": 42,
+   "paso": 31500,
+   "min": 43.8,
+   "train": 0.1293,
+   "val": 0.1278
+  },
+  {
+   "ronda": 43,
+   "paso": 32250,
+   "min": 44.8,
+   "train": 0.1293,
+   "val": 0.1268
+  },
+  {
+   "ronda": 44,
+   "paso": 33000,
+   "min": 45.8,
+   "train": 0.1289,
+   "val": 0.1264
+  },
+  {
+   "ronda": 45,
+   "paso": 33750,
+   "min": 46.8,
+   "train": 0.1272,
+   "val": 0.1273
+  },
+  {
+   "ronda": 46,
+   "paso": 34500,
+   "min": 47.8,
+   "train": 0.1261,
+   "val": 0.1265
+  },
+  {
+   "ronda": 47,
+   "paso": 35250,
+   "min": 48.9,
+   "train": 0.128,
+   "val": 0.127
+  },
+  {
+   "ronda": 48,
+   "paso": 36000,
+   "min": 49.9,
+   "train": 0.1276,
+   "val": 0.126
+  },
+  {
+   "ronda": 49,
+   "paso": 36750,
+   "min": 50.9,
+   "train": 0.131,
+   "val": 0.1262
+  },
+  {
+   "ronda": 50,
+   "paso": 37500,
+   "min": 51.9,
+   "train": 0.1257,
+   "val": 0.1256
+  },
+  {
+   "ronda": 51,
+   "paso": 38250,
+   "min": 52.9,
+   "train": 0.1292,
+   "val": 0.1263
+  },
+  {
+   "ronda": 52,
+   "paso": 39000,
+   "min": 54.0,
+   "train": 0.1276,
+   "val": 0.1257
+  },
+  {
+   "ronda": 53,
+   "paso": 39750,
+   "min": 55.0,
+   "train": 0.1293,
+   "val": 0.1256
+  },
+  {
+   "ronda": 54,
+   "paso": 40500,
+   "min": 56.0,
+   "train": 0.1253,
+   "val": 0.1255
+  },
+  {
+   "ronda": 55,
+   "paso": 41250,
+   "min": 57.0,
+   "train": 0.1276,
+   "val": 0.1253
+  },
+  {
+   "ronda": 56,
+   "paso": 42000,
+   "min": 58.0,
+   "train": 0.1267,
+   "val": 0.1251
+  },
+  {
+   "ronda": 57,
+   "paso": 42750,
+   "min": 59.1,
+   "train": 0.1283,
+   "val": 0.1253
+  },
+  {
+   "ronda": 58,
+   "paso": 43500,
+   "min": 60.1,
+   "train": 0.1259,
+   "val": 0.1249
+  },
+  {
+   "ronda": 59,
+   "paso": 44250,
+   "min": 61.1,
+   "train": 0.1273,
+   "val": 0.1249
+  },
+  {
+   "ronda": 60,
+   "paso": 45000,
+   "min": 62.1,
+   "train": 0.1259,
+   "val": 0.1249
+  },
+  {
+   "ronda": 61,
+   "paso": 45750,
+   "min": 63.1,
+   "train": 0.1284,
+   "val": 0.1251
+  },
+  {
+   "ronda": 62,
+   "paso": 46500,
+   "min": 64.1,
+   "train": 0.128,
+   "val": 0.1247
+  },
+  {
+   "ronda": 63,
+   "paso": 47250,
+   "min": 65.1,
+   "train": 0.1251,
+   "val": 0.1247
+  },
+  {
+   "ronda": 64,
+   "paso": 48000,
+   "min": 66.2,
+   "train": 0.1263,
+   "val": 0.1246
+  },
+  {
+   "ronda": 65,
+   "paso": 48750,
+   "min": 67.2,
+   "train": 0.1266,
+   "val": 0.1245
+  },
+  {
+   "ronda": 66,
+   "paso": 49500,
+   "min": 68.2,
+   "train": 0.1252,
+   "val": 0.1245
+  },
+  {
+   "ronda": 67,
+   "paso": 50250,
+   "min": 69.2,
+   "train": 0.1282,
+   "val": 0.1245
+  },
+  {
+   "ronda": 68,
+   "paso": 50652,
+   "min": 70.0,
+   "train": 0.1252,
+   "val": 0.1245
+  }
+ ]
+}

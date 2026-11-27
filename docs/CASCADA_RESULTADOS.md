@@ -11,8 +11,9 @@ opción. En dos generadores que no se usaron para entrenar ni ajustar supera a l
 metas con GNU Radio. Con el generador independiente no alcanza dos: exactitud (79,2 % frente a 85 %) y AUROC de
 desconocidas (0,839 frente a 0,90).
 
-El sistema prefiere no responder antes que equivocarse. Cuando da una modulación del catálogo acierta el 93 % o más,
-pero deja sin decidir alrededor de un tercio de las señales conocidas.
+El sistema prefiere no responder antes que equivocarse. Con señales del catálogo, cuando afirma una modulación acierta
+el 93 % o más. Si también se cuentan las desconocidas aceptadas por error, ese acierto baja a 85,4 % con GNU Radio y
+93,5 % con el generador independiente. Además, deja sin decidir alrededor de un tercio de las señales conocidas.
 
 ## Resultados finales
 
@@ -36,7 +37,8 @@ o `INDETERMINADA`:
 | Conocidas con la modulación correcta | 57,8 % | 52,1 % |
 | Conocidas marcadas `INDETERMINADA` | 35,4 % | 33,3 % |
 | Conocidas marcadas `DESCONOCIDA` | 2,6 % | 13,5 % |
-| Acierto cuando afirma una modulación del catálogo | 93,3 % | 98,0 % |
+| Acierto al afirmar una modulación, solo señales conocidas | 93,3 % | 98,0 % |
+| Acierto al afirmar una modulación, contando desconocidas | 85,4 % | 93,5 % |
 | Desconocidas marcadas `DESCONOCIDA` | 54,3 % | 51,6 % |
 | Desconocidas marcadas `INDETERMINADA` | 41,4 % | 46,5 % |
 | Desconocidas aceptadas como del catálogo | 4,3 % | 2,0 % |

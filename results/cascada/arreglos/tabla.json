@@ -1,0 +1,570 @@
+{
+ "regla": "el m\u00e1s r\u00e1pido a 0.02 o menos del mejor en exactitud y puntaje abierto",
+ "mas_eficiente": "red_refino",
+ "mas_eficiente_gpu": "red_refino",
+ "mejor_exactitud": 0.8098958333333334,
+ "mejor_puntaje_abierto": 0.5419921875,
+ "n_conocidas": 768,
+ "arreglos": [
+  {
+   "arreglo": "directa_refino",
+   "usa_red": false,
+   "refino": true,
+   "exactitud": 0.7096354166666666,
+   "correctas_salida_real": 0.3528645833333333,
+   "desconocidas_marcadas": 0.3466796875,
+   "falsa_aceptacion": 0.0224609375,
+   "auroc": 0.7890917460123698,
+   "ece": 0.045457675447638526,
+   "puntaje_abierto": 0.34977213541666663,
+   "precision_afirmadas": 0.8827361563517915,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.6765505964299035,
+    0.7406334475501049
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.71875,
+     "correctas_salida_real": 0.3385416666666667,
+     "desconocidas_marcadas": 0.349609375,
+     "falsa_aceptacion": 0.029296875,
+     "auroc": 0.787353515625,
+     "ece": 0.05321689192678497,
+     "puntaje_abierto": 0.34407552083333337,
+     "precision_afirmadas": 0.8783783783783784,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7005208333333334,
+     "correctas_salida_real": 0.3671875,
+     "desconocidas_marcadas": 0.34375,
+     "falsa_aceptacion": 0.015625,
+     "auroc": 0.7905782063802084,
+     "ece": 0.052519210842600354,
+     "puntaje_abierto": 0.35546875,
+     "precision_afirmadas": 0.8867924528301887,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 35.19500000402331,
+   "tiempo_ms_p95": 64.47416498995152,
+   "tiempo_gpu_ms_mediana": 38.00549999868963,
+   "tiempo_gpu_ms_p95": 66.63783999683801,
+   "aciertos_por_segundo": 20.16296111906648,
+   "uso_rutas": {
+    "directa": 1.0
+   },
+   "minutos_ajuste": 2.7655338684717816,
+   "mcnemar_vs_actual": {
+    "solo_este": 48,
+    "solo_referencia": 110,
+    "p": 8.924264449841005e-07
+   },
+   "pareto": true
+  },
+  {
+   "arreglo": "cma",
+   "usa_red": false,
+   "refino": false,
+   "exactitud": 0.7408854166666666,
+   "correctas_salida_real": 0.4466145833333333,
+   "desconocidas_marcadas": 0.4853515625,
+   "falsa_aceptacion": 0.0126953125,
+   "auroc": 0.8711903889973959,
+   "ece": 0.07349293155571764,
+   "puntaje_abierto": 0.46598307291666663,
+   "precision_afirmadas": 0.9146666666666666,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.7087522156237924,
+    0.7706207541669003
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.7734375,
+     "correctas_salida_real": 0.4635416666666667,
+     "desconocidas_marcadas": 0.513671875,
+     "falsa_aceptacion": 0.021484375,
+     "auroc": 0.8921712239583334,
+     "ece": 0.08132268771459578,
+     "puntaje_abierto": 0.48860677083333337,
+     "precision_afirmadas": 0.9035532994923858,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7083333333333334,
+     "correctas_salida_real": 0.4296875,
+     "desconocidas_marcadas": 0.45703125,
+     "falsa_aceptacion": 0.00390625,
+     "auroc": 0.8482106526692709,
+     "ece": 0.07100028593109584,
+     "puntaje_abierto": 0.443359375,
+     "precision_afirmadas": 0.9269662921348315,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 37.50825000315672,
+   "tiempo_ms_p95": 72.6522900062264,
+   "tiempo_gpu_ms_mediana": 39.7015500057023,
+   "tiempo_gpu_ms_p95": 74.51691999958712,
+   "aciertos_por_segundo": 19.75259887103006,
+   "uso_rutas": {
+    "clasica": 1.0
+   },
+   "minutos_ajuste": 3.0031405727068585,
+   "mcnemar_vs_actual": {
+    "solo_este": 37,
+    "solo_referencia": 75,
+    "p": 0.0004209679285168773
+   },
+   "pareto": true
+  },
+  {
+   "arreglo": "cma_refino",
+   "usa_red": false,
+   "refino": true,
+   "exactitud": 0.7395833333333334,
+   "correctas_salida_real": 0.4440104166666667,
+   "desconocidas_marcadas": 0.4931640625,
+   "falsa_aceptacion": 0.009765625,
+   "auroc": 0.8898468017578125,
+   "ece": 0.06036444152855372,
+   "puntaje_abierto": 0.46858723958333337,
+   "precision_afirmadas": 0.9045092838196287,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.7074065750006403,
+    0.7693751895479407
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.7630208333333334,
+     "correctas_salida_real": 0.46875,
+     "desconocidas_marcadas": 0.52734375,
+     "falsa_aceptacion": 0.009765625,
+     "auroc": 0.916046142578125,
+     "ece": 0.06775826740146727,
+     "puntaje_abierto": 0.498046875,
+     "precision_afirmadas": 0.8955223880597015,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7161458333333334,
+     "correctas_salida_real": 0.4192708333333333,
+     "desconocidas_marcadas": 0.458984375,
+     "falsa_aceptacion": 0.009765625,
+     "auroc": 0.8612060546875,
+     "ece": 0.05297061565564012,
+     "puntaje_abierto": 0.43912760416666663,
+     "precision_afirmadas": 0.9147727272727273,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 41.700900001160335,
+   "tiempo_ms_p95": 75.94247000670293,
+   "tiempo_gpu_ms_mediana": 51.19364998972742,
+   "tiempo_gpu_ms_p95": 85.473690010258,
+   "aciertos_por_segundo": 17.73542857139185,
+   "uso_rutas": {
+    "clasica": 1.0
+   },
+   "minutos_ajuste": 3.1608061750729877,
+   "mcnemar_vs_actual": {
+    "solo_este": 40,
+    "solo_referencia": 79,
+    "p": 0.0004453106769171577
+   },
+   "pareto": true
+  },
+  {
+   "arreglo": "directa",
+   "usa_red": false,
+   "refino": false,
+   "exactitud": 0.671875,
+   "correctas_salida_real": 0.3333333333333333,
+   "desconocidas_marcadas": 0.3583984375,
+   "falsa_aceptacion": 0.0244140625,
+   "auroc": 0.7944971720377604,
+   "ece": 0.05066031158154702,
+   "puntaje_abierto": 0.34586588541666663,
+   "precision_afirmadas": 0.8951048951048951,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.6378835021743376,
+    0.7041555897844269
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.6484375,
+     "correctas_salida_real": 0.3203125,
+     "desconocidas_marcadas": 0.357421875,
+     "falsa_aceptacion": 0.029296875,
+     "auroc": 0.7897745768229166,
+     "ece": 0.064428935891807,
+     "puntaje_abierto": 0.3388671875,
+     "precision_afirmadas": 0.8848920863309353,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.6953125,
+     "correctas_salida_real": 0.3463541666666667,
+     "desconocidas_marcadas": 0.359375,
+     "falsa_aceptacion": 0.01953125,
+     "auroc": 0.8008626302083334,
+     "ece": 0.049198092572383285,
+     "puntaje_abierto": 0.35286458333333337,
+     "precision_afirmadas": 0.9047619047619048,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 42.929049996018875,
+   "tiempo_ms_p95": 466.57665000966506,
+   "tiempo_gpu_ms_mediana": 30.94645000237506,
+   "tiempo_gpu_ms_p95": 58.750089988461696,
+   "aciertos_por_segundo": 15.650823860819372,
+   "uso_rutas": {
+    "directa": 1.0
+   },
+   "minutos_ajuste": 2.9783490856488544,
+   "mcnemar_vs_actual": {
+    "solo_este": 51,
+    "solo_referencia": 142,
+    "p": 4.0268534667920576e-11
+   },
+   "pareto": false
+  },
+  {
+   "arreglo": "red",
+   "usa_red": true,
+   "refino": false,
+   "exactitud": 0.7942708333333334,
+   "correctas_salida_real": 0.515625,
+   "desconocidas_marcadas": 0.5146484375,
+   "falsa_aceptacion": 0.0419921875,
+   "auroc": 0.8690528869628906,
+   "ece": 0.05030703335754462,
+   "puntaje_abierto": 0.51513671875,
+   "precision_afirmadas": 0.8898876404494382,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.7642502680995732,
+    0.8213621166177058
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.828125,
+     "correctas_salida_real": 0.5520833333333334,
+     "desconocidas_marcadas": 0.51171875,
+     "falsa_aceptacion": 0.0546875,
+     "auroc": 0.8872731526692709,
+     "ece": 0.06526003802238363,
+     "puntaje_abierto": 0.5319010416666667,
+     "precision_afirmadas": 0.8796680497925311,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7604166666666666,
+     "correctas_salida_real": 0.4791666666666667,
+     "desconocidas_marcadas": 0.517578125,
+     "falsa_aceptacion": 0.029296875,
+     "auroc": 0.8492889404296875,
+     "ece": 0.04787334715117463,
+     "puntaje_abierto": 0.49837239583333337,
+     "precision_afirmadas": 0.9019607843137255,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 59.42745000356808,
+   "tiempo_ms_p95": 114.55283500326914,
+   "tiempo_gpu_ms_mediana": 39.7390500002075,
+   "tiempo_gpu_ms_p95": 72.3272400078713,
+   "aciertos_por_segundo": 13.365386421353172,
+   "uso_rutas": {
+    "red": 1.0
+   },
+   "minutos_ajuste": 8.039792704582215,
+   "mcnemar_vs_actual": {
+    "solo_este": 46,
+    "solo_referencia": 43,
+    "p": 0.8322577540225791
+   },
+   "pareto": true
+  },
+  {
+   "arreglo": "red_refino",
+   "usa_red": true,
+   "refino": true,
+   "exactitud": 0.8098958333333334,
+   "correctas_salida_real": 0.5455729166666666,
+   "desconocidas_marcadas": 0.525390625,
+   "falsa_aceptacion": 0.0341796875,
+   "auroc": 0.871978759765625,
+   "ece": 0.03884885411147348,
+   "puntaje_abierto": 0.5354817708333333,
+   "precision_afirmadas": 0.8991416309012875,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.780628173582914,
+    0.8360786740397071
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.8671875,
+     "correctas_salida_real": 0.6041666666666666,
+     "desconocidas_marcadas": 0.517578125,
+     "falsa_aceptacion": 0.041015625,
+     "auroc": 0.8964284261067709,
+     "ece": 0.04775393491230272,
+     "puntaje_abierto": 0.5608723958333333,
+     "precision_afirmadas": 0.8923076923076924,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7526041666666666,
+     "correctas_salida_real": 0.4869791666666667,
+     "desconocidas_marcadas": 0.533203125,
+     "falsa_aceptacion": 0.02734375,
+     "auroc": 0.8451741536458334,
+     "ece": 0.03206369825902356,
+     "puntaje_abierto": 0.5100911458333334,
+     "precision_afirmadas": 0.9077669902912622,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 68.14229999872623,
+   "tiempo_ms_p95": 129.58703000913374,
+   "tiempo_gpu_ms_mediana": 49.20950000087032,
+   "tiempo_gpu_ms_p95": 79.36608000163687,
+   "aciertos_por_segundo": 11.88536097766692,
+   "uso_rutas": {
+    "red": 1.0
+   },
+   "minutos_ajuste": 7.967387855052948,
+   "mcnemar_vs_actual": {
+    "solo_este": 45,
+    "solo_referencia": 30,
+    "p": 0.10534226887460482
+   },
+   "pareto": true
+  },
+  {
+   "arreglo": "mixta",
+   "usa_red": true,
+   "refino": false,
+   "exactitud": 0.7981770833333334,
+   "correctas_salida_real": 0.5078125,
+   "desconocidas_marcadas": 0.576171875,
+   "falsa_aceptacion": 0.0263671875,
+   "auroc": 0.8746770222981771,
+   "ece": 0.06140119229290653,
+   "puntaje_abierto": 0.5419921875,
+   "precision_afirmadas": 0.9048723897911833,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.7683384646705961,
+    0.8250475357730184
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.8203125,
+     "correctas_salida_real": 0.5286458333333334,
+     "desconocidas_marcadas": 0.572265625,
+     "falsa_aceptacion": 0.03515625,
+     "auroc": 0.89202880859375,
+     "ece": 0.07166969253840051,
+     "puntaje_abierto": 0.5504557291666667,
+     "precision_afirmadas": 0.8982300884955752,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7760416666666666,
+     "correctas_salida_real": 0.4869791666666667,
+     "desconocidas_marcadas": 0.580078125,
+     "falsa_aceptacion": 0.017578125,
+     "auroc": 0.856353759765625,
+     "ece": 0.0556742637135927,
+     "puntaje_abierto": 0.5335286458333334,
+     "precision_afirmadas": 0.9121951219512195,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 106.81910000130301,
+   "tiempo_ms_p95": 218.31399999718997,
+   "tiempo_gpu_ms_mediana": 82.86609999777284,
+   "tiempo_gpu_ms_p95": 170.35042500137934,
+   "aciertos_por_segundo": 7.4722318698022825,
+   "uso_rutas": {
+    "red": 0.3515625,
+    "clasica": 0.35267857142857145,
+    "directa": 0.29575892857142855
+   },
+   "minutos_ajuste": 11.954377706845602,
+   "mcnemar_vs_actual": {
+    "solo_este": 33,
+    "solo_referencia": 27,
+    "p": 0.5189580031896519
+   },
+   "pareto": true
+  },
+  {
+   "arreglo": "clasicas_refino",
+   "usa_red": false,
+   "refino": true,
+   "exactitud": 0.7643229166666666,
+   "correctas_salida_real": 0.48046875,
+   "desconocidas_marcadas": 0.5830078125,
+   "falsa_aceptacion": 0.01171875,
+   "auroc": 0.8719075520833334,
+   "ece": 0.05918530961547704,
+   "puntaje_abierto": 0.53173828125,
+   "precision_afirmadas": 0.9044117647058824,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.7330358729253628,
+    0.7929787912233432
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.8151041666666666,
+     "correctas_salida_real": 0.5052083333333334,
+     "desconocidas_marcadas": 0.623046875,
+     "falsa_aceptacion": 0.015625,
+     "auroc": 0.8885345458984375,
+     "ece": 0.06762594600774069,
+     "puntaje_abierto": 0.5641276041666667,
+     "precision_afirmadas": 0.9150943396226415,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.7135416666666666,
+     "correctas_salida_real": 0.4557291666666667,
+     "desconocidas_marcadas": 0.54296875,
+     "falsa_aceptacion": 0.0078125,
+     "auroc": 0.8529866536458334,
+     "ece": 0.05365522688453126,
+     "puntaje_abierto": 0.49934895833333337,
+     "precision_afirmadas": 0.8928571428571429,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 109.08570000174223,
+   "tiempo_ms_p95": 196.18626499286614,
+   "tiempo_gpu_ms_mediana": 122.25685000157682,
+   "tiempo_gpu_ms_p95": 163.6682999996992,
+   "aciertos_por_segundo": 7.006627969151406,
+   "uso_rutas": {
+    "clasica": 0.6372767857142857,
+    "directa": 0.3627232142857143
+   },
+   "minutos_ajuste": 5.180025152365366,
+   "mcnemar_vs_actual": {
+    "solo_este": 26,
+    "solo_referencia": 46,
+    "p": 0.02446090732832437
+   },
+   "pareto": false
+  },
+  {
+   "arreglo": "mixta_refino",
+   "usa_red": true,
+   "refino": true,
+   "exactitud": 0.7903645833333334,
+   "correctas_salida_real": 0.5377604166666666,
+   "desconocidas_marcadas": 0.4931640625,
+   "falsa_aceptacion": 0.0380859375,
+   "auroc": 0.8483683268229166,
+   "ece": 0.02986288785728312,
+   "puntaje_abierto": 0.5154622395833333,
+   "precision_afirmadas": 0.875,
+   "tasa_correcta": 0.9799107142857143,
+   "n_conocidas": 768,
+   "ic95_exactitud": [
+    0.7601661099245026,
+    0.8176726590664406
+   ],
+   "por_generador": {
+    "gnuradio": {
+     "exactitud": 0.8307291666666666,
+     "correctas_salida_real": 0.5859375,
+     "desconocidas_marcadas": 0.494140625,
+     "falsa_aceptacion": 0.044921875,
+     "auroc": 0.8729960123697916,
+     "ece": 0.03610958467599611,
+     "puntaje_abierto": 0.5400390625,
+     "precision_afirmadas": 0.872093023255814,
+     "tasa_correcta": 0.9966517857142857,
+     "n_conocidas": 384
+    },
+    "independiente": {
+     "exactitud": 0.75,
+     "correctas_salida_real": 0.4895833333333333,
+     "desconocidas_marcadas": 0.4921875,
+     "falsa_aceptacion": 0.03125,
+     "auroc": 0.8222605387369791,
+     "ece": 0.025198558668424142,
+     "puntaje_abierto": 0.49088541666666663,
+     "precision_afirmadas": 0.8785046728971962,
+     "tasa_correcta": 0.9631696428571429,
+     "n_conocidas": 384
+    }
+   },
+   "tiempo_ms_mediana": 172.21125000651227,
+   "tiempo_ms_p95": 343.50152499464457,
+   "tiempo_gpu_ms_mediana": 145.00205000513233,
+   "tiempo_gpu_ms_p95": 284.2232549934124,
+   "aciertos_por_segundo": 4.589506105457368,
+   "uso_rutas": {
+    "red": 0.40792410714285715,
+    "clasica": 0.37611607142857145,
+    "directa": 0.21595982142857142
+   },
+   "minutos_ajuste": 11.754505026340485,
+   "mcnemar_vs_actual": null,
+   "pareto": false
+  }
+ ],
+ "svm": {
+  "exactitud": 0.5455729166666666,
+  "ic95_exactitud": [
+   0.5102175971322738,
+   0.580474586341641
+  ],
+  "por_generador": {
+   "gnuradio": 0.59375,
+   "independiente": 0.4973958333333333
+  },
+  "tiempo_ms_mediana": 17.18904999870574,
+  "tiempo_ms_p95": 48.10214500757865,
+  "aciertos_por_segundo": 31.739561913412658,
+  "mcnemar_vs_actual": {
+   "solo_este": 42,
+   "solo_referencia": 230,
+   "p": 1.44917299308887e-32
+  }
+ }
+}

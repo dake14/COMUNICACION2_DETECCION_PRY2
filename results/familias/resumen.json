@@ -1,0 +1,827 @@
+{
+ "pasos": 6000,
+ "fuera_de_generador": {
+  "archivos_conocidos": 6912,
+  "todas": {
+   "clase": {
+    "fusion": 0.5864,
+    "espectro": 0.2303,
+    "potencias": 0.4093,
+    "envolvente": 0.3743,
+    "frecuencia": 0.3861
+   },
+   "familia": {
+    "fusion": 0.7797,
+    "espectro": 0.4039,
+    "potencias": 0.6506,
+    "envolvente": 0.6749,
+    "frecuencia": 0.5956
+   }
+  },
+  "snr>=10": {
+   "clase": {
+    "fusion": 0.6545,
+    "espectro": 0.2502,
+    "potencias": 0.4776,
+    "envolvente": 0.4498,
+    "frecuencia": 0.4715
+   },
+   "familia": {
+    "fusion": 0.8187,
+    "espectro": 0.415,
+    "potencias": 0.6921,
+    "envolvente": 0.7256,
+    "frecuencia": 0.6551
+   }
+  },
+  "por_clase_snr>=10": {
+   "OOK": 0.8185,
+   "4ASK": 0.8571,
+   "4PAM": 0.88,
+   "BPSK": 0.8134,
+   "QPSK": 0.6181,
+   "8PSK": 0.6226,
+   "OQPSK": 0.7137,
+   "PI4DQPSK": 0.6653,
+   "16QAM": 0.4859,
+   "32QAM": 0.376,
+   "64QAM": 0.2689,
+   "256QAM": 0.2146,
+   "16APSK": 0.4722,
+   "32APSK": 0.5529,
+   "2FSK": 0.9464,
+   "4FSK": 0.8923,
+   "MSK": 0.8008,
+   "GMSK": 0.7137
+  },
+  "por_familia_snr>=10": {
+   "amplitud": 0.9548,
+   "apsk": 0.499,
+   "fase": 0.7938,
+   "frecuencia": 0.9371,
+   "qam": 0.7866
+  },
+  "por_snr": {
+   "0.0": 0.4081,
+   "5.0": 0.5009,
+   "10.0": 0.6361,
+   "15.0": 0.6474,
+   "20.0": 0.6652,
+   "30.0": 0.6699
+  },
+  "por_canal_snr>=10": {
+   "amplificador": 0.7682,
+   "cuantizacion": 0.8601,
+   "deriva_portadora": 0.828,
+   "deriva_reloj": 0.8054,
+   "dos_rayos": 0.4965,
+   "ecos_largos": 0.3617,
+   "gr_dinamico": 0.4681,
+   "gr_imperfecciones": 0.8897,
+   "gr_multitrayecto": 0.2868,
+   "gr_selectivo": 0.4933,
+   "ideal": 0.8591,
+   "impulsivo": 0.6224,
+   "int_adyacente": 0.6184,
+   "int_barrido": 0.6838,
+   "int_cocanal": 0.7842,
+   "int_pulsos": 0.695,
+   "interferencia": 0.7143,
+   "iq_dc": 0.8811,
+   "lte_epa": 0.8069,
+   "lte_etu": 0.5926,
+   "lte_eva": 0.5705,
+   "mp_corto": 0.5034,
+   "mp_largo": 0.3841,
+   "nakagami": 0.7843,
+   "plano_lento": 0.771,
+   "proyecto": 0.6391,
+   "receptor_barato": 0.8247,
+   "ruido_fase": 0.806,
+   "sombra": 0.7162,
+   "tdl_rayleigh": 0.4207,
+   "tdl_rician": 0.4328,
+   "watterson": 0.5205
+  },
+  "confusiones_snr>=10": {
+   "256QAM->64QAM": 57,
+   "256QAM->16QAM": 45,
+   "64QAM->16QAM": 43,
+   "OOK->4ASK": 43,
+   "16APSK->32QAM": 38,
+   "64QAM->256QAM": 36,
+   "16QAM->64QAM": 35,
+   "GMSK->MSK": 34,
+   "32QAM->32APSK": 32,
+   "QPSK->PI4DQPSK": 31,
+   "64QAM->32APSK": 30,
+   "4ASK->OOK": 29,
+   "PI4DQPSK->QPSK": 29,
+   "32QAM->16APSK": 29,
+   "MSK->GMSK": 28,
+   "GMSK->OQPSK": 28,
+   "64QAM->32QAM": 27,
+   "OQPSK->GMSK": 25,
+   "256QAM->32QAM": 24,
+   "32APSK->32QAM": 24,
+   "32QAM->256QAM": 23,
+   "16APSK->32APSK": 22,
+   "32QAM->16QAM": 21,
+   "BPSK->4PAM": 21,
+   "8PSK->16APSK": 21
+  },
+  "desconocidas_familia_snr>=10": {
+   "128QAM": {
+    "apsk": 0.171,
+    "fase": 0.058,
+    "frecuencia": 0.051,
+    "qam": 0.72
+   },
+   "12PSK": {
+    "apsk": 0.154,
+    "fase": 0.577,
+    "frecuencia": 0.054,
+    "qam": 0.215
+   },
+   "24QAM": {
+    "apsk": 0.085,
+    "fase": 0.085,
+    "frecuencia": 0.038,
+    "qam": 0.792
+   },
+   "3FSK": {
+    "amplitud": 0.004,
+    "apsk": 0.008,
+    "fase": 0.042,
+    "frecuencia": 0.935,
+    "qam": 0.012
+   },
+   "6PSK": {
+    "apsk": 0.132,
+    "fase": 0.601,
+    "frecuencia": 0.05,
+    "qam": 0.217
+   },
+   "8FSK": {
+    "apsk": 0.004,
+    "fase": 0.012,
+    "frecuencia": 0.972,
+    "qam": 0.012
+   },
+   "8QAM_ESTRELLA": {
+    "amplitud": 0.015,
+    "apsk": 0.047,
+    "fase": 0.536,
+    "frecuencia": 0.022,
+    "qam": 0.38
+   },
+   "ANILLOS12": {
+    "apsk": 0.348,
+    "fase": 0.07,
+    "frecuencia": 0.061,
+    "qam": 0.52
+   },
+   "ARB_A": {
+    "amplitud": 0.004,
+    "apsk": 0.131,
+    "fase": 0.067,
+    "frecuencia": 0.015,
+    "qam": 0.784
+   },
+   "ARB_B": {
+    "amplitud": 0.123,
+    "apsk": 0.087,
+    "fase": 0.395,
+    "frecuencia": 0.071,
+    "qam": 0.324
+   },
+   "HEX19": {
+    "amplitud": 0.012,
+    "apsk": 0.308,
+    "fase": 0.092,
+    "frecuencia": 0.023,
+    "qam": 0.565
+   }
+  }
+ },
+ "pliegues": {
+  "repo+gr_fir_mmse": {
+   "validacion_interna": {
+    "espectro": 0.34757545590400696,
+    "potencias": 0.4459138810634613,
+    "envolvente": 0.607663631439209,
+    "frecuencia": 0.46727705001831055
+   },
+   "archivos_conocidos": 2304,
+   "todas": {
+    "clase": {
+     "fusion": 0.576,
+     "espectro": 0.2287,
+     "potencias": 0.4141,
+     "envolvente": 0.3906,
+     "frecuencia": 0.3837
+    },
+    "familia": {
+     "fusion": 0.7756,
+     "espectro": 0.4154,
+     "potencias": 0.6562,
+     "envolvente": 0.6953,
+     "frecuencia": 0.5911
+    }
+   },
+   "snr>=10": {
+    "clase": {
+     "fusion": 0.6419,
+     "espectro": 0.2435,
+     "potencias": 0.4772,
+     "envolvente": 0.4629,
+     "frecuencia": 0.4701
+    },
+    "familia": {
+     "fusion": 0.8164,
+     "espectro": 0.4219,
+     "potencias": 0.6966,
+     "envolvente": 0.7415,
+     "frecuencia": 0.6432
+    }
+   },
+   "por_clase_snr>=10": {
+    "OOK": 0.8444,
+    "4ASK": 0.8095,
+    "4PAM": 0.8523,
+    "BPSK": 0.8023,
+    "QPSK": 0.5256,
+    "8PSK": 0.6111,
+    "OQPSK": 0.8049,
+    "PI4DQPSK": 0.6517,
+    "16QAM": 0.4023,
+    "32QAM": 0.3488,
+    "64QAM": 0.2439,
+    "256QAM": 0.0769,
+    "16APSK": 0.4578,
+    "32APSK": 0.6105,
+    "2FSK": 0.9885,
+    "4FSK": 0.9432,
+    "MSK": 0.8415,
+    "GMSK": 0.6543
+   },
+   "por_familia_snr>=10": {
+    "amplitud": 0.9466,
+    "apsk": 0.5393,
+    "fase": 0.7953,
+    "frecuencia": 0.9349,
+    "qam": 0.7688
+   },
+   "por_snr": {
+    "0.0": 0.4026,
+    "5.0": 0.4856,
+    "10.0": 0.6208,
+    "15.0": 0.6226,
+    "20.0": 0.6805,
+    "30.0": 0.6405
+   },
+   "por_canal_snr>=10": {
+    "amplificador": 0.7647,
+    "cuantizacion": 0.8511,
+    "deriva_portadora": 0.8462,
+    "deriva_reloj": 0.8269,
+    "dos_rayos": 0.4545,
+    "ecos_largos": 0.3962,
+    "gr_dinamico": 0.449,
+    "gr_imperfecciones": 0.8627,
+    "gr_multitrayecto": 0.3256,
+    "gr_selectivo": 0.5185,
+    "ideal": 0.8085,
+    "impulsivo": 0.5957,
+    "int_adyacente": 0.619,
+    "int_barrido": 0.6327,
+    "int_cocanal": 0.8,
+    "int_pulsos": 0.5778,
+    "interferencia": 0.6939,
+    "iq_dc": 0.8571,
+    "lte_epa": 0.8222,
+    "lte_etu": 0.5778,
+    "lte_eva": 0.551,
+    "mp_corto": 0.5111,
+    "mp_largo": 0.3469,
+    "nakagami": 0.8261,
+    "plano_lento": 0.7447,
+    "proyecto": 0.617,
+    "receptor_barato": 0.7273,
+    "ruido_fase": 0.8864,
+    "sombra": 0.7111,
+    "tdl_rayleigh": 0.2766,
+    "tdl_rician": 0.5,
+    "watterson": 0.549
+   },
+   "confusiones_snr>=10": {
+    "256QAM->64QAM": 23,
+    "256QAM->16QAM": 19,
+    "16APSK->32QAM": 18,
+    "32QAM->32APSK": 16,
+    "4ASK->OOK": 16,
+    "QPSK->PI4DQPSK": 16,
+    "16QAM->64QAM": 16,
+    "64QAM->16QAM": 15,
+    "GMSK->MSK": 15,
+    "64QAM->32APSK": 13,
+    "OOK->4ASK": 12,
+    "64QAM->32QAM": 11,
+    "GMSK->OQPSK": 10,
+    "32QAM->16APSK": 10,
+    "256QAM->32APSK": 10,
+    "16APSK->32APSK": 9,
+    "256QAM->32QAM": 9,
+    "32QAM->8PSK": 9,
+    "PI4DQPSK->QPSK": 8,
+    "16QAM->32APSK": 8,
+    "16QAM->32QAM": 8,
+    "64QAM->256QAM": 7,
+    "8PSK->4FSK": 7,
+    "BPSK->MSK": 7,
+    "32APSK->256QAM": 7
+   },
+   "desconocidas_familia_snr>=10": {
+    "128QAM": {
+     "apsk": 0.205,
+     "fase": 0.048,
+     "frecuencia": 0.024,
+     "qam": 0.723
+    },
+    "12PSK": {
+     "apsk": 0.118,
+     "fase": 0.588,
+     "frecuencia": 0.071,
+     "qam": 0.224
+    },
+    "24QAM": {
+     "apsk": 0.122,
+     "fase": 0.067,
+     "frecuencia": 0.011,
+     "qam": 0.8
+    },
+    "3FSK": {
+     "apsk": 0.012,
+     "fase": 0.024,
+     "frecuencia": 0.953,
+     "qam": 0.012
+    },
+    "6PSK": {
+     "apsk": 0.141,
+     "fase": 0.635,
+     "frecuencia": 0.071,
+     "qam": 0.153
+    },
+    "8FSK": {
+     "apsk": 0.011,
+     "frecuencia": 0.979,
+     "qam": 0.011
+    },
+    "8QAM_ESTRELLA": {
+     "amplitud": 0.03,
+     "apsk": 0.05,
+     "fase": 0.58,
+     "frecuencia": 0.01,
+     "qam": 0.33
+    },
+    "ANILLOS12": {
+     "apsk": 0.45,
+     "fase": 0.062,
+     "frecuencia": 0.075,
+     "qam": 0.412
+    },
+    "ARB_A": {
+     "apsk": 0.146,
+     "fase": 0.056,
+     "frecuencia": 0.011,
+     "qam": 0.787
+    },
+    "ARB_B": {
+     "amplitud": 0.202,
+     "apsk": 0.112,
+     "fase": 0.337,
+     "frecuencia": 0.022,
+     "qam": 0.326
+    },
+    "HEX19": {
+     "amplitud": 0.021,
+     "apsk": 0.404,
+     "fase": 0.096,
+     "frecuencia": 0.011,
+     "qam": 0.468
+    }
+   }
+  },
+  "procedural+gr_polifase": {
+   "validacion_interna": {
+    "espectro": 0.3452017903327942,
+    "potencias": 0.4459138810634613,
+    "envolvente": 0.5849440693855286,
+    "frecuencia": 0.47304171323776245
+   },
+   "archivos_conocidos": 2304,
+   "todas": {
+    "clase": {
+     "fusion": 0.6003,
+     "espectro": 0.2287,
+     "potencias": 0.4071,
+     "envolvente": 0.3715,
+     "frecuencia": 0.3989
+    },
+    "familia": {
+     "fusion": 0.7908,
+     "espectro": 0.4045,
+     "potencias": 0.6319,
+     "envolvente": 0.658,
+     "frecuencia": 0.6003
+    }
+   },
+   "snr>=10": {
+    "clase": {
+     "fusion": 0.6732,
+     "espectro": 0.2467,
+     "potencias": 0.4738,
+     "envolvente": 0.4541,
+     "frecuencia": 0.4888
+    },
+    "familia": {
+     "fusion": 0.8268,
+     "espectro": 0.4114,
+     "potencias": 0.6667,
+     "envolvente": 0.7106,
+     "frecuencia": 0.6713
+    }
+   },
+   "por_clase_snr>=10": {
+    "OOK": 0.8148,
+    "4ASK": 0.8925,
+    "4PAM": 0.908,
+    "BPSK": 0.8352,
+    "QPSK": 0.6125,
+    "8PSK": 0.6374,
+    "OQPSK": 0.6667,
+    "PI4DQPSK": 0.7531,
+    "16QAM": 0.4691,
+    "32QAM": 0.4872,
+    "64QAM": 0.3,
+    "256QAM": 0.1744,
+    "16APSK": 0.5287,
+    "32APSK": 0.5,
+    "2FSK": 0.9639,
+    "4FSK": 0.8764,
+    "MSK": 0.8256,
+    "GMSK": 0.7907
+   },
+   "por_familia_snr>=10": {
+    "amplitud": 0.9617,
+    "apsk": 0.503,
+    "fase": 0.8033,
+    "frecuencia": 0.9564,
+    "qam": 0.7785
+   },
+   "por_snr": {
+    "0.0": 0.4073,
+    "5.0": 0.5135,
+    "10.0": 0.6422,
+    "15.0": 0.6721,
+    "20.0": 0.6529,
+    "30.0": 0.722
+   },
+   "por_canal_snr>=10": {
+    "amplificador": 0.7636,
+    "cuantizacion": 0.8913,
+    "deriva_portadora": 0.8519,
+    "deriva_reloj": 0.8269,
+    "dos_rayos": 0.5319,
+    "ecos_largos": 0.2857,
+    "gr_dinamico": 0.4468,
+    "gr_imperfecciones": 0.9149,
+    "gr_multitrayecto": 0.2909,
+    "gr_selectivo": 0.52,
+    "ideal": 0.8431,
+    "impulsivo": 0.6739,
+    "int_adyacente": 0.6034,
+    "int_barrido": 0.6667,
+    "int_cocanal": 0.6957,
+    "int_pulsos": 0.8222,
+    "interferencia": 0.6744,
+    "iq_dc": 0.9565,
+    "lte_epa": 0.8571,
+    "lte_etu": 0.5833,
+    "lte_eva": 0.7143,
+    "mp_corto": 0.54,
+    "mp_largo": 0.4737,
+    "nakagami": 0.7925,
+    "plano_lento": 0.7317,
+    "proyecto": 0.6977,
+    "receptor_barato": 0.8824,
+    "ruido_fase": 0.7959,
+    "sombra": 0.7255,
+    "tdl_rayleigh": 0.5208,
+    "tdl_rician": 0.3889,
+    "watterson": 0.4348
+   },
+   "confusiones_snr>=10": {
+    "256QAM->64QAM": 20,
+    "64QAM->16QAM": 19,
+    "OOK->4ASK": 14,
+    "GMSK->MSK": 13,
+    "32APSK->32QAM": 11,
+    "16APSK->32QAM": 11,
+    "64QAM->256QAM": 11,
+    "16QAM->64QAM": 9,
+    "16APSK->16QAM": 9,
+    "QPSK->PI4DQPSK": 9,
+    "256QAM->32QAM": 9,
+    "64QAM->32APSK": 9,
+    "256QAM->16QAM": 9,
+    "32QAM->32APSK": 9,
+    "256QAM->8PSK": 8,
+    "64QAM->32QAM": 8,
+    "32QAM->256QAM": 8,
+    "8PSK->32QAM": 7,
+    "16APSK->32APSK": 7,
+    "4ASK->OOK": 7,
+    "32APSK->8PSK": 7,
+    "16APSK->8PSK": 7,
+    "16QAM->32QAM": 7,
+    "32QAM->64QAM": 7,
+    "256QAM->16APSK": 7
+   },
+   "desconocidas_familia_snr>=10": {
+    "128QAM": {
+     "apsk": 0.096,
+     "fase": 0.085,
+     "frecuencia": 0.096,
+     "qam": 0.723
+    },
+    "12PSK": {
+     "apsk": 0.195,
+     "fase": 0.552,
+     "frecuencia": 0.057,
+     "qam": 0.195
+    },
+    "24QAM": {
+     "apsk": 0.103,
+     "fase": 0.103,
+     "frecuencia": 0.069,
+     "qam": 0.724
+    },
+    "3FSK": {
+     "amplitud": 0.011,
+     "fase": 0.055,
+     "frecuencia": 0.923,
+     "qam": 0.011
+    },
+    "6PSK": {
+     "apsk": 0.136,
+     "fase": 0.591,
+     "frecuencia": 0.023,
+     "qam": 0.25
+    },
+    "8FSK": {
+     "fase": 0.025,
+     "frecuencia": 0.975
+    },
+    "8QAM_ESTRELLA": {
+     "apsk": 0.036,
+     "fase": 0.548,
+     "frecuencia": 0.024,
+     "qam": 0.393
+    },
+    "ANILLOS12": {
+     "apsk": 0.36,
+     "fase": 0.093,
+     "frecuencia": 0.093,
+     "qam": 0.453
+    },
+    "ARB_A": {
+     "apsk": 0.136,
+     "fase": 0.125,
+     "frecuencia": 0.011,
+     "qam": 0.727
+    },
+    "ARB_B": {
+     "apsk": 0.053,
+     "fase": 0.453,
+     "frecuencia": 0.093,
+     "qam": 0.4
+    },
+    "HEX19": {
+     "apsk": 0.215,
+     "fase": 0.063,
+     "frecuencia": 0.038,
+     "qam": 0.684
+    }
+   }
+  },
+  "frecuencia+analogico": {
+   "validacion_interna": {
+    "espectro": 0.36080029606819153,
+    "potencias": 0.46117329597473145,
+    "envolvente": 0.5812140107154846,
+    "frecuencia": 0.47338083386421204
+   },
+   "archivos_conocidos": 2304,
+   "todas": {
+    "clase": {
+     "fusion": 0.5829,
+     "espectro": 0.2335,
+     "potencias": 0.4067,
+     "envolvente": 0.3607,
+     "frecuencia": 0.3759
+    },
+    "familia": {
+     "fusion": 0.7726,
+     "espectro": 0.3919,
+     "potencias": 0.6636,
+     "envolvente": 0.6714,
+     "frecuencia": 0.5955
+    }
+   },
+   "snr>=10": {
+    "clase": {
+     "fusion": 0.6484,
+     "espectro": 0.2604,
+     "potencias": 0.4818,
+     "envolvente": 0.4323,
+     "frecuencia": 0.4554
+    },
+    "familia": {
+     "fusion": 0.813,
+     "espectro": 0.4118,
+     "potencias": 0.7132,
+     "envolvente": 0.7244,
+     "frecuencia": 0.651
+    }
+   },
+   "por_clase_snr>=10": {
+    "OOK": 0.7955,
+    "4ASK": 0.8652,
+    "4PAM": 0.88,
+    "BPSK": 0.8022,
+    "QPSK": 0.6979,
+    "8PSK": 0.619,
+    "OQPSK": 0.6742,
+    "PI4DQPSK": 0.5897,
+    "16QAM": 0.5926,
+    "32QAM": 0.3023,
+    "64QAM": 0.2632,
+    "256QAM": 0.3855,
+    "16APSK": 0.4268,
+    "32APSK": 0.5375,
+    "2FSK": 0.8901,
+    "4FSK": 0.8554,
+    "MSK": 0.726,
+    "GMSK": 0.6932
+   },
+   "por_familia_snr>=10": {
+    "amplitud": 0.9563,
+    "apsk": 0.4506,
+    "fase": 0.7831,
+    "frecuencia": 0.9194,
+    "qam": 0.8129
+   },
+   "por_snr": {
+    "0.0": 0.4142,
+    "5.0": 0.5039,
+    "10.0": 0.6451,
+    "15.0": 0.6478,
+    "20.0": 0.6597,
+    "30.0": 0.6402
+   },
+   "por_canal_snr>=10": {
+    "amplificador": 0.7778,
+    "cuantizacion": 0.84,
+    "deriva_portadora": 0.7843,
+    "deriva_reloj": 0.7556,
+    "dos_rayos": 0.5,
+    "ecos_largos": 0.3913,
+    "gr_dinamico": 0.5111,
+    "gr_imperfecciones": 0.8947,
+    "gr_multitrayecto": 0.2368,
+    "gr_selectivo": 0.4348,
+    "ideal": 0.9216,
+    "impulsivo": 0.6,
+    "int_adyacente": 0.6346,
+    "int_barrido": 0.7556,
+    "int_cocanal": 0.8542,
+    "int_pulsos": 0.6863,
+    "interferencia": 0.7805,
+    "iq_dc": 0.8333,
+    "lte_epa": 0.7451,
+    "lte_etu": 0.619,
+    "lte_eva": 0.451,
+    "mp_corto": 0.4615,
+    "mp_largo": 0.3529,
+    "nakagami": 0.7407,
+    "plano_lento": 0.8372,
+    "proyecto": 0.6047,
+    "receptor_barato": 0.875,
+    "ruido_fase": 0.7317,
+    "sombra": 0.7115,
+    "tdl_rayleigh": 0.46,
+    "tdl_rician": 0.3913,
+    "watterson": 0.5714
+   },
+   "confusiones_snr>=10": {
+    "64QAM->256QAM": 18,
+    "256QAM->16QAM": 17,
+    "OOK->4ASK": 17,
+    "PI4DQPSK->QPSK": 16,
+    "32QAM->16APSK": 15,
+    "MSK->GMSK": 15,
+    "256QAM->64QAM": 14,
+    "OQPSK->GMSK": 13,
+    "GMSK->OQPSK": 13,
+    "32QAM->16QAM": 12,
+    "32QAM->256QAM": 11,
+    "BPSK->4PAM": 11,
+    "16QAM->64QAM": 10,
+    "8PSK->16APSK": 10,
+    "64QAM->16QAM": 9,
+    "16APSK->32QAM": 9,
+    "16APSK->256QAM": 9,
+    "QPSK->16QAM": 9,
+    "32APSK->32QAM": 8,
+    "64QAM->32APSK": 8,
+    "64QAM->32QAM": 8,
+    "32APSK->256QAM": 8,
+    "8PSK->QPSK": 7,
+    "OQPSK->MSK": 7,
+    "32QAM->32APSK": 7
+   },
+   "desconocidas_familia_snr>=10": {
+    "128QAM": {
+     "apsk": 0.225,
+     "fase": 0.037,
+     "frecuencia": 0.025,
+     "qam": 0.713
+    },
+    "12PSK": {
+     "apsk": 0.148,
+     "fase": 0.591,
+     "frecuencia": 0.034,
+     "qam": 0.227
+    },
+    "24QAM": {
+     "apsk": 0.024,
+     "fase": 0.084,
+     "frecuencia": 0.036,
+     "qam": 0.855
+    },
+    "3FSK": {
+     "apsk": 0.012,
+     "fase": 0.048,
+     "frecuencia": 0.929,
+     "qam": 0.012
+    },
+    "6PSK": {
+     "apsk": 0.118,
+     "fase": 0.576,
+     "frecuencia": 0.059,
+     "qam": 0.247
+    },
+    "8FSK": {
+     "fase": 0.013,
+     "frecuencia": 0.962,
+     "qam": 0.026
+    },
+    "8QAM_ESTRELLA": {
+     "amplitud": 0.011,
+     "apsk": 0.056,
+     "fase": 0.478,
+     "frecuencia": 0.033,
+     "qam": 0.422
+    },
+    "ANILLOS12": {
+     "apsk": 0.231,
+     "fase": 0.051,
+     "frecuencia": 0.013,
+     "qam": 0.705
+    },
+    "ARB_A": {
+     "amplitud": 0.011,
+     "apsk": 0.11,
+     "fase": 0.022,
+     "frecuencia": 0.022,
+     "qam": 0.835
+    },
+    "ARB_B": {
+     "amplitud": 0.146,
+     "apsk": 0.09,
+     "fase": 0.404,
+     "frecuencia": 0.101,
+     "qam": 0.258
+    },
+    "HEX19": {
+     "amplitud": 0.011,
+     "apsk": 0.287,
+     "fase": 0.115,
+     "frecuencia": 0.023,
+     "qam": 0.563
+    }
+   }
+  }
+ }
+}

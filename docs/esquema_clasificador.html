@@ -1,0 +1,607 @@
+<title>Clasificador en cascada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;750&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Una sola columna de lectura; el flujo completo arriba y cada etapa como ficha técnica con su ilustración. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-2: #eaeef2;
+  --line: #d3dae2;
+  --ink: #142231;
+  --muted: #536375;
+  --accent: #1f5fbf;
+  --accent-soft: #dce8fa;
+  --warn: #a8620a;
+  --warn-soft: #fbecd6;
+  --ok: #217a4a;
+  --display: "Archivo", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151c; --surface: #161e27; --surface-2: #1d2834; --line: #2b3846; --ink: #e6edf4; --muted: #9aabbd;
+    --accent: #6ea6f5; --accent-soft: #1b3150; --warn: #e9a649; --warn-soft: #3a2a12; --ok: #5cc48a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151c; --surface: #161e27; --surface-2: #1d2834; --line: #2b3846; --ink: #e6edf4; --muted: #9aabbd;
+  --accent: #6ea6f5; --accent-soft: #1b3150; --warn: #e9a649; --warn-soft: #3a2a12; --ok: #5cc48a; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body); margin: 0; }
+.envoltura { margin: 0 auto; max-width: 1080px; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 750; letter-spacing: -0.01em; }
+h2 { font-size: 26px; font-weight: 650; }
+h3 { font-size: 18px; font-weight: 650; }
+p { margin: 0; max-width: 68ch; }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+a { color: var(--accent); }
+
+.cabeza { display: grid; gap: 14px; margin-bottom: 32px; }
+.eyebrow { color: var(--accent); font: 500 12px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.tesis { color: var(--muted); font-size: 18px; }
+
+.flujo-caja { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; padding: 20px; }
+.flujo { align-items: stretch; display: grid; gap: 0; grid-template-columns: repeat(6, minmax(140px, 1fr)); min-width: 920px; }
+.paso { border-right: 1px dashed var(--line); display: grid; gap: 6px; grid-template-rows: auto auto 1fr auto; padding: 0 14px; position: relative; }
+.paso:last-child { border-right: 0; }
+.paso:first-child { padding-left: 0; }
+.paso .num { color: var(--muted); font: 500 12px var(--mono); }
+.paso b { font-family: var(--display); font-size: 16px; font-weight: 650; }
+.paso span { color: var(--muted); font-size: 13px; line-height: 1.45; }
+.forma { background: var(--surface-2); border-radius: 6px; color: var(--ink); font: 12px/1.4 var(--mono); margin-top: 8px; padding: 6px 8px; }
+.forma::before { color: var(--accent); content: "→ "; }
+.entrada-flujo { color: var(--muted); font: 12px var(--mono); margin-bottom: 14px; }
+.entrada-flujo strong { color: var(--ink); font-weight: 500; }
+
+.idea { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 36px 0 12px; }
+.idea div { border-top: 2px solid var(--ink); display: grid; gap: 6px; padding-top: 10px; }
+.idea p { color: var(--muted); font-size: 15px; }
+
+.etapa { border-top: 1px solid var(--line); display: grid; gap: 28px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); margin-top: 48px; padding-top: 32px; }
+.etapa > .texto { display: grid; align-content: start; gap: 14px; min-width: 0; }
+.etiqueta-etapa { color: var(--accent); font: 500 13px var(--mono); }
+.texto ul { display: grid; gap: 8px; margin: 0; max-width: 68ch; padding-left: 20px; }
+.texto li::marker { color: var(--accent); }
+.ficha { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; display: grid; gap: 14px; min-width: 0; padding: 18px; }
+.ficha h3 { font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-family: var(--mono); font-weight: 500; }
+.ficha dl { display: grid; gap: 8px 14px; grid-template-columns: max-content minmax(0, 1fr); margin: 0; }
+.ficha dt { color: var(--muted); font-size: 13px; }
+.ficha dd { font: 13px/1.45 var(--mono); margin: 0; overflow-wrap: anywhere; }
+
+.figura { display: grid; gap: 8px; grid-column: 1 / -1; }
+.lienzos { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lienzos.dos { grid-template-columns: repeat(2, minmax(0, 220px)); }
+.lienzo { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 6px; margin: 0; min-width: 0; padding: 10px; }
+.lienzo canvas { aspect-ratio: 1; display: block; max-width: 100%; width: 100%; }
+.lienzo.ancho canvas { aspect-ratio: 1.6; }
+.lienzo figcaption { color: var(--muted); font-size: 13px; }
+.nota { color: var(--muted); font-size: 13px; }
+
+.rutas { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ruta { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 4px; padding: 12px; }
+.ruta.principal { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.ruta b { font-family: var(--display); font-weight: 650; }
+.ruta span { color: var(--muted); font-size: 14px; }
+
+.formula { background: var(--surface-2); border-radius: 8px; font: 14px/1.7 var(--mono); overflow-x: auto; padding: 14px 16px; white-space: pre; }
+.formula .d { color: var(--warn); }
+.formula .c { color: var(--accent); }
+
+.decisiones { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.decision { border-left: 3px solid var(--line); display: grid; gap: 4px; padding: 4px 0 4px 12px; }
+.decision.si { border-color: var(--accent); }
+.decision.desc { border-color: var(--warn); }
+.decision b { font-family: var(--display); font-weight: 650; }
+.decision span { color: var(--muted); font-size: 14px; }
+
+.recorrido { display: grid; gap: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.recorrido div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 2px; padding: 12px 14px; }
+.recorrido dt { color: var(--muted); font-size: 12px; }
+.recorrido dd { font: 500 17px var(--mono); margin: 0; font-variant-numeric: tabular-nums; }
+.recorrido small { color: var(--muted); font: 12px var(--body); }
+
+.tabla-caja { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 14px; min-width: 620px; width: 100%; }
+th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; }
+th { color: var(--muted); font: 500 12px var(--mono); letter-spacing: 0.03em; text-transform: uppercase; }
+td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+th.n { text-align: right; }
+tr.elegido td { background: var(--accent-soft); }
+.debil td.n.bajo { color: var(--warn); font-weight: 500; }
+
+.limites { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.limite { background: var(--warn-soft); border-radius: 8px; display: grid; gap: 4px; padding: 14px; }
+.limite b { font-family: var(--display); font-weight: 650; }
+.limite span { font-size: 14px; }
+
+.pie { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; margin-top: 56px; padding-top: 18px; }
+section > h2 + p { margin-top: 10px; }
+.bloque { display: grid; gap: 16px; margin-top: 56px; }
+
+@media (max-width: 860px) {
+  .etapa { grid-template-columns: minmax(0, 1fr); }
+  .idea, .rutas, .decisiones, .limites { grid-template-columns: minmax(0, 1fr); }
+  .lienzos { grid-template-columns: minmax(0, 1fr); max-width: 360px; }
+  .lienzos.dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .recorrido { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="envoltura">
+  <header class="cabeza">
+    <p class="eyebrow">Comunicaciones II · Proyecto 2</p>
+    <h1>Clasificador de modulaciones en cascada</h1>
+    <p class="tesis">Seis especialistas en fila. Los cuatro primeros deshacen lo que depende del transmisor y del canal: la tasa de símbolo, el desvío de portadora, el filtro y el giro residual. Lo que llega a la CNN es solo la forma de la constelación, y el último especialista decide con probabilidades, incluida la opción de que sea una modulación que no conoce.</p>
+  </header>
+
+  <div class="flujo-caja" role="figure" aria-label="Flujo completo del clasificador">
+    <p class="entrada-flujo">Entra: <strong>muestras I/Q complejas</strong>, sin conocer tasa, portadora ni pulso</p>
+    <div class="flujo">
+      <div class="paso"><span class="num">0</span><b>Detector</b><span>¿Hay señal? SNR estimada a ciegas.</span><p class="forma">señal sí/no · SNR dB</p></div>
+      <div class="paso"><span class="num">1</span><b>Normalizador</b><span>Tasa de símbolo, desvío grueso y remuestreo.</span><p class="forma">8 muestras/símbolo</p></div>
+      <div class="paso"><span class="num">2</span><b>Recuperación</b><span>Limpia canal y pulso; sincroniza el reloj.</span><p class="forma">2 muestras/símbolo</p></div>
+      <div class="paso"><span class="num">3</span><b>Autofoco</b><span>Quita el giro que queda y afina el ecualizador.</span><p class="forma">símbolos complejos</p></div>
+      <div class="paso"><span class="num">4</span><b>Descriptor CNN</b><span>Convierte la nube en una huella numérica.</span><p class="forma">imagen 2×64×64 → huella 128</p></div>
+      <div class="paso"><span class="num">5</span><b>Decisor</b><span>Compara la huella con lo inscrito y con el fondo.</span><p class="forma">probabilidades + decisión</p></div>
+    </div>
+  </div>
+
+  <div class="idea">
+    <div><h3>Independiente del generador</h3><p>Cada etapa quita una diferencia entre transmisores. Por eso un archivo de GNU Radio y uno sintético llegan a la CNN con el mismo aspecto.</p></div>
+    <div><h3>Aprende sin clases</h3><p>La CNN se entrena comparando vistas de constelaciones aleatorias, sin etiquetas. Nunca ve los nombres de las modulaciones.</p></div>
+    <div><h3>Modulaciones nuevas sin reentrenar</h3><p>Inscribir una modulación es ajustar una mezcla gaussiana a sus huellas. Las redes quedan intactas.</p></div>
+  </div>
+
+  <section class="etapa" id="detector">
+    <div class="texto">
+      <p class="etiqueta-etapa">Etapa 0</p>
+      <h2>Detector ciego</h2>
+      <p>Mira la forma del espectro para saber si hay algo más que ruido blanco, y estima la SNR usando el piso del espectro como nivel de ruido.</p>
+      <ul>
+        <li>No frena la cadena: su resultado viaja hasta el decisor como rasgo de calidad.</li>
+        <li>Si la señal tiene menos de 256 muestras o no tiene potencia útil, la respuesta es <em>Sin decidir</em> de entrada.</li>
+      </ul>
+    </div>
+    <div class="ficha">
+      <h3>Ficha</h3>
+      <dl>
+        <dt>Estadístico</dt><dd>zona más fuerte del espectro ÷ su mediana</dd>
+        <dt>Umbral</dt><dd>simulado con ruido blanco, falsa alarma 1 %</dd>
+        <dt>SNR</dt><dd>potencia total frente al piso espectral</dd>
+        <dt>Archivo</dt><dd>src/cascada/detector.py</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="etapa" id="normalizador">
+    <div class="texto">
+      <p class="etiqueta-etapa">Etapa 1</p>
+      <h2>Normalizador</h2>
+      <p>Lleva cualquier señal a un formato común: media cero, potencia 1, centrada en frecuencia y con 8 muestras por símbolo.</p>
+      <ul>
+        <li><strong>Desvío grueso de portadora:</strong> busca la banda ocupada en el espectro de Welch (lo que sobresale del piso, del 2 % al 98 % de la energía) y la centra.</li>
+        <li><strong>Tasa de símbolo:</strong> busca líneas cíclicas en |x|² y en |Δx|². La segunda existe para pulsos como el medio seno, cuya envolvente no tiene línea a la tasa de símbolo.</li>
+        <li>Guarda hasta tres hipótesis de tasa ordenadas por fuerza y usa la primera que entregue al menos 24 símbolos.</li>
+        <li>Si el valor queda a menos de 0,4 % de un entero, lo redondea. Después remuestrea con un filtro polifásico a 8 muestras por símbolo.</li>
+        <li>Si el usuario conoce las muestras por símbolo, puede fijarlas y se salta la búsqueda.</li>
+      </ul>
+    </div>
+    <div class="ficha">
+      <h3>Ficha</h3>
+      <dl>
+        <dt>Rango de tasa</dt><dd>2,2 a 32 muestras/símbolo</dd>
+        <dt>Hipótesis</dt><dd>hasta 3, la más fuerte primero</dd>
+        <dt>Penalización</dt><dd>×0,3 si la tasa no cuadra con el ancho de banda</dd>
+        <dt>Salida</dt><dd>8 muestras/símbolo, CFO grueso, sps de origen</dd>
+        <dt>Archivo</dt><dd>src/cascada/normalizador.py</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="etapa" id="recuperacion">
+    <div class="texto">
+      <p class="etiqueta-etapa">Etapa 2</p>
+      <h2>Recuperación de la señal</h2>
+      <p>Deshace el filtro del transmisor y el canal, y toma dos muestras por símbolo siguiendo el reloj con Oerder–Meyr (la línea de |x|² a la tasa de símbolo). Hay tres rutas posibles.</p>
+      <div class="rutas">
+        <div class="ruta principal"><b>Red</b><span>Red convolucional 1-D que limpia canal y ruido. Es la ruta principal.</span></div>
+        <div class="ruta"><b>Clásica</b><span>Filtro adaptado RRC y ecualizador CMA fraccionado de 17 coeficientes.</span></div>
+        <div class="ruta"><b>Directa</b><span>Solo el filtro adaptado, sin ecualizar.</span></div>
+      </div>
+      <p>El modo <em>mixta</em> corre las tres y se queda con la que deja la constelación más nítida (menor entropía). Cuesta casi tres veces más y no mejoró la exactitud de forma significativa, por eso la configuración elegida es <em>red + refino</em>.</p>
+    </div>
+    <div class="ficha">
+      <h3>Red recuperadora</h3>
+      <dl>
+        <dt>Entrada</dt><dd>2 canales (I, Q) a 8 muestras/símbolo</dd>
+        <dt>Cuerpo</dt><dd>48 canales, 2 pilas × 6 bloques residuales, dilatación 1 a 32</dd>
+        <dt>Bloque</dt><dd>GroupNorm → conv 5 dilatada → SiLU → conv 1×1 + atajo</dd>
+        <dt>Pérdida</dt><dd>error relativo tras alinear una fase global</dd>
+        <dt>Entrenamiento</dt><dd>señales procedurales renovadas, 128 símbolos; el modelo robusto se afinó con 26 canales y 2,5–32 sps</dd>
+        <dt>Límite</dt><dd>32 768 muestras por pasada</dd>
+        <dt>Archivo</dt><dd>src/cascada/recuperador.py, clasica.py</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="etapa" id="autofoco">
+    <div class="texto">
+      <p class="etiqueta-etapa">Etapa 3</p>
+      <h2>Autofoco y refino ciego</h2>
+      <p>Después del normalizador queda un desvío de frecuencia pequeño que hace girar la constelación y la convierte en anillos. El autofoco prueba desvíos y se queda con el que deja el histograma 2-D de los símbolos con menor entropía, es decir, la nube más concentrada.</p>
+      <ul>
+        <li>Primera búsqueda: ±0,04 ciclos por símbolo, con dos afinados alrededor del mínimo.</li>
+        <li>Refino ciego: ajusta los coeficientes del ecualizador para bajar todavía más la entropía.</li>
+        <li>Segunda búsqueda fina: ±0,004 ciclos por símbolo.</li>
+        <li><strong>Nitidez:</strong> cuánto se separa el mínimo del resto de la curva. Una nitidez alta significa que el giro se encontró sin ambigüedad.</li>
+      </ul>
+    </div>
+    <div class="ficha">
+      <h3>Ficha</h3>
+      <dl>
+        <dt>Medida</dt><dd>entropía del histograma 48×48 en ±2,4</dd>
+        <dt>Muestra</dt><dd>hasta 1 024 símbolos para la búsqueda</dd>
+        <dt>Resolución</dt><dd>1 / (6 · símbolos) ciclos/símbolo</dd>
+        <dt>Salida</dt><dd>símbolos sin giro, desvío fino, nitidez</dd>
+        <dt>Archivo</dt><dd>src/cascada/autofoco.py, cadena.py</dd>
+      </dl>
+    </div>
+    <div class="figura">
+      <div class="lienzos">
+        <figure class="lienzo"><canvas id="c-antes" role="img" aria-label="16QAM con giro residual"></canvas><figcaption>Antes: el giro residual convierte 16QAM en anillos.</figcaption></figure>
+        <figure class="lienzo"><canvas id="c-curva" role="img" aria-label="Entropía según el desvío probado"></canvas><figcaption id="p-curva">Entropía según el desvío probado.</figcaption></figure>
+        <figure class="lienzo"><canvas id="c-despues" role="img" aria-label="16QAM después del autofoco"></canvas><figcaption>Después: con el desvío del mínimo vuelven los 16 puntos.</figcaption></figure>
+      </div>
+      <p class="nota">Ilustración con 600 símbolos 16QAM sintéticos (ruido gaussiano y un desvío conocido), calculada en esta página con la misma medida de entropía del código.</p>
+    </div>
+  </section>
+
+  <section class="etapa" id="descriptor">
+    <div class="texto">
+      <p class="etiqueta-etapa">Etapa 4</p>
+      <h2>Descriptor CNN</h2>
+      <p>Los símbolos se dibujan como dos imágenes de densidad de 64×64 en escala logarítmica. La cartesiana muestra dónde caen en el plano I/Q. La polar muestra radio contra ángulo, donde los anillos de amplitud se ven como franjas horizontales.</p>
+      <ul>
+        <li>Cada imagen pasa por su propia rama de cuatro convoluciones. La polar usa relleno circular porque el ángulo da la vuelta.</li>
+        <li>La salida es una <strong>huella de 128 valores</strong> de norma 1. Dos señales con la misma geometría deben dar huellas cercanas.</li>
+        <li>Una cabeza aparte estima cuántos puntos y cuántos anillos tiene la constelación. La estimación es aproximada.</li>
+      </ul>
+      <p><strong>Cómo aprende:</strong> se generan constelaciones aleatorias y cada una pasa varias veces por canales y la cadena de recuperación. La pérdida contrastiva acerca las vistas de la misma constelación y aleja las de constelaciones distintas, con rotaciones y conjugaciones al azar. Ninguna etiqueta de modulación entra al entrenamiento, y las geometrías reservadas para la prueba de desconocidas se excluyen.</p>
+      <p><strong>Modelo robusto:</strong> una segunda cabeza intenta adivinar de qué generador o familia de canal viene cada vista, y una capa de inversión de gradiente (entrenamiento adversario de dominio) obliga a la huella a no delatarlo. Entre cinco arreglos probados (CNN actual, CNN ancha, red de puntos tipo PointNet, adversaria y fusión imagen + puntos) fue la que mejor generalizó a lo no visto.</p>
+    </div>
+    <div class="ficha">
+      <h3>Arquitectura</h3>
+      <dl>
+        <dt>Entrada</dt><dd>2 × 64 × 64, límites ±2,2 y radio 0–2,2</dd>
+        <dt>Cada rama</dt><dd>conv 16, 32, 64, 96 con paso 2, GroupNorm, SiLU</dd>
+        <dt>Resumen</dt><dd>media + máximo global → 192 por rama</dd>
+        <dt>Unión</dt><dd>384 → 128 (LayerNorm, SiLU)</dd>
+        <dt>Huella</dt><dd>128 valores, normalizada</dd>
+        <dt>Geometría</dt><dd>log₂(puntos)/7 y anillos/6</dd>
+        <dt>Pérdida</dt><dd>contrastiva, temperatura 0,1</dd>
+        <dt>Archivo</dt><dd>src/cascada/descriptor.py</dd>
+      </dl>
+    </div>
+    <div class="figura">
+      <div class="lienzos dos">
+        <figure class="lienzo"><canvas id="c-cart" role="img" aria-label="Densidad cartesiana de entrada a la CNN"></canvas><figcaption>Densidad I/Q</figcaption></figure>
+        <figure class="lienzo"><canvas id="c-polar" role="img" aria-label="Densidad polar de entrada a la CNN"></canvas><figcaption>Radio (vertical) contra ángulo</figcaption></figure>
+      </div>
+      <p class="nota">Las dos imágenes que recibiría la CNN para el 16QAM de la etapa anterior, con la escala logarítmica del código. En 16QAM se ven tres anillos de amplitud.</p>
+    </div>
+  </section>
+
+  <section class="etapa" id="decisor">
+    <div class="texto">
+      <p class="etiqueta-etapa">Etapa 5</p>
+      <h2>Decisor probabilístico</h2>
+      <p>La huella se proyecta con PCA blanqueado. Cada modulación inscrita tiene su mezcla gaussiana, y un modelo de <em>fondo</em> con 24 componentes representa todas las demás constelaciones posibles.</p>
+      <div class="formula" aria-label="Cómo se combinan las probabilidades">P(desconocida) = <span class="d">puerta( margen frente al fondo, margen entre las dos mejores,
+                       entropía, verosimilitudes, calidad )</span>
+
+P(modulación k) = <span class="c">softmax( log p(huella | k) / T )</span> × (1 − P(desconocida))</div>
+      <p>La <strong>puerta</strong> es una regresión logística calibrada con modulaciones desconocidas de validación. Los rasgos de calidad son la entropía de la constelación, la nitidez del autofoco y la SNR ciega. La temperatura T se ajusta para que las probabilidades no sean exageradas.</p>
+      <div class="decisiones">
+        <div class="decision si"><b>Una modulación</b><span>Si la mayor probabilidad llega al umbral (0,65 en el modelo actual).</span></div>
+        <div class="decision desc"><b>Desconocida</b><span>Si gana la puerta: la huella no se parece a nada inscrito.</span></div>
+        <div class="decision"><b>Sin decidir</b><span>Si nada llega al umbral, o si no se encontró una tasa de símbolo.</span></div>
+      </div>
+    </div>
+    <div class="ficha">
+      <h3>Ficha</h3>
+      <dl>
+        <dt>PCA</dt><dd>blanqueado, 95 % de la varianza (13 dimensiones)</dd>
+        <dt>Por clase</dt><dd>mezcla gaussiana de 3 componentes</dd>
+        <dt>Fondo</dt><dd>mezcla de 24 componentes</dd>
+        <dt>Inscritas</dt><dd>BPSK, QPSK, 8PSK, 16QAM, 64QAM, 4PAM</dd>
+        <dt>Umbral</dt><dd>el menor que da ≥ 85 % de aciertos en lo aceptado</dd>
+        <dt>Inscribir</dt><dd>ajustar una mezcla nueva, sin tocar las redes</dd>
+        <dt>Archivo</dt><dd>src/cascada/decisor.py</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="bloque" id="ejemplo">
+    <h2>Recorrido de un ejemplo</h2>
+    <p>Una señal QPSK del banco (generador procedural, canal ideal, pulso medio seno, 3,5 muestras por símbolo, 20 dB) analizada en la interfaz con el modelo red + refino.</p>
+    <dl class="recorrido">
+      <div><dt>Detector</dt><dd>18,7 dB</dd><small>SNR estimada; la real es 20 dB</small></div>
+      <div><dt>Normalizador</dt><dd>3,5 sps</dd><small>coincide con la tasa real</small></div>
+      <div><dt>Desvío total</dt><dd>−3,7·10⁻³</dd><small>ciclos por muestra</small></div>
+      <div><dt>Recuperación</dt><dd>Red</dd><small>1 792 muestras usadas</small></div>
+      <div><dt>Autofoco</dt><dd>15,7</dd><small>nitidez; mínimo muy claro</small></div>
+      <div><dt>Símbolos</dt><dd>503</dd><small>de 512 transmitidos</small></div>
+      <div><dt>Decisor</dt><dd>QPSK</dd><small>98,4 % de probabilidad</small></div>
+      <div><dt>Tiempo</dt><dd>≈ 2 s</dd><small>en CPU, con un entrenamiento corriendo</small></div>
+    </dl>
+  </section>
+
+  <section class="bloque" id="resultados">
+    <h2>Qué tan bien funciona</h2>
+    <p>Comparación de configuraciones con señales nuevas a SNR ≥ 10 dB: 768 de modulaciones conocidas y 1 024 de desconocidas, de GNU Radio y de un generador independiente.</p>
+    <div class="tabla-caja">
+      <table>
+        <thead><tr><th>Configuración</th><th class="n">Exactitud en conocidas</th><th class="n">AUROC desconocidas</th><th class="n">ms CPU</th><th class="n">ms RTX</th></tr></thead>
+        <tbody>
+          <tr class="elegido"><td>Red + refino (elegida)</td><td class="n">81,0 %</td><td class="n">0,872</td><td class="n">68</td><td class="n">49</td></tr>
+          <tr><td>Red sin refino</td><td class="n">79,4 %</td><td class="n">—</td><td class="n">59</td><td class="n">40</td></tr>
+          <tr><td>Mixta + refino</td><td class="n">79,0 %</td><td class="n">0,848</td><td class="n">172</td><td class="n">145</td></tr>
+          <tr><td>CMA + refino</td><td class="n">74,0 %</td><td class="n">0,890</td><td class="n">—</td><td class="n">—</td></tr>
+          <tr><td>SVM de referencia</td><td class="n">54,6 %</td><td class="n">—</td><td class="n">17</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Con red + refino: 86,7 % en GNU Radio y 75,3 % en el generador independiente. Detecta como desconocidas el 52,5 % de las señales desconocidas. La diferencia con mixta + refino no es significativa (McNemar, p = 0,105).</p>
+
+    <h3>Modelo robusto: 32 canales y tasas extremas</h3>
+    <p>Recuperador reentrenado con canales variados y CNN adversaria de dominio. Prueba con 2 400 archivos del banco a SNR ≥ 10 dB; «canales nuevos» son 12 canales que el modelo original nunca vio (LTE EPA/EVA/ETU, Nakagami, sombra, Watterson, dos rayos, ecos largos e interferencias), con 30 % de tasas entre 2,5 y 32 muestras por símbolo.</p>
+    <div class="tabla-caja">
+      <table>
+        <thead><tr><th>Modelo</th><th class="n">Exactitud</th><th class="n">Canales nuevos</th><th class="n">AUROC</th><th class="n">Desconocidas detectadas</th></tr></thead>
+        <tbody>
+          <tr><td>Red + refino original</td><td class="n">65,2 %</td><td class="n bajo">57,4 %</td><td class="n">0,783</td><td class="n">54,1 %</td></tr>
+          <tr class="elegido"><td>Canales variados (robusto)</td><td class="n">73,7 %</td><td class="n">71,5 %</td><td class="n">0,797</td><td class="n bajo">46,7 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">El ecualizador con seguimiento (CMA símbolo a símbolo y fase por bloques) dio 70,1 % y la votación por tramos 74,1 %: el primero empeora con el recuperador nuevo y el segundo no es significativo, así que la cadena sigue siendo red + refino. La puerta de desconocidas se recalibró con archivos del banco que la prueba no usa: desplazar su intercepto subió la detección de 41,1 % a 46,7 % sin cambiar el AUROC.</p>
+
+    <h3>Generadores y canales que el modelo no vio</h3>
+    <p>En cada fila se aparta un generador o una familia de canales, se entrena con el resto (8 000 pasos) y se evalúa en lo apartado, con todos los niveles de SNR del banco.</p>
+    <div class="tabla-caja">
+      <table class="debil">
+        <thead><tr><th>Apartado</th><th class="n">Robusto</th><th class="n">AUROC</th><th class="n">Original</th></tr></thead>
+        <tbody>
+          <tr><td>Generador del repositorio</td><td class="n">80,3 %</td><td class="n">0,825</td><td class="n">70,4 %</td></tr>
+          <tr><td>Generador procedural</td><td class="n">76,6 %</td><td class="n">0,813</td><td class="n">69,7 %</td></tr>
+          <tr><td>Generador en frecuencia</td><td class="n">72,7 %</td><td class="n">0,836</td><td class="n">68,7 %</td></tr>
+          <tr><td>Generador analógico</td><td class="n">75,6 %</td><td class="n">0,832</td><td class="n">69,8 %</td></tr>
+          <tr><td>GNU Radio</td><td class="n">74,5 %</td><td class="n">0,786</td><td class="n">68,7 %</td></tr>
+          <tr><td>Multitrayecto</td><td class="n bajo">61,2 %</td><td class="n">0,704</td><td class="n bajo">58,1 %</td></tr>
+          <tr><td>Desvanecimiento</td><td class="n bajo">53,1 %</td><td class="n">0,674</td><td class="n bajo">45,4 %</td></tr>
+          <tr><td>LTE EPA/EVA/ETU</td><td class="n">70,5 %</td><td class="n">0,758</td><td class="n">64,3 %</td></tr>
+          <tr><td>Nakagami, sombra, Watterson</td><td class="n">75,8 %</td><td class="n">0,773</td><td class="n bajo">38,6 %</td></tr>
+          <tr><td>Sincronía</td><td class="n">94,1 %</td><td class="n">0,879</td><td class="n">93,0 %</td></tr>
+          <tr><td>Hardware</td><td class="n">95,2 %</td><td class="n">0,904</td><td class="n">94,1 %</td></tr>
+          <tr><td>Interferencias</td><td class="n">86,3 %</td><td class="n">0,832</td><td class="n">76,8 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Media: 76,3 % frente a 68,1 % del modelo original. El robusto gana en las 12 particiones.</p>
+  </section>
+
+  <section class="bloque" id="limites">
+    <h2>Dónde falla hoy</h2>
+    <div class="limites">
+      <div class="limite"><b>Multitrayecto largo y desvanecimiento rápido</b><span>Con el modelo robusto el desvanecimiento no visto sube a 53 %, pero el multitrayecto estático largo (mp_largo, ecos largos) queda en 29–36 % y es lo que más pesa en una demo inalámbrica.</span></div>
+      <div class="limite"><b>Detección de desconocidas</b><span>El modelo robusto separa mejor (AUROC 0,797) y, tras recalibrar la puerta, marca como desconocidas el 46,7 %, todavía menos que el 54 % del original. Las que no detecta quedan sin decidir; casi nunca se confunden con una modulación inscrita.</span></div>
+      <div class="limite"><b>Estimación de puntos y anillos</b><span>La cabeza de geometría acierta en QPSK pero para 16QAM estima unos 28 puntos. No conviene usarla para decidir.</span></div>
+      <div class="limite"><b>Tasas muy bajas o muy altas</b><span>El modelo robusto se entrenó y probó de 2,5 a 32 muestras por símbolo. Fuera de ese rango hay que fijar la tasa a mano.</span></div>
+    </div>
+  </section>
+
+  <p class="pie">Código en <code>src/cascada</code>; la interfaz que muestra cada etapa está en <code>src/interfaz</code> y se abre con <code>abrir_interfaz.bat</code>. Cifras tomadas de <code>docs/CASCADA_ARREGLOS.md</code> y <code>docs/CASCADA_ROBUSTEZ.md</code>, 24 de noviembre de 2026.</p>
+</div>
+
+<script>
+(function () {
+  const BINS = 48, LIM = 2.4;
+
+  function generador(semilla) {
+    let a = semilla >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function senal() {
+    const azar = generador(20261118);
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - azar())) * Math.cos(2 * Math.PI * azar());
+    const niveles = [-3, -1, 1, 3], escala = 1 / Math.sqrt(10), df = 0.0062, giro = 0.35;
+    const re = [], im = [];
+    for (let k = 0; k < 600; k++) {
+      const i = niveles[Math.floor(azar() * 4)] * escala + 0.05 * gauss();
+      const q = niveles[Math.floor(azar() * 4)] * escala + 0.05 * gauss();
+      const fase = 2 * Math.PI * df * k + giro;
+      re.push(i * Math.cos(fase) - q * Math.sin(fase));
+      im.push(i * Math.sin(fase) + q * Math.cos(fase));
+    }
+    return { re, im, df };
+  }
+
+  function girar(s, df) {
+    const re = [], im = [];
+    for (let k = 0; k < s.re.length; k++) {
+      const c = Math.cos(-2 * Math.PI * df * k), d = Math.sin(-2 * Math.PI * df * k);
+      re.push(s.re[k] * c - s.im[k] * d);
+      im.push(s.re[k] * d + s.im[k] * c);
+    }
+    return { re, im };
+  }
+
+  function entropia(s) {
+    const cuenta = new Map();
+    let n = 0;
+    for (let k = 0; k < s.re.length; k++) {
+      const x = Math.floor((s.re[k] + LIM) / (2 * LIM) * BINS), y = Math.floor((s.im[k] + LIM) / (2 * LIM) * BINS);
+      if (x < 0 || y < 0 || x >= BINS || y >= BINS) continue;
+      const clave = x * BINS + y;
+      cuenta.set(clave, (cuenta.get(clave) || 0) + 1);
+      n++;
+    }
+    let h = 0;
+    for (const c of cuenta.values()) { const p = c / n; h -= p * Math.log(p); }
+    return h;
+  }
+
+  function token(nombre) {
+    return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim();
+  }
+
+  function preparar(id) {
+    const c = document.getElementById(id);
+    const caja = c.getBoundingClientRect();
+    const r = window.devicePixelRatio || 1;
+    c.width = Math.max(1, Math.round(caja.width * r));
+    c.height = Math.max(1, Math.round(caja.height * r));
+    const g = c.getContext("2d");
+    g.setTransform(r, 0, 0, r, 0, 0);
+    g.fillStyle = token("--surface");
+    g.fillRect(0, 0, caja.width, caja.height);
+    return { g, w: caja.width, h: caja.height };
+  }
+
+  function constelacion(id, s) {
+    const { g, w, h } = preparar(id);
+    const lado = Math.min(w, h), lim = 1.6;
+    const px = (v) => w / 2 + (v / lim) * (lado / 2 - 6), py = (v) => h / 2 - (v / lim) * (lado / 2 - 6);
+    g.strokeStyle = token("--line");
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(px(-lim), py(0)); g.lineTo(px(lim), py(0));
+    g.moveTo(px(0), py(-lim)); g.lineTo(px(0), py(lim));
+    g.stroke();
+    g.fillStyle = token("--accent");
+    g.globalAlpha = 0.7;
+    for (let k = 0; k < s.re.length; k++) g.fillRect(px(s.re[k]) - 1.2, py(s.im[k]) - 1.2, 2.4, 2.4);
+    g.globalAlpha = 1;
+  }
+
+  function curva(id, valores, mejor, verdadero) {
+    const { g, w, h } = preparar(id);
+    const m = { izq: 30, der: 8, arr: 10, aba: 24 };
+    const xs = valores.map((v) => v[0]), ys = valores.map((v) => v[1]);
+    const x0 = xs[0], x1 = xs[xs.length - 1], y0 = Math.min(...ys) - 0.1, y1 = Math.max(...ys) + 0.1;
+    const px = (v) => m.izq + (v - x0) / (x1 - x0) * (w - m.izq - m.der);
+    const py = (v) => h - m.aba - (v - y0) / (y1 - y0) * (h - m.arr - m.aba);
+    g.font = "11px " + token("--mono");
+    g.fillStyle = token("--muted");
+    g.strokeStyle = token("--line");
+    g.textAlign = "center";
+    for (const t of [-0.04, -0.02, 0, 0.02, 0.04]) {
+      g.beginPath(); g.moveTo(px(t), m.arr); g.lineTo(px(t), h - m.aba); g.stroke();
+      g.fillText(t === 0 ? "0" : t.toFixed(2), px(t), h - 8);
+    }
+    g.textAlign = "right";
+    const paso = (y1 - y0) > 1.5 ? 1 : 0.5;
+    for (let t = Math.ceil(y0 / paso) * paso; t <= y1; t += paso) g.fillText(t.toFixed(1), m.izq - 4, py(t) + 4);
+    g.strokeStyle = token("--accent");
+    g.lineWidth = 2;
+    g.beginPath();
+    valores.forEach(([x, y], i) => (i ? g.lineTo(px(x), py(y)) : g.moveTo(px(x), py(y))));
+    g.stroke();
+    g.fillStyle = token("--warn");
+    g.beginPath(); g.arc(px(mejor[0]), py(mejor[1]), 4.5, 0, 2 * Math.PI); g.fill();
+    g.strokeStyle = token("--surface"); g.lineWidth = 2; g.stroke();
+    document.getElementById("p-curva").textContent =
+      `Entropía según el desvío probado. Mínimo en ${mejor[0].toFixed(4)} ciclos/símbolo; el desvío real era ${verdadero.toFixed(4)}.`;
+  }
+
+  function densidades(s) {
+    const n = s.re.length;
+    let mr = 0, mi = 0;
+    for (let k = 0; k < n; k++) { mr += s.re[k]; mi += s.im[k]; }
+    mr /= n; mi /= n;
+    let p = 0;
+    for (let k = 0; k < n; k++) p += (s.re[k] - mr) ** 2 + (s.im[k] - mi) ** 2;
+    const e = 1 / Math.sqrt(p / n), B = 64, L = 2.2;
+    const cart = Array.from({ length: B }, () => new Float32Array(B));
+    const polar = Array.from({ length: B }, () => new Float32Array(B));
+    for (let k = 0; k < n; k++) {
+      const x = (s.re[k] - mr) * e, y = (s.im[k] - mi) * e;
+      const cx = Math.floor((x + L) / (2 * L) * B), cy = Math.floor((y + L) / (2 * L) * B);
+      if (cx >= 0 && cy >= 0 && cx < B && cy < B) cart[cy][cx] += 1;
+      const r = Math.hypot(x, y), a = Math.atan2(y, x);
+      const pr = Math.floor(r / L * B), pa = Math.min(B - 1, Math.floor((a + Math.PI) / (2 * Math.PI) * B));
+      if (pr < B) polar[pr][pa] += 1;
+    }
+    const escala = B * B / (4 * n);
+    const log = (m) => m.map((fila) => fila.map((v) => Math.min(1.5, Math.log1p(v * escala) / 4)));
+    return { cart: log(cart), polar: log(polar) };
+  }
+
+  function mezclar(a, b, t) {
+    const h = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+    const x = h(a), y = h(b);
+    return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(",")})`;
+  }
+
+  function mapa(id, m) {
+    const { g, w, h } = preparar(id);
+    const B = m.length;
+    let max = 1e-9;
+    for (const fila of m) for (const v of fila) if (v > max) max = v;
+    const fondo = token("--surface"), tinta = token("--accent");
+    for (let y = 0; y < B; y++) for (let x = 0; x < B; x++) {
+      if (!m[y][x]) continue;
+      g.fillStyle = mezclar(fondo, tinta, Math.pow(m[y][x] / max, 0.8));
+      g.fillRect(x * w / B, h - (y + 1) * h / B, w / B + 0.5, h / B + 0.5);
+    }
+    g.strokeStyle = token("--line");
+    g.strokeRect(0.5, 0.5, w - 1, h - 1);
+  }
+
+  const original = senal();
+  const valores = [];
+  for (let i = 0; i <= 240; i++) {
+    const df = -0.04 + 0.08 * i / 240;
+    valores.push([df, entropia(girar(original, df))]);
+  }
+  let mejor = valores.reduce((a, b) => (b[1] < a[1] ? b : a));
+  for (let paso = 0.08 / 240; paso > 2e-5; paso /= 4) {
+    for (let j = -4; j <= 4; j++) {
+      const df = mejor[0] + j * paso, v = entropia(girar(original, df));
+      if (v < mejor[1]) mejor = [df, v];
+    }
+  }
+  const corregida = girar(original, mejor[0]);
+  const imagenes = densidades(corregida);
+
+  function dibujar() {
+    constelacion("c-antes", original);
+    curva("c-curva", valores, mejor, original.df);
+    constelacion("c-despues", corregida);
+    mapa("c-cart", imagenes.cart);
+    mapa("c-polar", imagenes.polar);
+  }
+
+  let pendiente = 0;
+  const pedir = () => { cancelAnimationFrame(pendiente); pendiente = requestAnimationFrame(dibujar); };
+  window.addEventListener("resize", pedir);
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", pedir);
+  new MutationObserver(pedir).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(pedir);
+  dibujar();
+})();
+</script>

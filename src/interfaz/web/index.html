@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analizador de modulaciones</title>
+  <link rel="stylesheet" href="/estilo.css">
+</head>
+<body>
+  <header class="barra">
+    <div>
+      <h1>Analizador de modulaciones</h1>
+      <p>Carga una señal I/Q y revisa cómo la recupera y clasifica la cascada.</p>
+    </div>
+    <p id="estado-global" class="estado" role="status">Preparando…</p>
+  </header>
+
+  <div class="distribucion">
+    <aside class="lateral" aria-label="Datos de entrada">
+      <section class="tarjeta">
+        <h2>Señal</h2>
+        <label id="zona" class="zona" for="archivo" tabindex="0">
+          <strong>Suelta aquí tu archivo</strong>
+          <span>o haz clic para elegirlo</span>
+          <small>.c64 .cfile .bin .cs16 .cu8 .npy .npz .csv .wav</small>
+        </label>
+        <input id="archivo" type="file" hidden>
+        <p id="nombre-archivo" class="nombre-archivo">Ningún archivo cargado</p>
+
+        <label class="campo">Formato
+          <select id="formato"></select>
+        </label>
+        <div class="dos">
+          <label class="campo">Muestras por símbolo
+            <input id="sps" inputmode="decimal" placeholder="Automático">
+          </label>
+          <label class="campo">Muestra inicial
+            <input id="inicio" inputmode="numeric" value="0">
+          </label>
+        </div>
+        <label class="campo">Modelo
+          <select id="motor"></select>
+        </label>
+        <p id="motor-ayuda" class="ayuda"></p>
+        <button id="analizar" class="primario" type="button" disabled>Analizar</button>
+      </section>
+
+      <section id="tarjeta-banco" class="tarjeta" hidden>
+        <h2>Ejemplo del banco</h2>
+        <label class="campo">Generador <select id="b-generador"></select></label>
+        <label class="campo">Canal <select id="b-canal"></select></label>
+        <div class="dos">
+          <label class="campo">Modulación <select id="b-modulacion"></select></label>
+          <label class="campo">Archivo <select id="b-indice"></select></label>
+        </div>
+        <div class="dos">
+          <button id="b-cargar" type="button">Cargar</button>
+          <button id="b-azar" type="button">Al azar</button>
+        </div>
+      </section>
+    </aside>
+
+    <main class="contenido">
+      <div id="error" class="alerta" role="alert" hidden></div>
+
+      <section id="vacio" class="tarjeta vacio">
+        <h2>Todavía no hay una señal</h2>
+        <p>Suelta un archivo I/Q en cualquier parte de la ventana, o carga un ejemplo del banco.</p>
+      </section>
+
+      <div id="resultado" hidden>
+        <section class="tarjeta decision" aria-label="Decisión">
+          <div>
+            <p class="rotulo">Modulación detectada</p>
+            <p id="d-modulacion" class="modulacion"></p>
+            <p id="d-detalle" class="detalle"></p>
+          </div>
+          <dl id="etapas" class="etapas"></dl>
+        </section>
+
+        <div class="rejilla">
+          <section class="tarjeta panel-constelacion">
+            <div class="cabecera">
+              <h2>Constelación</h2>
+              <div class="segmentos" role="group" aria-label="Señal mostrada">
+                <button id="v-recuperada" type="button" aria-pressed="true">Recuperada</button>
+                <button id="v-entrada" type="button" aria-pressed="false">Entrada</button>
+              </div>
+            </div>
+            <canvas id="c-constelacion" class="cuadrado" role="img" aria-label="Constelación"></canvas>
+            <p id="p-constelacion" class="pie"></p>
+          </section>
+
+          <section class="tarjeta panel-ojo">
+            <h2>Diagrama de ojo</h2>
+            <div class="ojos">
+              <figure>
+                <figcaption><i class="muestra serie-i"></i>Componente I</figcaption>
+                <canvas id="c-ojo-i" role="img" aria-label="Diagrama de ojo de la componente I"></canvas>
+              </figure>
+              <figure>
+                <figcaption><i class="muestra serie-q"></i>Componente Q</figcaption>
+                <canvas id="c-ojo-q" role="img" aria-label="Diagrama de ojo de la componente Q"></canvas>
+              </figure>
+            </div>
+            <p class="pie">Dos símbolos después de sincronizar y ecualizar. El centro es el instante de decisión.</p>
+          </section>
+
+          <section class="tarjeta panel-cnn">
+            <h2>Salida de la CNN</h2>
+            <div class="cnn">
+              <div>
+                <h3>Probabilidades</h3>
+                <ul id="probabilidades" class="probabilidades"></ul>
+                <p id="p-umbral" class="pie"></p>
+              </div>
+              <div>
+                <h3>Lo que recibe la CNN</h3>
+                <div class="imagenes">
+                  <figure><canvas id="c-cart" class="cuadrado" role="img" aria-label="Densidad cartesiana"></canvas><figcaption>Densidad I/Q</figcaption></figure>
+                  <figure><canvas id="c-polar" class="cuadrado" role="img" aria-label="Densidad polar"></canvas><figcaption>Densidad radio/ángulo</figcaption></figure>
+                </div>
+              </div>
+              <div class="ancho">
+                <h3>Huella de 128 valores</h3>
+                <canvas id="c-huella" class="tira" role="img" aria-label="Huella de la CNN"></canvas>
+                <p id="p-geometria" class="pie"></p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="soltar" class="soltar" hidden>Suelta el archivo para analizarlo</div>
+  <div id="globo" class="globo" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>

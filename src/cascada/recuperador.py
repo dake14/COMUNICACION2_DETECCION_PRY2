@@ -55,7 +55,7 @@ def aplicar_recuperador(modelo, iq8):
     z = np.asarray(iq8, dtype=np.complex64)[:MAX_MUESTRAS]
     z = z / np.sqrt(max(np.mean(np.abs(z) ** 2), 1e-12))
     modelo.eval()
-    y = modelo(a_tensor(z))[0].numpy()
+    y = modelo(a_tensor(z).to(next(modelo.parameters()).device))[0].cpu().numpy()
     return y[0] + 1j * y[1]
 
 

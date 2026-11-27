@@ -7,12 +7,25 @@ import numpy as np
 from src.cascada.autofoco import entropia
 from src.cascada.cadena import MAX_ENTROPIA, recuperar
 from src.cascada.decisor import INDETERMINADA
-from src.cascada.descriptor import calcular_huellas, cargar_descriptor, imagen_densidad
+import torch
+
+from src.cascada.descriptor import Descriptor, calcular_huellas, cargar_descriptor, imagen_densidad
+from src.cascada.descriptor_puntos import DescriptorPuntos, entrada_puntos
+from src.cascada.descriptor_variantes import DescriptorAncho
 from src.cascada.detector import detectar_ciego, snr_ciega_db
 from src.cascada.recuperador import cargar_recuperador
 
 PAQUETE_DEFECTO = Path("results/cascada/modelos/paquete.joblib")
 MIN_MUESTRAS = 256
+SIMBOLOS_PUNTOS = 1024
+CLASES = {"imagen": Descriptor, "adversaria": Descriptor, "ancha": DescriptorAncho, "puntos": DescriptorPuntos}
+
+
+def cargar_descriptor_tipo(ruta):
+    datos = torch.load(ruta, map_location="cpu", weights_only=True)
+    modelo = CLASES[datos["extra"].get("tipo", "imagen")]()
+    modelo.load_state_dict(datos["estado"])
+    return modelo.eval()
 
 
 def cargar_paquete(ruta=PAQUETE_DEFECTO):
@@ -20,7 +33,10 @@ def cargar_paquete(ruta=PAQUETE_DEFECTO):
     datos = joblib.load(ruta)
     base = ruta.parent
     datos["recuperador"] = cargar_recuperador(base / datos["ruta_recuperador"]) if datos.get("ruta_recuperador") else None
-    datos["descriptor"] = cargar_descriptor(base / datos["ruta_descriptor"])
+    datos["descriptor"] = cargar_descriptor_tipo(base / datos["ruta_descriptor"])
+    meta = datos.get("metadatos") or {}
+    datos["variante"] = meta.get("variante", "imagen")
+    datos["descriptores"] = {k: cargar_descriptor_tipo(base / v) for k, v in meta.get("descriptores", {}).items()}
     return datos
 
 
@@ -37,7 +53,15 @@ def _indeterminada(estado, deteccion=None, snr=None):
 
 
 def huella_de_simbolos(simbolos, paquete):
-    return calcular_huellas(paquete["descriptor"], imagen_densidad(simbolos)[None])
+    variante = paquete.get("variante", "imagen")
+    modelos = paquete.get("descriptores") or {}
+    puntos = lambda: calcular_huellas(modelos["puntos"], entrada_puntos(simbolos[:SIMBOLOS_PUNTOS])[None])
+    if variante == "puntos":
+        return puntos()
+    z, g = calcular_huellas(modelos.get("imagen", paquete["descriptor"]), imagen_densidad(simbolos)[None])
+    if variante == "multivista":
+        z = np.concatenate((z, puntos()[0]), 1) / np.sqrt(2)
+    return z, g
 
 
 def calidad_de(recuperada, snr):

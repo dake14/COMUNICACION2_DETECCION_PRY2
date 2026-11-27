@@ -1,0 +1,301 @@
+{
+ "etapa": "completo",
+ "pasos": 8000,
+ "tabla": {
+  "adversaria": {
+   "gen_repo_completo": {
+    "exactitud": 0.803,
+    "auroc": 0.825,
+    "puntaje_abierto": 0.437
+   },
+   "_referencia": {
+    "gen_repo_completo": 0.704,
+    "gen_procedural_completo": 0.697,
+    "gen_frecuencia_completo": 0.687,
+    "gen_analogico_completo": 0.698,
+    "gen_gnuradio_completo": 0.687,
+    "canal_multitrayecto_completo": 0.581,
+    "canal_desvanecimiento_completo": 0.454,
+    "canal_lte_completo": 0.643,
+    "canal_desvanecimiento_extra_completo": 0.386,
+    "canal_sincronia_completo": 0.93,
+    "canal_hardware_completo": 0.941,
+    "canal_interferencia_completo": 0.768
+   },
+   "gen_procedural_completo": {
+    "exactitud": 0.766,
+    "auroc": 0.813,
+    "puntaje_abierto": 0.426
+   },
+   "gen_frecuencia_completo": {
+    "exactitud": 0.727,
+    "auroc": 0.836,
+    "puntaje_abierto": 0.447
+   },
+   "gen_analogico_completo": {
+    "exactitud": 0.756,
+    "auroc": 0.832,
+    "puntaje_abierto": 0.443
+   },
+   "gen_gnuradio_completo": {
+    "exactitud": 0.745,
+    "auroc": 0.786,
+    "puntaje_abierto": 0.403
+   },
+   "canal_multitrayecto_completo": {
+    "exactitud": 0.612,
+    "auroc": 0.704,
+    "puntaje_abierto": 0.321
+   },
+   "canal_desvanecimiento_completo": {
+    "exactitud": 0.531,
+    "auroc": 0.674,
+    "puntaje_abierto": 0.275
+   },
+   "canal_lte_completo": {
+    "exactitud": 0.705,
+    "auroc": 0.758,
+    "puntaje_abierto": 0.351
+   },
+   "canal_desvanecimiento_extra_completo": {
+    "exactitud": 0.758,
+    "auroc": 0.773,
+    "puntaje_abierto": 0.405
+   },
+   "canal_sincronia_completo": {
+    "exactitud": 0.941,
+    "auroc": 0.879,
+    "puntaje_abierto": 0.583
+   },
+   "canal_hardware_completo": {
+    "exactitud": 0.952,
+    "auroc": 0.904,
+    "puntaje_abierto": 0.599
+   },
+   "canal_interferencia_completo": {
+    "exactitud": 0.863,
+    "auroc": 0.832,
+    "puntaje_abierto": 0.496
+   },
+   "_media_exactitud": 0.7632,
+   "_media_auroc": 0.8013
+  }
+ },
+ "por_canal": {
+  "adversaria/gen_repo_completo": {
+   "amplificador": 1.0,
+   "cuantizacion": 1.0,
+   "deriva_portadora": 0.875,
+   "deriva_reloj": 1.0,
+   "dos_rayos": 0.929,
+   "ecos_largos": 0.286,
+   "gr_dinamico": 0.571,
+   "gr_imperfecciones": 1.0,
+   "gr_multitrayecto": 0.375,
+   "gr_selectivo": 0.846,
+   "ideal": 1.0,
+   "impulsivo": 1.0,
+   "int_adyacente": 0.615,
+   "int_barrido": 0.833,
+   "int_cocanal": 1.0,
+   "int_pulsos": 0.818,
+   "interferencia": 0.929,
+   "iq_dc": 0.941,
+   "lte_epa": 0.941,
+   "lte_etu": 0.667,
+   "lte_eva": 0.636,
+   "mp_corto": 0.529,
+   "mp_largo": 0.611,
+   "nakagami": 0.929,
+   "plano_lento": 1.0,
+   "proyecto": 0.667,
+   "receptor_barato": 0.875,
+   "ruido_fase": 1.0,
+   "sombra": 1.0,
+   "tdl_rayleigh": 0.538,
+   "tdl_rician": 0.786,
+   "watterson": 0.417
+  },
+  "adversaria/gen_procedural_completo": {
+   "amplificador": 0.875,
+   "cuantizacion": 1.0,
+   "deriva_portadora": 0.957,
+   "deriva_reloj": 1.0,
+   "dos_rayos": 0.667,
+   "ecos_largos": 0.455,
+   "gr_dinamico": 0.462,
+   "gr_imperfecciones": 0.923,
+   "gr_multitrayecto": 0.4,
+   "gr_selectivo": 0.412,
+   "ideal": 1.0,
+   "impulsivo": 1.0,
+   "int_adyacente": 1.0,
+   "int_barrido": 0.667,
+   "int_cocanal": 1.0,
+   "int_pulsos": 1.0,
+   "interferencia": 0.833,
+   "iq_dc": 1.0,
+   "lte_epa": 0.889,
+   "lte_etu": 0.75,
+   "lte_eva": 0.444,
+   "mp_corto": 0.6,
+   "mp_largo": 0.429,
+   "nakagami": 0.889,
+   "plano_lento": 0.938,
+   "proyecto": 0.765,
+   "receptor_barato": 0.824,
+   "ruido_fase": 0.889,
+   "sombra": 0.846,
+   "tdl_rayleigh": 0.412,
+   "tdl_rician": 0.333,
+   "watterson": 0.769
+  },
+  "adversaria/gen_frecuencia_completo": {
+   "amplificador": 0.944,
+   "cuantizacion": 1.0,
+   "deriva_portadora": 0.846,
+   "deriva_reloj": 1.0,
+   "dos_rayos": 0.667,
+   "ecos_largos": 0.125,
+   "gr_dinamico": 0.25,
+   "gr_imperfecciones": 0.933,
+   "gr_multitrayecto": 0.222,
+   "gr_selectivo": 0.385,
+   "ideal": 1.0,
+   "impulsivo": 1.0,
+   "int_adyacente": 0.714,
+   "int_barrido": 0.75,
+   "int_cocanal": 1.0,
+   "int_pulsos": 0.786,
+   "interferencia": 0.842,
+   "iq_dc": 1.0,
+   "lte_epa": 0.909,
+   "lte_etu": 0.308,
+   "lte_eva": 0.5,
+   "mp_corto": 0.467,
+   "mp_largo": 0.571,
+   "nakagami": 0.786,
+   "plano_lento": 0.85,
+   "proyecto": 0.875,
+   "receptor_barato": 0.857,
+   "ruido_fase": 0.938,
+   "sombra": 1.0,
+   "tdl_rayleigh": 0.632,
+   "tdl_rician": 0.333,
+   "watterson": 0.5
+  },
+  "adversaria/gen_analogico_completo": {
+   "amplificador": 0.941,
+   "cuantizacion": 1.0,
+   "deriva_portadora": 0.941,
+   "deriva_reloj": 1.0,
+   "dos_rayos": 0.7,
+   "ecos_largos": 0.2,
+   "gr_dinamico": 0.4,
+   "gr_imperfecciones": 1.0,
+   "gr_multitrayecto": 0.556,
+   "gr_selectivo": 0.333,
+   "ideal": 0.867,
+   "impulsivo": 1.0,
+   "int_adyacente": 0.5,
+   "int_barrido": 0.875,
+   "int_cocanal": 1.0,
+   "int_pulsos": 0.909,
+   "interferencia": 0.947,
+   "iq_dc": 0.929,
+   "lte_epa": 0.909,
+   "lte_etu": 0.667,
+   "lte_eva": 0.5,
+   "mp_corto": 0.733,
+   "mp_largo": 0.368,
+   "nakagami": 0.9,
+   "plano_lento": 0.875,
+   "proyecto": 0.667,
+   "receptor_barato": 0.944,
+   "ruido_fase": 0.765,
+   "sombra": 0.909,
+   "tdl_rayleigh": 0.667,
+   "tdl_rician": 0.529,
+   "watterson": 0.4
+  },
+  "adversaria/gen_gnuradio_completo": {
+   "amplificador": 0.97,
+   "cuantizacion": 1.0,
+   "deriva_portadora": 0.897,
+   "deriva_reloj": 0.933,
+   "dos_rayos": 0.56,
+   "ecos_largos": 0.522,
+   "gr_dinamico": 0.367,
+   "gr_imperfecciones": 0.966,
+   "gr_multitrayecto": 0.4,
+   "gr_selectivo": 0.387,
+   "ideal": 0.97,
+   "impulsivo": 0.931,
+   "int_adyacente": 0.714,
+   "int_barrido": 0.762,
+   "int_cocanal": 0.833,
+   "int_pulsos": 0.923,
+   "interferencia": 0.967,
+   "iq_dc": 0.935,
+   "lte_epa": 0.875,
+   "lte_etu": 0.696,
+   "lte_eva": 0.571,
+   "mp_corto": 0.725,
+   "mp_largo": 0.417,
+   "nakagami": 0.808,
+   "plano_lento": 0.879,
+   "proyecto": 0.75,
+   "receptor_barato": 0.818,
+   "ruido_fase": 0.865,
+   "sombra": 0.929,
+   "tdl_rayleigh": 0.407,
+   "tdl_rician": 0.486,
+   "watterson": 0.545
+  },
+  "adversaria/canal_multitrayecto_completo": {
+   "dos_rayos": 0.724,
+   "ecos_largos": 0.424,
+   "gr_multitrayecto": 0.588,
+   "mp_corto": 0.667,
+   "mp_largo": 0.495,
+   "proyecto": 0.75
+  },
+  "adversaria/canal_desvanecimiento_completo": {
+   "gr_dinamico": 0.33,
+   "gr_selectivo": 0.382,
+   "plano_lento": 0.911,
+   "tdl_rayleigh": 0.538,
+   "tdl_rician": 0.449
+  },
+  "adversaria/canal_lte_completo": {
+   "lte_epa": 0.903,
+   "lte_etu": 0.583,
+   "lte_eva": 0.619
+  },
+  "adversaria/canal_desvanecimiento_extra_completo": {
+   "nakagami": 0.836,
+   "sombra": 0.89,
+   "watterson": 0.536
+  },
+  "adversaria/canal_sincronia_completo": {
+   "deriva_portadora": 0.898,
+   "deriva_reloj": 0.977,
+   "ruido_fase": 0.95
+  },
+  "adversaria/canal_hardware_completo": {
+   "amplificador": 0.929,
+   "cuantizacion": 1.0,
+   "gr_imperfecciones": 0.966,
+   "iq_dc": 0.99,
+   "receptor_barato": 0.878
+  },
+  "adversaria/canal_interferencia_completo": {
+   "impulsivo": 0.977,
+   "int_adyacente": 0.744,
+   "int_barrido": 0.743,
+   "int_cocanal": 0.899,
+   "int_pulsos": 0.889,
+   "interferencia": 0.904
+  }
+ }
+}

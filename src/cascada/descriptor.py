@@ -76,7 +76,7 @@ def perdida_contrastiva(z1, z2, temperatura=0.1):
     similitud = z @ z.T / temperatura
     similitud.fill_diagonal_(-1e4)
     n = len(z1)
-    objetivo = torch.cat((torch.arange(n, 2 * n), torch.arange(n)))
+    objetivo = torch.cat((torch.arange(n, 2 * n, device=z.device), torch.arange(n, device=z.device)))
     return F.cross_entropy(similitud, objetivo)
 
 
@@ -84,12 +84,13 @@ def perdida_contrastiva(z1, z2, temperatura=0.1):
 def calcular_huellas(modelo, imagenes, lote=256):
     modelo.eval()
     x = torch.as_tensor(np.asarray(imagenes, dtype=np.float32))
+    dispositivo = next(modelo.parameters()).device
     z, g = [], []
     for i in range(0, len(x), lote):
-        a, b = modelo(x[i:i + lote])
+        a, b = modelo(x[i:i + lote].to(dispositivo))
         z.append(a)
         g.append(b)
-    return torch.cat(z).numpy(), torch.cat(g).numpy()
+    return torch.cat(z).cpu().numpy(), torch.cat(g).cpu().numpy()
 
 
 def guardar_descriptor(modelo, ruta, extra=None):
