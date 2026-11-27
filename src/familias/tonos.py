@@ -67,9 +67,13 @@ def analizar_fsk(iq, sps):
     w = np.nan_to_num(np.abs(prod), nan=0.0, posinf=0.0, neginf=0.0)
 
     m = max(1, round(sps_f / 2.0))
-    g_suave = np.convolve(g, np.ones(m, dtype=np.float64) / m, "same")
+    kernel = np.ones(m, dtype=np.float64) / m
+    g_suave = np.convolve(g, kernel, "same")
 
-    hist, bordes = np.histogram(g_suave, bins=240, range=(-3.0, 3.0), weights=w)
+    v = np.convolve((g - g_suave) ** 2, kernel, "same")
+    estables = v <= np.percentile(v, 50)
+
+    hist, bordes = np.histogram(g_suave[estables], bins=240, range=(-3.0, 3.0), weights=w[estables])
     masa_total = float(hist.sum())
     if not np.isfinite(masa_total) or masa_total <= 0.0:
         return _vacio()
