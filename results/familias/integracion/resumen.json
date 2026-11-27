@@ -1,62 +1,73 @@
 {
  "particion": "evaluación: catalogo con indice 1 + prueba (desconocidas nuevas)",
- "umbral": 0.31,
+ "umbral": 0.36,
  "temperatura": 1.6981534290429632,
- "desplazamiento_puerta": -1.7,
+ "desplazamiento_puerta": -1.5,
  "con_tonos": true,
  "fusion": {
   "todas": {
-   "conocidas_correctas": 0.6128,
-   "conocidas_como_desconocidas": 0.0492,
-   "conocidas_indeterminadas": 0.138,
-   "desconocidas_detectadas": 0.2648,
-   "desconocidas_no_aceptadas": 0.5056,
+   "conocidas_correctas": 0.6325,
+   "conocidas_como_desconocidas": 0.0451,
+   "conocidas_indeterminadas": 0.134,
+   "desconocidas_detectadas": 0.2613,
+   "desconocidas_no_aceptadas": 0.49,
    "n_conocidas": 3456,
    "n_desconocidas": 2304
   },
   "snr>=10": {
-   "conocidas_correctas": 0.6968,
-   "conocidas_como_desconocidas": 0.0391,
-   "conocidas_indeterminadas": 0.0809,
-   "desconocidas_detectadas": 0.3022,
-   "desconocidas_no_aceptadas": 0.4812,
+   "conocidas_correctas": 0.7119,
+   "conocidas_como_desconocidas": 0.0409,
+   "conocidas_indeterminadas": 0.0889,
+   "desconocidas_detectadas": 0.3016,
+   "desconocidas_no_aceptadas": 0.4716,
    "n_conocidas": 2249,
    "n_desconocidas": 1565
   }
  },
  "fusion_sin_umbral": {
   "snr>=10": {
-   "conocidas_correctas": 0.7074,
-   "conocidas_como_desconocidas": 0.068,
+   "conocidas_correctas": 0.7332,
+   "conocidas_como_desconocidas": 0.0694,
    "conocidas_indeterminadas": 0.0,
-   "desconocidas_detectadas": 0.3687,
-   "desconocidas_no_aceptadas": 0.3687,
+   "desconocidas_detectadas": 0.3751,
+   "desconocidas_no_aceptadas": 0.3751,
+   "n_conocidas": 2249,
+   "n_desconocidas": 1565
+  }
+ },
+ "fusion_sin_especialista_sin_umbral": {
+  "snr>=10": {
+   "conocidas_correctas": 0.6994,
+   "conocidas_como_desconocidas": 0.0907,
+   "conocidas_indeterminadas": 0.0,
+   "desconocidas_detectadas": 0.4256,
+   "desconocidas_no_aceptadas": 0.4256,
    "n_conocidas": 2249,
    "n_desconocidas": 1565
   }
  },
  "lista_conforme": {
   "alfa": 0.1,
-  "corte": 0.967005809918946,
+  "corte": 0.9753512429775126,
   "snr<10": {
-   "cobertura": 0.8813,
-   "tamano_medio": 4.9,
-   "una_sola": 0.102
+   "cobertura": 0.8859,
+   "tamano_medio": 4.72,
+   "una_sola": 0.083
   },
   "snr>=10": {
-   "cobertura": 0.9027,
-   "tamano_medio": 3.6,
-   "una_sola": 0.202
+   "cobertura": 0.9046,
+   "tamano_medio": 3.49,
+   "una_sola": 0.186
   },
   "conocidas_snr>=10": {
-   "cobertura": 0.9329,
-   "tamano_medio": 3.15,
-   "una_sola": 0.233
+   "cobertura": 0.928,
+   "tamano_medio": 3.05,
+   "una_sola": 0.217
   },
   "desconocidas_snr>=10": {
-   "cobertura": 0.8594,
-   "tamano_medio": 4.24,
-   "una_sola": 0.159
+   "cobertura": 0.8709,
+   "tamano_medio": 4.13,
+   "una_sola": 0.141
   }
  },
  "enrutador_solo": {
@@ -92,39 +103,39 @@
  },
  "fusion_en_las_6_clases": {
   "snr>=10": {
-   "conocidas_correctas": 0.6619,
-   "conocidas_como_desconocidas": 0.047,
-   "conocidas_indeterminadas": 0.0966,
-   "desconocidas_detectadas": 0.3022,
-   "desconocidas_no_aceptadas": 0.4812,
+   "conocidas_correctas": 0.6593,
+   "conocidas_como_desconocidas": 0.0483,
+   "conocidas_indeterminadas": 0.1005,
+   "desconocidas_detectadas": 0.3016,
+   "desconocidas_no_aceptadas": 0.4716,
    "n_conocidas": 766,
    "n_desconocidas": 1565
   }
  },
  "familia_snr>=10": {
-  "fusion": 0.8066,
+  "fusion": 0.8266,
   "enrutador": 0.8319
  },
  "por_clase_snr>=10": {
   "fusion": {
-   "16APSK": 0.5593,
-   "16QAM": 0.5556,
-   "256QAM": 0.2833,
+   "16APSK": 0.6356,
+   "16QAM": 0.5873,
+   "256QAM": 0.425,
    "2FSK": 0.8413,
-   "32APSK": 0.6083,
-   "32QAM": 0.418,
+   "32APSK": 0.6917,
+   "32QAM": 0.4754,
    "4ASK": 0.9091,
-   "4FSK": 0.947,
-   "4PAM": 0.8992,
-   "64QAM": 0.2243,
-   "8PSK": 0.7133,
-   "BPSK": 0.8,
+   "4FSK": 0.9394,
+   "4PAM": 0.8837,
+   "64QAM": 0.271,
+   "8PSK": 0.6643,
+   "BPSK": 0.7926,
    "GMSK": 0.7869,
    "MSK": 0.8174,
    "OOK": 0.8583,
-   "OQPSK": 0.7308,
-   "PI4DQPSK": 0.7647,
-   "QPSK": 0.6905
+   "OQPSK": 0.7077,
+   "PI4DQPSK": 0.7395,
+   "QPSK": 0.6825
   },
   "enrutador": {
    "16APSK": 0.5932,
@@ -149,11 +160,11 @@
  },
  "por_familia_snr>=10": {
   "fusion": {
-   "amplitud": 0.8892,
-   "apsk": 0.584,
-   "fase": 0.7397,
-   "frecuencia": 0.8505,
-   "qam": 0.3768
+   "amplitud": 0.884,
+   "apsk": 0.6639,
+   "fase": 0.7167,
+   "frecuencia": 0.8485,
+   "qam": 0.4463
   },
   "enrutador": {
    "amplitud": 0.8943,
@@ -164,63 +175,63 @@
   }
  },
  "por_canal_snr>=10": {
-  "amplificador": 0.84,
-  "cuantizacion": 0.8986,
+  "amplificador": 0.88,
+  "cuantizacion": 0.942,
   "deriva_portadora": 0.9157,
-  "deriva_reloj": 0.9014,
-  "dos_rayos": 0.5915,
-  "ecos_largos": 0.4769,
+  "deriva_reloj": 0.9437,
+  "dos_rayos": 0.5634,
+  "ecos_largos": 0.4615,
   "gr_dinamico": 0.4203,
-  "gr_imperfecciones": 0.8923,
-  "gr_multitrayecto": 0.3623,
-  "gr_selectivo": 0.4557,
-  "ideal": 0.9118,
-  "impulsivo": 0.803,
-  "int_adyacente": 0.65,
+  "gr_imperfecciones": 0.9231,
+  "gr_multitrayecto": 0.3333,
+  "gr_selectivo": 0.4304,
+  "ideal": 0.9559,
+  "impulsivo": 0.8636,
+  "int_adyacente": 0.6875,
   "int_barrido": 0.7368,
-  "int_cocanal": 0.7353,
-  "int_pulsos": 0.7838,
-  "interferencia": 0.75,
-  "iq_dc": 0.8676,
-  "lte_epa": 0.9114,
-  "lte_etu": 0.5821,
-  "lte_eva": 0.6667,
-  "mp_corto": 0.5352,
-  "mp_largo": 0.2769,
+  "int_cocanal": 0.7647,
+  "int_pulsos": 0.7973,
+  "interferencia": 0.7647,
+  "iq_dc": 0.8824,
+  "lte_epa": 0.9241,
+  "lte_etu": 0.5672,
+  "lte_eva": 0.6806,
+  "mp_corto": 0.5634,
+  "mp_largo": 0.2615,
   "nakagami": 0.875,
-  "plano_lento": 0.8793,
-  "proyecto": 0.7258,
-  "receptor_barato": 0.8289,
-  "ruido_fase": 0.873,
-  "sombra": 0.7681,
-  "tdl_rayleigh": 0.4795,
-  "tdl_rician": 0.403,
-  "watterson": 0.4648
+  "plano_lento": 0.8966,
+  "proyecto": 0.7742,
+  "receptor_barato": 0.8947,
+  "ruido_fase": 0.9048,
+  "sombra": 0.7826,
+  "tdl_rayleigh": 0.4521,
+  "tdl_rician": 0.4328,
+  "watterson": 0.4789
  },
  "desconocidas_snr>=10": {
   "128QAM": {
-   "detectada": 0.144,
-   "no_aceptada": 0.56
+   "detectada": 0.117,
+   "no_aceptada": 0.463
   },
   "12PSK": {
-   "detectada": 0.042,
-   "no_aceptada": 0.165
+   "detectada": 0.05,
+   "no_aceptada": 0.227
   },
   "8FSK": {
    "detectada": 0.19,
-   "no_aceptada": 0.194
+   "no_aceptada": 0.198
   },
   "8QAM_ESTRELLA": {
-   "detectada": 0.237,
-   "no_aceptada": 0.42
+   "detectada": 0.241,
+   "no_aceptada": 0.391
   },
   "ARB_A": {
-   "detectada": 0.631,
-   "no_aceptada": 0.799
+   "detectada": 0.642,
+   "no_aceptada": 0.787
   },
   "ARB_B": {
    "detectada": 0.565,
-   "no_aceptada": 0.743
+   "no_aceptada": 0.759
   }
  }
 }

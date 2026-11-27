@@ -6,9 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+import torch
 
 from src.cascada.pipeline import cargar_paquete
 from src.familias.enrutador import Enrutador
+from src.familias.especialistas import Especialista
 
 # ─────────────────────────────  Config  ──────────────────────────────
 RAIZ = Path(__file__).resolve().parents[2]
@@ -38,6 +40,13 @@ MOTORES = {
 
 
 # ─────────────────────────────  Modelos  ─────────────────────────────
+def _especialista(ruta):
+    d = torch.load(ruta, map_location="cpu", weights_only=True)
+    modelo = Especialista(**d["config"])
+    modelo.load_state_dict(d["estado"])
+    return modelo.eval(), d["clases"]
+
+
 class Modelos:
     def __init__(self):
         self._cargados = {}
@@ -53,6 +62,8 @@ class Modelos:
                 paquete = cargar_paquete(MOTORES[clave].ruta)
                 if "enrutador" in paquete:
                     paquete["enrutador_modelo"] = Enrutador.cargar(RAIZ / paquete["enrutador"])
+                if paquete.get("especialista"):
+                    paquete["especialista_modelo"] = _especialista(RAIZ / paquete["especialista"])
                 self._cargados[clave] = paquete
             return self._cargados[clave]
 

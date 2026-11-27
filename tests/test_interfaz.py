@@ -26,7 +26,7 @@ HAY_INTEGRADO = MOTORES["integrado"].ruta.exists()
 # ─────────────────────────────  Ayudas  ──────────────────────────────
 def senal(modulacion="QPSK", snr=35.0, sps=8.0, n=1024):
     cfg = Config(n, sps, "rrc", 0.35, 10, snr, 0.001)
-    return sintetizar(g.catalogo()[modulacion], "procedural", "ideal", cfg, np.random.default_rng(3))["iq"]
+    return sintetizar({**g.desconocidas_prueba(), **g.catalogo()}[modulacion], "procedural", "ideal", cfg, np.random.default_rng(3))["iq"]
 
 
 @pytest.fixture
@@ -125,11 +125,22 @@ def test_el_motor_integrado_entrega_familias_y_especialistas():
     assert sum(p["valor"] for p in d["probabilidades"]) == pytest.approx(1, abs=0.01)
     assert len(d["probabilidades"]) == 19 and {p["nombre"] for p in d["probabilidades"]} >= {"256QAM", "GMSK"}
     e = d["enrutador"]
-    assert [f["nombre"] for f in e["familias"]][0] == "qam" and len(e["especialistas"]) == 4
+    assert [f["nombre"] for f in e["familias"]][0] == "qam" and len(e["especialistas"]) == 5
     assert e["rama"] == "constelacion" and e["tonos"] is None and len(d["cnn"]["huella"]) == 128
     assert d["decision"]["mas_probable"] == "16QAM" and d["decision"]["misma_senal_que"] == []
     assert all(a["nombre"] != "16QAM" for a in d["decision"]["tambien_puede_ser"])
     json.dumps(d, allow_nan=False)
+
+
+@pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")
+def test_el_motor_integrado_consulta_al_especialista_de_constelacion():
+    paquete = Modelos().obtener("integrado")
+    assert paquete["grupos"] == [("qam", "apsk")] and paquete["especialista_modelo"][1][-2:] == ["16APSK", "32APSK"]
+    d = analizar_senal(senal("16APSK", n=4096), paquete)
+    voto = [e for e in d["enrutador"]["especialistas"] if e["vista"] == "constelacion"]
+    assert voto and voto[0]["clase"] == "16APSK" and d["decision"]["mas_probable"] == "16APSK"
+    bpsk = analizar_senal(senal("BPSK"), paquete)["enrutador"]
+    assert bpsk["familias"][0]["nombre"] == "fase" and all(e["vista"] != "constelacion" for e in bpsk["especialistas"])
 
 
 @pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")

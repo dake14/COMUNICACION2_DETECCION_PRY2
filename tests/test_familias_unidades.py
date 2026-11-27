@@ -114,3 +114,40 @@ def test_sin_constelacion_decide_el_enrutador():
     assert decidir({"A": 0.7, "B": 0.3}, 0.8)["modulacion"] == "INDETERMINADA"
     with pytest.raises(ValueError):
         fusionar({"otra": 1.0}, PAREJO, None, FAMILIA_PRUEBA)
+
+
+def test_un_grupo_de_familias_comparte_el_especialista():
+    from src.familias.integracion import fusionar
+    p_esp = {"BPSK": 0.5, "QPSK": 0.25, "16QAM": 0.25}
+    p = fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2, grupos=[("fase", "qam")],
+                 p_especialista=p_esp)["probabilidades"]
+    esperado = {"BPSK": 0.16, "QPSK": 0.24, "16QAM": 0.32, "2FSK": 0.05, "4FSK": 0.05, "DESCONOCIDA": 0.18}
+    assert p == pytest.approx(esperado, abs=1e-12)
+    for grupos in ([("fase", "frecuencia")], [("otra",)], [("fase",), ("fase", "qam")]):
+        with pytest.raises(ValueError):
+            fusionar(P_FAMILIAS, PAREJO, P_DECISOR, FAMILIA_PRUEBA, 2, grupos=grupos)
+
+
+def _ruidosa(puntos, rng):
+    s = puntos[rng.integers(0, len(puntos), 4000)] * np.exp(0.3j) / np.sqrt(np.mean(np.abs(puntos) ** 2))
+    return s + (rng.normal(size=4000) + 1j * rng.normal(size=4000)) * np.sqrt(1e-3 / 2)
+
+
+def test_las_vistas_de_constelacion_ven_cada_nivel():
+    from scipy.signal import find_peaks
+    from src.familias.detalle import vistas_constelacion
+    rng = np.random.default_rng(0)
+    picos = lambda c: len(find_peaks(c, height=0.2, distance=3)[0])
+    qam = lambda niveles: np.array([a + 1j * b for a in niveles for b in niveles])
+    v16 = vistas_constelacion(_ruidosa(qam([-3, -1, 1, 3]), rng))
+    v64 = vistas_constelacion(_ruidosa(qam(range(-7, 8, 2)), rng))
+    apsk = np.r_[np.exp(2j * np.pi * np.arange(4) / 4), 2.7 * np.exp(2j * np.pi * np.arange(12) / 12)]
+    va = vistas_constelacion(_ruidosa(apsk, rng))
+    assert picos(v16[0]) == picos(v16[1]) == 4 and picos(v64[0]) == picos(v64[1]) == 8 and picos(va[2]) == 2
+    assert v16.dtype == np.float32 and v16.shape == (4, 256) and np.allclose(v16.max(1), 1)
+
+
+@pytest.mark.parametrize("x", [None, np.zeros(0), np.ones(10), np.full(100, np.nan + 0j), np.zeros(100, complex)])
+def test_las_vistas_no_fallan_con_entradas_invalidas(x):
+    from src.familias.detalle import vistas_constelacion
+    assert not vistas_constelacion(x).any()

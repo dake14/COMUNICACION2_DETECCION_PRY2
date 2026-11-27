@@ -232,7 +232,87 @@ La cobertura cumple el 90 % pedido. Las listas son largas porque la fusión acie
 en vez de esconderlo detrás de una sola respuesta. Con canales difíciles (TDL Rician, multitrayecto) la lista llega a 8 o
 9 opciones.
 
+## Etapa 4: especialistas dentro de cada familia (2026-11-27)
+
+`experiments/exp_f3_especialistas_familia.py`. Los modelos, `info.json` y `medicion.json` están en
+`results/familias/especialistas_familia/`.
+
+**Qué mira el especialista.**
+- Toma los símbolos que recupera la cascada robusta, hasta 2048 por archivo.
+- Con ellos arma cuatro histogramas finos de 256 casillas (`src/familias/detalle.py`, U13, agy): I, Q, |s| y fase.
+- Antes de los histogramas normaliza la potencia y gira la constelación con la cuarta potencia. Así la rejilla de una
+  QAM cae sobre los ejes y cada nivel es un pico.
+- La red es la misma CNN 1-D de los especialistas de familia (`Especialista`).
+- Se entrena con `digitales_entreno`, sin frecuencia. Cada archivo aporta 4 ventanas de largo aleatorio (≥ 256
+  símbolos), para que aprenda también con capturas cortas.
+
+**Medición dentro de la familia** (partición de calibración, SNR ≥ 10 dB):
+
+| Grupo | n | Enrutador | Decisor | Especialista | Enr. × dec. | Enr. × dec. × esp. |
+|---|---|---|---|---|---|---|
+| Amplitud | 387 | **92,0 %** | 74,4 % | 76,7 % | **92,0 %** | 90,2 % |
+| Fase | 637 | **84,3 %** | 56,7 % | 54,3 % | 83,7 % | 79,3 % |
+| QAM | 509 | 47,0 % | 56,6 % | 50,1 % | 55,8 % | **58,9 %** |
+| APSK | 269 | 81,0 % | 88,1 % | 85,5 % | 88,5 % | **88,9 %** |
+| QAM + APSK juntas | 778 | 47,6 % | 60,2 % | 56,0 % | 59,1 % | **64,1 %** |
+
+- El especialista solo vale la pena en QAM y APSK. En amplitud y fase el enrutador ya separa las clases, y el producto
+  con el especialista empeora. En frecuencia no hay constelación que mirar.
+- Lo mejor es tratar QAM y APSK como un solo grupo. El enrutador las confunde entre sí: un 16APSK cae en «QAM» con
+  frecuencia. El especialista ve los anillos de la APSK y lo corrige.
+- **Límite de la física.**
+  - En señales limpias el especialista acierta el 74 % de las QAM, y entre 83 % y 88 % con 1024 símbolos o más.
+  - 64QAM y 256QAM necesitan más SNR y más símbolos de los que tiene buena parte del banco: entre niveles vecinos de
+    una 256QAM hay 1/15 de la amplitud.
+
+**Cómo entra en la fusión.**
+- `fusionar` recibe `grupos=[("qam", "apsk")]` y `p_especialista`. Dentro del grupo, P(m | grupo) es enrutador ×
+  decisor × especialista, renormalizado.
+- P(grupo) es la suma de P(qam) y P(apsk) del enrutador.
+- Las demás familias siguen igual.
+- Con el especialista se recalibró todo con la partición de calibración:
+  - Puerta: el desplazamiento pasó a −1,5.
+  - Umbral: pasó a 0,36.
+  - Corte conforme: pasó a 0,975.
+
+**Resultado en la partición de evaluación, SNR ≥ 10 dB:**
+
+| | Fusión | Fusión sin umbral | Sin especialista, sin umbral | Enrutador solo |
+|---|---|---|---|---|
+| Conocidas correctas | **71,2 %** | **73,3 %** | 69,9 % | 69,6 % |
+| Conocidas sin decidir | 8,9 % | 0 % | 0 % | 0 % |
+| Conocidas marcadas desconocidas | 4,1 % | 6,9 % | 9,1 % | 0 % |
+| Desconocidas detectadas | 30,2 % | 37,5 % | 42,6 % | 0 % |
+| Desconocidas no aceptadas como conocida | 47,2 % | 37,5 % | 42,6 % | 0 % |
+
+La columna «sin especialista» usa la misma puerta recalibrada; por eso detecta más desconocidas que en la sección de
+integración.
+
+| Familia | Antes | Con especialista | Enrutador |
+|---|---|---|---|
+| APSK | 58,4 % | **66,4 %** | 63,0 % |
+| QAM | 37,7 % | **44,6 %** | 34,7 % |
+| Amplitud | 88,9 % | 88,4 % | 89,4 % |
+| Fase | 74,0 % | 71,7 % | 73,1 % |
+| Frecuencia | 85,1 % | 84,9 % | 86,1 % |
+
+- Por clase: 16QAM 58,7 %, 32QAM 47,5 %, 64QAM 27,1 %, 256QAM 42,5 % (antes 28,3 %), 16APSK 63,6 %, 32APSK 69,2 %.
+- En las 6 clases de la cascada original, la fusión sube a 65,9 % (la cascada original daba 41,9 %).
+- La lista «también puede ser» cubre el 90,5 % a SNR ≥ 10 dB con 3,5 opciones de media (antes 3,6).
+- **Lo que cuesta.**
+  - El especialista solo conoce 6 clases: ante una 128QAM o una 8QAM estrella elige la más parecida con mucha seguridad.
+  - Eso le quita masa a la puerta: sin umbral, las desconocidas detectadas bajan de 42,6 % a 37,5 %.
+  - La 128QAM detectada bajó a 11,7 %; la 8QAM estrella está en 24,1 %.
+
+**Interfaz.**
+- La tarjeta del enrutador suma la fila «Constelación (QAM/APSK)» cuando la familia más probable es QAM o APSK.
+- Ejemplo: un 16APSK del banco en canal ideal.
+  - El enrutador duda: QAM 51,9 %, APSK 46,3 %.
+  - El especialista vota 16APSK con 89,5 %.
+  - La fusión responde 16APSK con 95,2 %.
+
 ## Falta
-- Especialistas dentro de cada familia: el orden de QAM, APSK frente a QAM, y GMSK frente a MSK con U8.
+- Desconocidas parecidas a una conocida (12PSK 5 %, 128QAM 12 %): la puerta del decisor no basta, y el especialista
+  de constelación las empuja hacia la clase vecina. Haría falta un especialista que también vea desconocidas al entrenar.
+- GMSK frente a MSK: U8 no separa BT 0,3.
 - El multitrayecto sigue débil, como en la cascada.
-- La detección de desconocidas parecidas a una conocida (12PSK, 128QAM) necesita algo más que la puerta del decisor.

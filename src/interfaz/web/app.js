@@ -172,7 +172,8 @@ function pintarProbabilidades(d) {
 }
 
 const NOMBRES_FAMILIA = { amplitud: "Amplitud", fase: "Fase", qam: "QAM", apsk: "APSK", frecuencia: "Frecuencia" };
-const NOMBRES_VISTA = { espectro: "Espectro", potencias: "Potencias", envolvente: "Envolvente", frecuencia: "Frecuencia" };
+const NOMBRES_VISTA = { espectro: "Espectro", potencias: "Potencias", envolvente: "Envolvente", frecuencia: "Frecuencia",
+                        constelacion: "Constelación (QAM/APSK)" };
 
 // CONTRATO (unidad U11, cerrado). Rellenar solo el cuerpo de pintarEnrutador.
 // d es la respuesta de /api/analizar o /api/ejemplo. Con un motor sin enrutador, d.enrutador no existe:

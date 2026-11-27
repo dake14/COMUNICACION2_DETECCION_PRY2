@@ -50,6 +50,8 @@ MAX_CONOCIDAS_INDETERMINADAS = 0.10  # el umbral de 85 % de exactitud de la casc
 UMBRALES = np.round(np.arange(0.2, 0.951, 0.01), 2)
 ALFA_CONFORME = 0.1  # con todas las SNR: cobertura 88-90 % en evaluación, 3,6 opciones de media a SNR >= 10
 PUNTAJE_TONOS = 0.8  # elegido con la partición de calibración: 1,7 % de FSK conocidas marcadas, 42,7 % de 3FSK
+GRUPOS_FUSION = [("qam", "apsk")]  # el especialista QAM+APSK también decide entre esas dos familias
+ESPECIALISTA = "qam+apsk"
 _C = {}
 
 
@@ -147,6 +149,16 @@ def _p_decisor(decisor, d):
     return p
 
 
+def con_especialista(d):
+    """Agrega las probabilidades del especialista QAM+APSK (exp_f3) al banco de evaluación."""
+    from experiments import exp_f3_especialistas_familia as f3
+    from src.familias.especialistas import log_probabilidades
+    x, _ = f3.vistas_banco("evaluacion", 1)
+    assert (f3.simbolos("evaluacion")["archivo"] == d["archivo"]).all()
+    modelo, clases = f3.cargar_especialista(ESPECIALISTA)
+    return {**d, "p_especialista": np.exp(log_probabilidades(modelo, x)), "clases_especialista": np.array(clases)}
+
+
 def fusion_lote(decisor, d, p_dec, con_tonos=True):
     clases = list(d["clases_enrutador"])
     familias = sorted(set(FAMILIA_DE.values()))
@@ -157,7 +169,9 @@ def fusion_lote(decisor, d, p_dec, con_tonos=True):
         pf = {f: sum(v for c, v in pr.items() if FAMILIA_DE[c] == f) for f in familias}
         pd = dict(zip(nombres, p_dec[i].tolist())) if d["ok"][i] else None
         tonos = int(d["tonos"][i]) if con_tonos and d["puntaje_tonos"][i] >= PUNTAJE_TONOS else None
-        salida.append(fusionar(pf, pr, pd, FAMILIA_DE, tonos)["probabilidades"])
+        pe = dict(zip(d["clases_especialista"], d["p_especialista"][i].tolist())) if "p_especialista" in d else None
+        salida.append(fusionar(pf, pr, pd, FAMILIA_DE, tonos, grupos=GRUPOS_FUSION if pe else None,
+                               p_especialista=pe)["probabilidades"])
     orden = [*clases, DESCONOCIDA]
     return orden, np.array([[s[k] for k in orden] for s in salida])
 
@@ -206,7 +220,7 @@ def _rutas_desde_integracion(datos):
 
 
 def inscribir(trabajos=12, con_tonos=True):
-    entreno, evaluacion = huellas("entreno", trabajos), huellas("evaluacion", trabajos)
+    entreno, evaluacion = huellas("entreno", trabajos), con_especialista(huellas("evaluacion", trabajos))
     calibracion, _ = _particion(evaluacion)
     datos, decisor = inscribir_decisor(entreno, _sub(evaluacion, calibracion))
     desplazamiento = calibrar_fusion(decisor, evaluacion, calibracion, con_tonos)
@@ -221,6 +235,8 @@ def inscribir(trabajos=12, con_tonos=True):
     paquete = {**base, "decisor": decisor,
                "enrutador": MODELO_ENRUTADOR.as_posix(), "familia_de": FAMILIA_DE, "con_tonos": con_tonos,
                "puntaje_tonos": PUNTAJE_TONOS, "conforme": conforme, "orden": orden, "equivalentes": EQUIVALENTES,
+               "grupos": GRUPOS_FUSION, "especialista": Path(os.path.relpath(
+                   Path("results/familias/especialistas_familia") / f"especialista_{ESPECIALISTA}.pt")).as_posix(),
                "metadatos": {**base["metadatos"], "integracion": {
                    "inscritas": CLASES_CONSTELACION, "desplazamiento_puerta": desplazamiento,
                    "calibracion": "digitales: catalogo con indice 0 + validacion"}}}
@@ -247,7 +263,7 @@ def _por(clave, salida, d, m):
 
 
 def evaluar(trabajos=12):
-    d = huellas("evaluacion", trabajos)
+    d = con_especialista(huellas("evaluacion", trabajos))
     paquete = joblib.load(PAQUETE_INTEGRADO)
     decisor = paquete["decisor"]
     _, m = _particion(d)
@@ -255,6 +271,8 @@ def evaluar(trabajos=12):
     etiqueta = d["etiqueta"]
     orden, p = fusion_lote(decisor, d, _p_decisor(decisor, d), paquete["con_tonos"])
     fusionada = _salidas(p, orden, decisor.umbral)
+    sin_esp = {k: v for k, v in d.items() if k not in ("p_especialista", "clases_especialista")}
+    _, p_sin = fusion_lote(decisor, sin_esp, _p_decisor(decisor, d), paquete["con_tonos"])
     clases = list(d["clases_enrutador"])
     enrutador = np.array(clases)[d["p_enrutador"].argmax(1)]
     original = joblib.load(PAQUETE_ROBUSTO)["decisor"]
@@ -277,6 +295,7 @@ def evaluar(trabajos=12):
         "con_tonos": paquete["con_tonos"],
         "fusion": {"todas": _tasas(fusionada, etiqueta, m), "snr>=10": _tasas(fusionada, etiqueta, alta)},
         "fusion_sin_umbral": {"snr>=10": _tasas(argmax, etiqueta, alta)},
+        "fusion_sin_especialista_sin_umbral": {"snr>=10": _tasas(np.array(orden)[p_sin.argmax(1)], etiqueta, alta)},
         "lista_conforme": {"alfa": paquete["conforme"].alfa, "corte": paquete["conforme"].corte,
                            "snr<10": lista(m & (d["snr"] < SNR_OPERACION)), "snr>=10": lista(alta),
                            "conocidas_snr>=10": lista(alta & (etiqueta != DESCONOCIDA)),

@@ -1,0 +1,52 @@
+{
+ "amplitud": {
+  "clases": [
+   "OOK",
+   "4ASK",
+   "4PAM"
+  ],
+  "validacion_interna": 0.8418,
+  "muestras": 7650
+ },
+ "fase": {
+  "clases": [
+   "BPSK",
+   "QPSK",
+   "8PSK",
+   "OQPSK",
+   "PI4DQPSK"
+  ],
+  "validacion_interna": 0.5512,
+  "muestras": 12996
+ },
+ "qam": {
+  "clases": [
+   "16QAM",
+   "32QAM",
+   "64QAM",
+   "256QAM"
+  ],
+  "validacion_interna": 0.5084,
+  "muestras": 10179
+ },
+ "apsk": {
+  "clases": [
+   "16APSK",
+   "32APSK"
+  ],
+  "validacion_interna": 0.8708,
+  "muestras": 5115
+ },
+ "qam+apsk": {
+  "clases": [
+   "16QAM",
+   "32QAM",
+   "64QAM",
+   "256QAM",
+   "16APSK",
+   "32APSK"
+  ],
+  "validacion_interna": 0.5356,
+  "muestras": 15294
+ }
+}

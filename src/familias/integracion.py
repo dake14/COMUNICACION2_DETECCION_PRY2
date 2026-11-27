@@ -4,24 +4,34 @@ CONTRATO (unidad U10, cerrado):
 
 Dependencias permitidas (lista cerrada): numpy.
 
-- ``fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_conocidos=(2, 4)) -> dict``
+- ``fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_conocidos=(2, 4), grupos=None,
+  p_especialista=None) -> dict``
   - ``p_familias``: dict familia -> probabilidad (salida del enrutador). ``p_enrutador``: dict clase -> probabilidad
     (las clases del enrutador). ``p_decisor``: dict nombre -> probabilidad de ``Decisor.probabilidades`` (clases
     inscritas más ``"DESCONOCIDA"``), o ``None`` si la cascada no recuperó símbolos. ``familia_de``: dict clase ->
-    familia. ``tonos``: int (conteo de ``analizar_fsk``) o ``None``.
+    familia. ``tonos``: int (conteo de ``analizar_fsk``) o ``None``. ``grupos``: lista de tuplas de familias que se
+    tratan como un solo grupo (revisión: el especialista QAM+APSK decide también entre esas dos familias), o ``None``.
+    ``p_especialista``: dict clase -> probabilidad del especialista de familia (solo las clases que cubre), o ``None``.
+  - Grupos efectivos: los de ``grupos`` en su orden, y luego cada familia de ``p_familias`` que no esté en ninguno,
+    como grupo de una sola familia (en el orden de ``p_familias``). Una familia de un grupo que no esté en
+    ``p_familias`` cuenta con probabilidad 0.
   - ``ValueError`` si ``p_familias`` está vacío, si alguna de sus claves no es un valor de ``familia_de``, o si falta
-    en ``p_enrutador`` alguna clase de ``familia_de``.
+    en ``p_enrutador`` alguna clase de ``familia_de``. También si en ``grupos`` hay una familia que no es un valor de
+    ``familia_de``, una familia repetida (en el mismo grupo o en dos), o un grupo de más de una familia que incluye
+    ``"frecuencia"``.
   - ``p_fondo = float(p_decisor.get("DESCONOCIDA", 0.0))`` si ``p_decisor`` no es None; si no, 0.0.
-  - Para cada familia ``f`` de ``p_familias``, con ``clases`` = las claves de ``familia_de`` cuya familia es ``f``
-    (en el orden de ``familia_de``):
-    - Si ``f == "frecuencia"``: ``u = 1.0`` si ``tonos is not None and tonos >= 3 and tonos not in tonos_conocidos``,
+  - Para cada grupo efectivo ``g``, con ``p_g`` = suma de ``p_familias.get(f, 0.0)`` para ``f`` en ``g`` y
+    ``clases`` = las claves de ``familia_de`` cuya familia está en ``g`` (en el orden de ``familia_de``):
+    - Si ``g == ("frecuencia",)``: ``u = 1.0`` si ``tonos is not None and tonos >= 3 and tonos not in tonos_conocidos``,
       si no ``0.0``; ``q[c] = p_enrutador[c]``.
     - Si no: ``u = p_fondo``; ``q[c] = p_enrutador[c] * p_decisor.get(c, 0.0)`` si ``p_decisor`` no es None
-      (producto de expertos). Si ``p_decisor`` es None o ``sum(q) <= 1e-12``: ``q[c] = p_enrutador[c]``.
+      (producto de expertos). Si ``p_decisor`` es None o ``sum(q) <= 1e-12``: ``q[c] = p_enrutador[c]``. Después, si
+      ``p_especialista`` no es None, ``q[c] *= p_especialista.get(c, 1.0)``; si eso deja ``sum(q) <= 1e-12``, se
+      vuelve al ``q`` de antes de multiplicar.
       (Revisión: con el decisor solo, la exactitud dentro de la familia era 65,1 % frente a 74,9 % del enrutador;
       el producto da 78,3 % en la partición de calibración.)
     - ``s = sum(q)``; si ``s <= 1e-12``, ``q`` uniforme (``1.0`` por clase) y ``s = len(clases)``.
-    - ``P[c] += p_familias[f] * (1 - u) * q[c] / s`` para cada clase y ``P["DESCONOCIDA"] += p_familias[f] * u``.
+    - ``P[c] += p_g * (1 - u) * q[c] / s`` para cada clase y ``P["DESCONOCIDA"] += p_g * u``.
   - Devuelve ``{"probabilidades": P, "rama": rama}``. ``P``: dict con todas las clases de ``familia_de`` en su orden
     (0.0 las de familias ausentes de ``p_familias``) y ``"DESCONOCIDA"`` al final, todos ``float`` nativos.
     ``rama = "frecuencia"`` si la familia de mayor probabilidad en ``p_familias`` es ``"frecuencia"``, si no
@@ -46,6 +56,11 @@ Criterio de aceptación:
 6. Los errores descritos lanzan ``ValueError``.
 7. Como el punto 1 pero con ``p_enrutador = {"BPSK": 0.6, "QPSK": 0.1, "16QAM": 0.1, "2FSK": 0.1, "4FSK": 0.1}``:
    BPSK 0.32, QPSK 0.16, 16QAM 0.24, 2FSK 0.05, 4FSK 0.05, DESCONOCIDA 0.18 (±1e-12).
+8. Como el punto 1 con ``grupos = [("fase", "qam")]`` y ``p_especialista = {"BPSK": 0.5, "QPSK": 0.25, "16QAM": 0.25}``:
+   BPSK 0.16, QPSK 0.24, 16QAM 0.32, 2FSK 0.05, 4FSK 0.05, DESCONOCIDA 0.18 (±1e-12); la suma es 1.
+9. Como el punto 1 con ese ``p_especialista`` y sin ``grupos``: BPSK 0.192, QPSK 0.288, 16QAM 0.24 (±1e-12).
+10. ``grupos`` con ``("fase", "frecuencia")``, con ``("otra",)`` o con ``[("fase",), ("fase", "qam")]`` lanzan
+    ``ValueError``. ``grupos = [("frecuencia",)]`` da lo mismo que el punto 1.
 """
 import numpy as np
 
@@ -53,7 +68,7 @@ DESCONOCIDA = "DESCONOCIDA"
 FRECUENCIA = "frecuencia"
 
 
-def _validar_fusion(p_familias, p_enrutador, familia_de):
+def _validar_fusion(p_familias, p_enrutador, familia_de, grupos=None):
     if not p_familias:
         raise ValueError("p_familias no puede estar vacío")
     familias_validas = set(familia_de.values())
@@ -64,9 +79,41 @@ def _validar_fusion(p_familias, p_enrutador, familia_de):
         if clase not in p_enrutador:
             raise ValueError(f"Falta la clase {clase!r} en p_enrutador")
 
+    if grupos is not None:
+        vistas = set()
+        for grupo in grupos:
+            if len(grupo) > 1 and FRECUENCIA in grupo:
+                raise ValueError(
+                    f"Un grupo de más de una familia no puede incluir {FRECUENCIA!r}: {grupo!r}"
+                )
+            for familia in grupo:
+                if familia not in familias_validas:
+                    raise ValueError(f"Familia desconocida en grupos: {familia!r}")
+                if familia in vistas:
+                    raise ValueError(f"Familia repetida en grupos: {familia!r}")
+                vistas.add(familia)
 
-def _pesos_familia(familia, clases, p_enrutador, p_decisor, p_fondo, tonos, tonos_conocidos):
-    if familia == FRECUENCIA:
+
+def _grupos_efectivos(grupos, p_familias):
+    efectivos = [tuple(g) for g in grupos] if grupos is not None else []
+    en_grupos = {familia for grupo in efectivos for familia in grupo}
+    for familia in p_familias:
+        if familia not in en_grupos:
+            efectivos.append((familia,))
+    return efectivos
+
+
+def _pesos_grupo(
+    grupo,
+    clases,
+    p_enrutador,
+    p_decisor,
+    p_fondo,
+    tonos,
+    tonos_conocidos,
+    p_especialista,
+):
+    if grupo == (FRECUENCIA,):
         u = 1.0 if (tonos is not None and tonos >= 3 and tonos not in tonos_conocidos) else 0.0
         q = [float(p_enrutador[c]) for c in clases]
     else:
@@ -78,6 +125,11 @@ def _pesos_familia(familia, clases, p_enrutador, p_decisor, p_fondo, tonos, tono
         else:
             q = [float(p_enrutador[c]) for c in clases]
 
+        if p_especialista is not None:
+            q_esp = [qc * float(p_especialista.get(c, 1.0)) for c, qc in zip(clases, q)]
+            if sum(q_esp) > 1e-12:
+                q = q_esp
+
     s = float(sum(q))
     if s <= 1e-12:
         q = [1.0] * len(clases)
@@ -85,22 +137,33 @@ def _pesos_familia(familia, clases, p_enrutador, p_decisor, p_fondo, tonos, tono
     return u, q, s
 
 
-def fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_conocidos=(2, 4)):
-    _validar_fusion(p_familias, p_enrutador, familia_de)
+def fusionar(p_familias, p_enrutador, p_decisor, familia_de, tonos=None, tonos_conocidos=(2, 4), grupos=None,
+             p_especialista=None):
+    _validar_fusion(p_familias, p_enrutador, familia_de, grupos=grupos)
 
     p_fondo = float(p_decisor.get(DESCONOCIDA, 0.0)) if p_decisor is not None else 0.0
     probabilidades = {clase: 0.0 for clase in familia_de}
     probabilidades[DESCONOCIDA] = 0.0
 
-    for familia, p_fam in p_familias.items():
-        clases = [clase for clase, fam in familia_de.items() if fam == familia]
-        u, q, s = _pesos_familia(
-            familia, clases, p_enrutador, p_decisor, p_fondo, tonos, tonos_conocidos
+    for grupo in _grupos_efectivos(grupos, p_familias):
+        grupo_set = set(grupo)
+        clases = [clase for clase, fam in familia_de.items() if fam in grupo_set]
+        if not clases:
+            continue
+        p_g = sum(float(p_familias.get(fam, 0.0)) for fam in grupo)
+        u, q, s = _pesos_grupo(
+            grupo,
+            clases,
+            p_enrutador,
+            p_decisor,
+            p_fondo,
+            tonos,
+            tonos_conocidos,
+            p_especialista,
         )
-        p_fam_f = float(p_fam)
         for clase, qc in zip(clases, q):
-            probabilidades[clase] = float(probabilidades[clase] + p_fam_f * (1.0 - u) * qc / s)
-        probabilidades[DESCONOCIDA] = float(probabilidades[DESCONOCIDA] + p_fam_f * u)
+            probabilidades[clase] = float(probabilidades[clase] + p_g * (1.0 - u) * qc / s)
+        probabilidades[DESCONOCIDA] = float(probabilidades[DESCONOCIDA] + p_g * u)
 
     familia_top = max(p_familias, key=lambda fam: float(p_familias[fam]))
     rama = FRECUENCIA if familia_top == FRECUENCIA else "constelacion"
