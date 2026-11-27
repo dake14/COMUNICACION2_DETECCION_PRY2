@@ -1,5 +1,6 @@
 """Configuración de transmisión de cada archivo del banco."""
 from dataclasses import asdict, dataclass
+from typing import Optional
 
 from src.banco.generadores import GENERADORES
 
@@ -24,6 +25,7 @@ class Config:
     span: int
     snr_db: float
     cfo: float
+    isi_db: Optional[float] = None  # relación trayecto principal / ecos (src/banco/isi.py); None: ecos sorteados
 
     def como_dict(self):
         return asdict(self)

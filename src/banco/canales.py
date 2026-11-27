@@ -7,6 +7,8 @@ from typing import Callable, Optional
 import numpy as np
 from scipy.interpolate import CubicSpline
 
+from src.banco.isi import ajustar
+
 CONFIG_PROYECTO = Path(__file__).resolve().parents[2] / "configs" / "dataset_e2.json"
 
 
@@ -52,7 +54,7 @@ def _ganancia_rician(n, fd, k, rng):
 
 def _sumar_rayos(x, retardos, magnitudes, ganancias):
     y = np.zeros(len(x), dtype=np.complex128)
-    for d, m, g in zip(retardos, magnitudes, ganancias):
+    for d, m, g in zip(retardos, ajustar(np.asarray(magnitudes, float)), ganancias):
         y += m * g * _retrasar(x, d)
     return y
 
@@ -86,7 +88,7 @@ def proyecto(x, sps, rng):
     datos = json.loads(CONFIG_PROYECTO.read_text(encoding="utf-8"))
     canales = datos["id_channels"][1:] + datos["shift_channels"]
     i = int(rng.integers(len(canales)))
-    taps = np.array([complex(a, b) for a, b in canales[i]])
+    taps = ajustar(np.array([complex(a, b) for a, b in canales[i]]))
     return np.convolve(x, taps)[:len(x)], {"indice": i}
 
 

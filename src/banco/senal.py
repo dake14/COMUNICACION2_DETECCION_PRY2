@@ -6,6 +6,7 @@ import numpy as np
 from src.banco.canales import potencia
 from src.banco.canales_extra import TODOS_CANALES
 from src.banco.generadores import GENERADORES
+from src.banco.isi import nivel_isi
 from src.banco.modulaciones import Modulacion
 
 GUARDA = 40
@@ -34,7 +35,8 @@ def sintetizar(puntos, generador, canal, cfg, rng):
         simbolos = puntos[rng.integers(0, len(puntos), cfg.n_simbolos + 2 * GUARDA)]
         x = _unitaria(np.asarray(tx.crear(simbolos, cfg, rng), dtype=np.complex128))
     if medio.antes is not None:
-        x, parametros["antes"] = medio.antes(x, cfg.sps, rng)
+        with nivel_isi(cfg.isi_db):
+            x, parametros["antes"] = medio.antes(x, cfg.sps, rng)
     inicio, n = round(GUARDA * cfg.sps), round(cfg.n_simbolos * cfg.sps)
     y = np.asarray(x)[inicio:inicio + n]
     if len(y) != n:

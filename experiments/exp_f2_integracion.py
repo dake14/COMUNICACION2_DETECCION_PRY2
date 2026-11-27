@@ -36,6 +36,9 @@ from src.familias.tonos import analizar_fsk
 
 # ─────────────────────────────  Config  ──────────────────────────────
 BANCOS = {"entreno": Path("data/banco/digitales_entreno"), "evaluacion": Path("data/banco/digitales")}
+BANCO_ISI = Path("data/banco/digitales_isi")  # curva de exactitud contra el regulador de ISI (exp_f6)
+if BANCO_ISI.exists():
+    BANCOS["isi"] = BANCO_ISI
 PAQUETE_ROBUSTO = Path("results/cascada/modelos_robustos/paquete_adversaria_desplazada.joblib")
 MODELO_ENRUTADOR = Path("results/familias/modelo")
 SALIDA = Path("results/familias/integracion")
@@ -93,7 +96,7 @@ def huellas(nombre, trabajos=12):
     cache = SALIDA / f"huellas_{nombre}.npz"
     if cache.exists():
         return dict(np.load(cache, allow_pickle=True))
-    base, con_enrutador = BANCOS[nombre], nombre == "evaluacion"
+    base, con_enrutador = BANCOS[nombre], nombre != "entreno"
     filas = [f for f in manifiesto(base) if con_enrutador or f["familia"] != FAMILIA_FRECUENCIA]
     inicio = time.time()
     partes = Parallel(n_jobs=trabajos, batch_size=8)(delayed(_archivo)(base, f, con_enrutador) for f in filas)
@@ -151,12 +154,12 @@ def _p_decisor(decisor, d):
     return p
 
 
-def con_especialista(d):
-    """Agrega las probabilidades del especialista QAM+APSK (exp_f3) al banco de evaluación."""
+def con_especialista(d, nombre="evaluacion"):
+    """Agrega las probabilidades del especialista QAM+APSK (exp_f3) a un banco que no es el de entreno."""
     from experiments import exp_f3_especialistas_familia as f3
     from src.familias.especialistas import log_probabilidades
-    x, _ = f3.vistas_banco("evaluacion", 1)
-    assert (f3.simbolos("evaluacion")["archivo"] == d["archivo"]).all()
+    x, _ = f3.vistas_banco(nombre, 1)
+    assert (f3.simbolos(nombre)["archivo"] == d["archivo"]).all()
     modelo, clases = f3.cargar_especialista(ESPECIALISTA)
     return {**d, "p_especialista": np.exp(log_probabilidades(modelo, x)), "clases_especialista": np.array(clases)}
 
@@ -222,11 +225,12 @@ def _rutas_desde_integracion(datos):
             "ruta_descriptor": relativa(datos["ruta_descriptor"]), "metadatos": meta}
 
 
-def _ajuste(d, trabajos, consistencia=None):
+def _ajuste(d, trabajos, consistencia=None, nombre="evaluacion"):
     """Agrega los pesos de consistencia con la constelación (exp_f4); umbrales de digitales_entreno si no se dan."""
     from experiments import exp_f4_desconocidas as f4
-    lista = f4.como_dicts(f4.mediciones("evaluacion", trabajos))
-    assert (f4.mediciones("evaluacion", trabajos)["archivo"] == d["archivo"]).all()
+    m = f4.mediciones(nombre, trabajos)
+    assert (m["archivo"] == d["archivo"]).all()
+    lista = f4.como_dicts(m)
     if consistencia is None:
         consistencia = f4.consistencia_entreno(BETA_AJUSTE, trabajos)
     return f4.con_ajuste(d, lista, consistencia, PESO_INCONSISTENTE), consistencia

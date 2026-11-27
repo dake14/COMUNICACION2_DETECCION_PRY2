@@ -5,6 +5,9 @@ import pytest
 
 from experiments.armar_banco import armar
 from src.banco import CANALES, GENERADORES, Config, muestrear_config, sintetizar
+from src.banco.canales import _retrasar
+from src.banco.canales_extra import CANALES_CON_ECOS, TODOS_CANALES
+from src.banco.isi import nivel_isi
 from src.banco.verificacion import ancho_ocupado, prominencia_ciclica, snr_medida, tasa_ciclica
 from src.cascada import geometria as g
 
@@ -104,3 +107,63 @@ def test_armar_cruza_todo_y_registra(tmp_path):
         iq = np.fromfile(tmp_path / f["archivo"], np.complex64)
         assert len(iq) == f["muestras"] and np.isfinite(iq).all()
     assert len({f["archivo"] for f in guardadas}) == len(guardadas)
+
+
+# ───────────────────────────  Regulador de ISI  ──────────────────────
+def _senal_isi(n=4096, sps=4):
+    rng = np.random.default_rng(3)
+    u = np.zeros(n * sps, complex)
+    u[::sps] = (rng.choice([-1, 1], n) + 1j * rng.choice([-1, 1], n)) / np.sqrt(2)
+    return np.convolve(u, np.ones(sps) / np.sqrt(sps), "same"), sps
+
+
+def _sir_db(x, y, bloque=256):
+    """Señal / ISI con una ganancia por bloque y el mejor retardo del trayecto principal (puede no llegar primero)."""
+    mejor = -np.inf
+    for d in np.arange(0, 12, 0.25):
+        xd = _retrasar(x, d)
+        sig = err = 0.0
+        for a in range(0, len(x) - bloque + 1, bloque):
+            xb, yb = xd[a:a + bloque], y[a:a + bloque]
+            h = np.vdot(xb, yb) / np.vdot(xb, xb)
+            sig += np.sum(np.abs(h * xb) ** 2)
+            err += np.sum(np.abs(yb - h * xb) ** 2)
+        mejor = max(mejor, 10 * np.log10(sig / err))
+    return mejor
+
+
+@pytest.mark.parametrize("canal", [c for c in CANALES_CON_ECOS if not TODOS_CANALES[c].gnuradio])
+def test_el_regulador_suaviza_los_ecos(canal):
+    x, sps = _senal_isi()
+    sir = {}
+    for db in (0.0, 30.0):
+        with nivel_isi(db):
+            y, _ = TODOS_CANALES[canal].antes(x, sps, np.random.default_rng(5))
+        sir[db] = _sir_db(x, np.asarray(y)[:len(x)])
+    assert sir[30.0] > sir[0.0] + 5, sir
+
+
+def test_sin_regulador_el_canal_no_cambia():
+    x, sps = _senal_isi()
+    a, _ = TODOS_CANALES["mp_largo"].antes(x, sps, np.random.default_rng(5))
+    with nivel_isi(None):
+        b, _ = TODOS_CANALES["mp_largo"].antes(x, sps, np.random.default_rng(5))
+    assert np.array_equal(a, b)
+    assert cfg().isi_db is None
+
+
+def test_armar_con_regulador_solo_toca_los_ecos(tmp_path):
+    comun = dict(generadores=["procedural", "repo"], canales=["ideal", "mp_largo", "dos_rayos"], nombres=["QPSK"],
+                 por_celda=6, semilla=9, trabajos=1, n_simbolos=(64,))
+    base = {f["archivo"]: f for f in armar(tmp_path / "base", **comun)}
+    regulado = armar(tmp_path / "isi", **comun, isi=("aleatorio", 0.5, 0.0, 30.0))
+    niveles = [f["isi_db"] for f in regulado if f["canal"] != "ideal"]
+    assert any(v is None for v in niveles) and any(v is not None and 0 <= v <= 30 for v in niveles)
+    for f in regulado:
+        igual = np.array_equal(np.fromfile(tmp_path / "isi" / f["archivo"], np.complex64),
+                               np.fromfile(tmp_path / "base" / f["archivo"], np.complex64))
+        assert igual == (f["isi_db"] is None), f["archivo"]
+        assert f["snr_db"] == base[f["archivo"]]["snr_db"] and f["sps"] == base[f["archivo"]]["sps"]
+    ciclo = armar(tmp_path / "niveles", **comun, isi=("niveles", (0.0, 10.0, 20.0)))
+    assert {f["isi_db"] for f in ciclo if f["canal"] == "mp_largo"} == {0.0, 10.0, 20.0}
+    assert {f["isi_db"] for f in ciclo if f["canal"] == "ideal"} == {None}

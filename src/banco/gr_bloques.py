@@ -7,6 +7,7 @@ from gnuradio.filter import firdes
 
 from src.banco.canales import doppler_por_simbolo, perfil_rayos
 from src.banco.cpm import pulso_frecuencia
+from src.banco.isi import ajustar
 
 FILTROS = 32
 OSCILADORES = 8
@@ -78,7 +79,7 @@ def _completar(y, n):
 
 def _perfil(sps, rng):
     d, m = perfil_rayos(sps, rng, 3.0, 3, 6)
-    return d, m, int(math.ceil(d[-1])) + 8, int(rng.integers(1, 2 ** 30))
+    return d, ajustar(m), int(math.ceil(d[-1])) + 8, int(rng.integers(1, 2 ** 30))
 
 
 def canal_multitrayecto(x, sps, rng):

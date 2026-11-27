@@ -324,3 +324,6 @@ FUNCIONES_EXTRA = {
 }
 CANALES_EXTRA = {k: Canal(antes=f) for k, f in FUNCIONES_EXTRA.items()}
 TODOS_CANALES = {**CANALES, **CANALES_EXTRA}
+CANALES_CON_ECOS = ("proyecto", "mp_corto", "mp_largo", "tdl_rayleigh", "tdl_rician", "gr_multitrayecto",
+                    "gr_selectivo", "gr_dinamico", "lte_epa", "lte_eva", "lte_etu", "dos_rayos", "ecos_largos",
+                    "watterson")  # los que obedecen al regulador de ISI (src/banco/isi.py)

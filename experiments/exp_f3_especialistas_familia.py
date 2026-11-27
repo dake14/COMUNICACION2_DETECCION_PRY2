@@ -66,7 +66,7 @@ def simbolos(nombre, trabajos=12):
     if cache.exists():
         return dict(np.load(cache, allow_pickle=True))
     base = BANCOS[nombre]
-    filas = [f for f in manifiesto(base) if nombre == "evaluacion" or f["familia"] != FAMILIA_FRECUENCIA]
+    filas = [f for f in manifiesto(base) if nombre != "entreno" or f["familia"] != FAMILIA_FRECUENCIA]
     inicio = time.time()
     partes = Parallel(n_jobs=trabajos, batch_size=8)(delayed(_simbolos)(base, f) for f in filas)
     largo = np.array([len(s) for s in partes])
