@@ -127,7 +127,15 @@ def test_el_motor_integrado_entrega_familias_y_especialistas():
     e = d["enrutador"]
     assert [f["nombre"] for f in e["familias"]][0] == "qam" and len(e["especialistas"]) == 4
     assert e["rama"] == "constelacion" and e["tonos"] is None and len(d["cnn"]["huella"]) == 128
+    assert d["decision"]["mas_probable"] == "16QAM" and d["decision"]["misma_senal_que"] == []
+    assert all(a["nombre"] != "16QAM" for a in d["decision"]["tambien_puede_ser"])
     json.dumps(d, allow_nan=False)
+
+
+@pytest.mark.skipif(not HAY_INTEGRADO, reason="paquete integrado no disponible")
+def test_el_motor_integrado_avisa_de_las_senales_identicas():
+    d = analizar_senal(senal("QPSK"), Modelos().obtener("integrado"))
+    assert d["decision"]["modulacion"] == "QPSK" and d["decision"]["misma_senal_que"] == ["DQPSK"]
 
 
 def test_rechaza_senal_corta():

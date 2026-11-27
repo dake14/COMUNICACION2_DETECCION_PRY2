@@ -23,12 +23,13 @@ import numpy as np
 import torch
 from joblib import Parallel, delayed
 
-from src.banco.modulaciones import catalogo_digital
+from src.banco.modulaciones import EQUIVALENTES, catalogo_digital
 from src.cascada.cadena import recuperar
 from src.cascada.decisor import DESCONOCIDA, INDETERMINADA
 from src.cascada.detector import snr_ciega_db
 from src.cascada.pipeline import calidad_de, cargar_paquete, huella_de_simbolos
 from src.familias.enrutador import Enrutador
+from src.familias.conforme import ConjuntoConforme
 from src.familias.integracion import fusionar
 from src.familias.tasa import estimar_tasa
 from src.familias.tonos import analizar_fsk
@@ -47,6 +48,7 @@ MAX_CONOCIDAS_COMO_DESCONOCIDAS = 0.10
 SNR_OPERACION = 10.0
 MAX_CONOCIDAS_INDETERMINADAS = 0.10  # el umbral de 85 % de exactitud de la cascada dejaba 65 % sin decidir
 UMBRALES = np.round(np.arange(0.2, 0.951, 0.01), 2)
+ALFA_CONFORME = 0.1  # con todas las SNR: cobertura 88-90 % en evaluación, 3,6 opciones de media a SNR >= 10
 PUNTAJE_TONOS = 0.8  # elegido con la partición de calibración: 1,7 % de FSK conocidas marcadas, 42,7 % de 3FSK
 _C = {}
 
@@ -208,12 +210,17 @@ def inscribir(trabajos=12, con_tonos=True):
     calibracion, _ = _particion(evaluacion)
     datos, decisor = inscribir_decisor(entreno, _sub(evaluacion, calibracion))
     desplazamiento = calibrar_fusion(decisor, evaluacion, calibracion, con_tonos)
+    orden, p = fusion_lote(decisor, _sub(evaluacion, calibracion), _p_decisor(decisor, _sub(evaluacion, calibracion)),
+                           con_tonos)
+    conforme = ConjuntoConforme(ALFA_CONFORME).ajustar(p, np.array([orden.index(x) for x in
+                                                                   evaluacion["etiqueta"][calibracion]]))
+    print("corte conforme", round(conforme.corte, 3), flush=True)
     print("temperatura", round(decisor.temperatura, 3), "desplazamiento", desplazamiento, "umbral",
           round(decisor.umbral, 3), flush=True)
     base = _rutas_desde_integracion(datos)
     paquete = {**base, "decisor": decisor,
                "enrutador": MODELO_ENRUTADOR.as_posix(), "familia_de": FAMILIA_DE, "con_tonos": con_tonos,
-               "puntaje_tonos": PUNTAJE_TONOS,
+               "puntaje_tonos": PUNTAJE_TONOS, "conforme": conforme, "orden": orden, "equivalentes": EQUIVALENTES,
                "metadatos": {**base["metadatos"], "integracion": {
                    "inscritas": CLASES_CONSTELACION, "desplazamiento_puerta": desplazamiento,
                    "calibracion": "digitales: catalogo con indice 0 + validacion"}}}
@@ -256,6 +263,11 @@ def evaluar(trabajos=12):
     seis = np.isin(d["modulacion"], [n for n in original.nombres if n != DESCONOCIDA]) | (etiqueta == DESCONOCIDA)
     argmax = np.array(orden)[p.argmax(1)]
     familia_pred = np.array([FAMILIA_DE.get(s, s) for s in argmax])
+    conjuntos = paquete["conforme"].conjunto(p)
+    cubre = np.array([orden.index(x) in c for x, c in zip(etiqueta, conjuntos)])
+    tamano = np.array([len(c) for c in conjuntos])
+    lista = lambda x: {"cobertura": round(float(cubre[x].mean()), 4), "tamano_medio": round(float(tamano[x].mean()), 2),
+                       "una_sola": round(float(np.mean(tamano[x] == 1)), 3)}
     familia_enrutador = np.array([FAMILIA_DE[s] for s in enrutador])
     conocida_alta = alta & (etiqueta != DESCONOCIDA)
     resumen = {
@@ -265,6 +277,10 @@ def evaluar(trabajos=12):
         "con_tonos": paquete["con_tonos"],
         "fusion": {"todas": _tasas(fusionada, etiqueta, m), "snr>=10": _tasas(fusionada, etiqueta, alta)},
         "fusion_sin_umbral": {"snr>=10": _tasas(argmax, etiqueta, alta)},
+        "lista_conforme": {"alfa": paquete["conforme"].alfa, "corte": paquete["conforme"].corte,
+                           "snr<10": lista(m & (d["snr"] < SNR_OPERACION)), "snr>=10": lista(alta),
+                           "conocidas_snr>=10": lista(alta & (etiqueta != DESCONOCIDA)),
+                           "desconocidas_snr>=10": lista(alta & (etiqueta == DESCONOCIDA))},
         "enrutador_solo": {"todas": _tasas(enrutador, etiqueta, m), "snr>=10": _tasas(enrutador, etiqueta, alta)},
         "cascada_original_6_clases": {"snr>=10": _tasas(cascada, etiqueta, alta & seis)},
         "fusion_en_las_6_clases": {"snr>=10": _tasas(fusionada, etiqueta, alta & seis)},
@@ -282,7 +298,8 @@ def evaluar(trabajos=12):
                                  for x in [alta & (d["modulacion"] == mod)]},
     }
     (SALIDA / "resumen.json").write_text(json.dumps(resumen, indent=1, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps({k: resumen[k] for k in ("umbral", "desplazamiento_puerta", "fusion", "fusion_sin_umbral",
+    print(json.dumps({k: resumen[k] for k in ("umbral", "desplazamiento_puerta", "lista_conforme", "fusion",
+                                              "fusion_sin_umbral",
                                               "enrutador_solo", "cascada_original_6_clases", "fusion_en_las_6_clases",
                                               "familia_snr>=10", "desconocidas_snr>=10")}, indent=1),
           flush=True)

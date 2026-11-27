@@ -65,6 +65,8 @@ button:disabled { color: var(--texto-3); cursor: not-allowed; }
 .detalle .bien { color: var(--bien); }
 .detalle .aviso { color: var(--aviso); }
 .detalle .mal { color: var(--mal); }
+.alternativas { color: var(--texto-2); font-size: 13px; margin-top: 6px; max-width: 640px; }
+.alternativas strong { color: var(--texto); font-weight: 600; }
 .etapas { display: grid; gap: 8px 22px; grid-template-columns: repeat(4, auto); }
 .etapas dt { color: var(--texto-3); font-size: 11px; }
 .etapas dd { font-variant-numeric: tabular-nums; font-weight: 600; }

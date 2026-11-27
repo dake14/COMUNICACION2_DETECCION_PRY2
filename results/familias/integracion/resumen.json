@@ -35,6 +35,30 @@
    "n_desconocidas": 1565
   }
  },
+ "lista_conforme": {
+  "alfa": 0.1,
+  "corte": 0.967005809918946,
+  "snr<10": {
+   "cobertura": 0.8813,
+   "tamano_medio": 4.9,
+   "una_sola": 0.102
+  },
+  "snr>=10": {
+   "cobertura": 0.9027,
+   "tamano_medio": 3.6,
+   "una_sola": 0.202
+  },
+  "conocidas_snr>=10": {
+   "cobertura": 0.9329,
+   "tamano_medio": 3.15,
+   "una_sola": 0.233
+  },
+  "desconocidas_snr>=10": {
+   "cobertura": 0.8594,
+   "tamano_medio": 4.24,
+   "una_sola": 0.159
+  }
+ },
  "enrutador_solo": {
   "todas": {
    "conocidas_correctas": 0.6207,

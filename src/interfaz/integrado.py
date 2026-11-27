@@ -3,7 +3,8 @@ import numpy as np
 import torch
 
 from src.cascada.pipeline import calidad_de, huella_de_simbolos
-from src.familias.integracion import decidir, fusionar
+from src.familias.conforme import salida_final
+from src.familias.integracion import fusionar
 from src.familias.tasa import estimar_tasa
 from src.familias.tonos import analizar_fsk
 
@@ -38,6 +39,17 @@ def _enrutador(analisis, rama, tonos, fiable):
     return {"familias": familias, "especialistas": especialistas, "rama": rama, "tonos": visibles}
 
 
+def _decision(probabilidades, umbral, paquete):
+    orden = paquete.get("orden") or list(probabilidades)
+    p = np.array([probabilidades[n] for n in orden])
+    conjunto = paquete["conforme"].conjunto(p)[0] if "conforme" in paquete else [int(p.argmax())]
+    s = salida_final(p, orden, conjunto, paquete.get("equivalentes", {}), umbral)
+    return {"modulacion": s["modulacion"], "confianza": round(s["confianza"], 4), "mas_probable": s["mas_probable"],
+            "misma_senal_que": s["misma_senal_que"],
+            "tambien_puede_ser": [{"nombre": a["nombre"], "probabilidad": round(a["probabilidad"], 4)}
+                                  for a in s["tambien_puede_ser"]]}
+
+
 def salida_integrada(x, r, snr, paquete):
     with torch.no_grad():
         analisis = paquete["enrutador_modelo"].analizar(x)
@@ -47,10 +59,9 @@ def salida_integrada(x, r, snr, paquete):
     fusion = fusionar(analisis["familias"], analisis["clases"], p_decisor, paquete["familia_de"],
                       tonos["tonos"] if fiable else None)
     umbral = float(paquete["decisor"].umbral)
-    decision = decidir(fusion["probabilidades"], umbral)
+    decision = _decision(fusion["probabilidades"], umbral, paquete)
     probabilidades = sorted(({"nombre": n, "valor": round(float(v), 4)} for n, v in fusion["probabilidades"].items()),
                             key=lambda p: -p["valor"])
-    return {"decision": {"modulacion": decision["modulacion"], "confianza": round(decision["confianza"], 4),
-                         "umbral": round(umbral, 3)},
+    return {"decision": {**decision, "umbral": round(umbral, 3)},
             "probabilidades": probabilidades,
             "enrutador": _enrutador(analisis, fusion["rama"], tonos, fiable)}, huella

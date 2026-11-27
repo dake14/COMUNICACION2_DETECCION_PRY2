@@ -199,10 +199,40 @@ Pruebas en `tests/test_familias_unidades.py`.
   - Tarjeta: `pintarEnrutador` en `src/interfaz/web/app.js` (U11, agy).
   - Pegamento: `src/interfaz/integrado.py`.
 
-## Falta
+## Etapa 3: «también puede ser» y «misma señal que» (2026-11-27)
 
-- Etapa 3: calibrar la lista conforme con las probabilidades reales y mostrar «también puede ser» y «misma señal que» en
-  la salida.
+El motor integrado ahora devuelve, junto a la decisión:
+- `tambien_puede_ser`: las otras modulaciones de la lista conforme, con su probabilidad.
+- `misma_senal_que`: las equivalencias del catálogo (`EQUIVALENTES` en `src/banco/modulaciones.py`):
+  - BPSK = DBPSK;
+  - QPSK = DQPSK;
+  - OOK = 2ASK unipolar;
+  - MSK = OQPSK con pulso de medio seno = 2FSK de fase continua con h = 0,5.
+- `mas_probable`, que se muestra cuando la decisión queda «sin decidir».
+
+La interfaz lo escribe bajo la modulación detectada (`pintarAlternativas` en `app.js`, unidad U12 de agy).
+
+**Cómo se calcula la lista.**
+- Es una lista conforme LAC (`src/familias/conforme.py`, U9) sobre las 19 salidas de la fusión. Incluye «Desconocida»:
+  para una señal no vista, la lista puede decir «también puede ser: desconocida».
+- Se calibra con la partición de calibración en todas las SNR, con α = 0,1.
+- El corte queda en 0,967: entra toda opción con probabilidad ≥ 3,3 %.
+- Calibrar solo con SNR ≥ 10 dB daba listas algo más cortas (3,2 opciones), pero con 84 % de cobertura a SNR baja.
+
+**Resultado en la partición de evaluación:**
+
+| | La respuesta correcta está en la lista | Opciones de media | Una sola opción |
+|---|---|---|---|
+| SNR < 10 dB | 88,1 % | 4,9 | 10 % |
+| SNR ≥ 10 dB | 90,3 % | 3,6 | 20 % |
+| Conocidas, SNR ≥ 10 dB | 93,3 % | 3,2 | 23 % |
+| Desconocidas, SNR ≥ 10 dB («Desconocida» en la lista) | 85,9 % | 4,2 | 16 % |
+
+La cobertura cumple el 90 % pedido. Las listas son largas porque la fusión acierta cerca del 70 %: cuando duda, lo dice,
+en vez de esconderlo detrás de una sola respuesta. Con canales difíciles (TDL Rician, multitrayecto) la lista llega a 8 o
+9 opciones.
+
+## Falta
 - Especialistas dentro de cada familia: el orden de QAM, APSK frente a QAM, y GMSK frente a MSK con U8.
 - El multitrayecto sigue débil, como en la cascada.
 - La detección de desconocidas parecidas a una conocida (12PSK, 128QAM) necesita algo más que la puerta del decisor.

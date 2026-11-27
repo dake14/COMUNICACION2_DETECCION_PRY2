@@ -263,6 +263,51 @@ function pintarEnrutador(d) {
   }
 }
 
+// CONTRATO (unidad U12, cerrado). Rellenar solo el cuerpo de pintarAlternativas.
+// d.decision puede traer (solo el motor integrado): mas_probable (string), misma_senal_que (lista de strings) y
+// tambien_puede_ser (lista de { nombre, probabilidad }, ya ordenada de mayor a menor). Cualquiera puede faltar.
+// - #d-alternativas: se arma con dos partes, en este orden, y queda hidden si no hay ninguna:
+//   1. Si d.decision.modulacion es "INDETERMINADA" y hay mas_probable: un <strong> con
+//      `Más probable: ${nombreModulacion(mas_probable)}` seguido del texto ` (${textoPorcentaje(d.decision.confianza)})`.
+//   2. Si tambien_puede_ser no está vacía: el texto "También puede ser: " (con ". " delante si hubo parte 1) y luego,
+//      separados por ", ", `${nombreModulacion(a.nombre)} (${textoPorcentaje(a.probabilidad)})` por cada alternativa.
+// - #d-equivalentes: si misma_senal_que no está vacía, el texto
+//   `Es la misma señal que ${lista unida por ", "}: no se pueden distinguir.` y hidden = false; si no, vaciar y
+//   hidden = true.
+// - Vaciar ambos elementos antes de escribir (replaceChildren). Solo createElement, textContent, append y
+//   replaceChildren: nada de innerHTML. Sin dependencias. No tocar ninguna otra función ni archivo.
+function pintarAlternativas(d) {
+  const dec = d?.decision || {};
+  const alt = $("d-alternativas");
+  const eq = $("d-equivalentes");
+  alt.replaceChildren();
+  eq.replaceChildren();
+
+  const parte1 = dec.modulacion === "INDETERMINADA" && Boolean(dec.mas_probable);
+  const alternativas = Array.isArray(dec.tambien_puede_ser) ? dec.tambien_puede_ser : [];
+
+  if (parte1) {
+    const fuerte = document.createElement("strong");
+    fuerte.textContent = `Más probable: ${nombreModulacion(dec.mas_probable)}`;
+    alt.append(fuerte, ` (${textoPorcentaje(dec.confianza)})`);
+  }
+  if (alternativas.length > 0) {
+    const lista = alternativas
+      .map((a) => `${nombreModulacion(a.nombre)} (${textoPorcentaje(a.probabilidad)})`)
+      .join(", ");
+    alt.append(`${parte1 ? ". " : ""}También puede ser: ${lista}`);
+  }
+  alt.hidden = !(parte1 || alternativas.length > 0);
+
+  const equivalentes = Array.isArray(dec.misma_senal_que) ? dec.misma_senal_que : [];
+  if (equivalentes.length > 0) {
+    eq.textContent = `Es la misma señal que ${equivalentes.join(", ")}: no se pueden distinguir.`;
+    eq.hidden = false;
+  } else {
+    eq.hidden = true;
+  }
+}
+
 function nombreModulacion(m) {
   return { DESCONOCIDA: "Desconocida", INDETERMINADA: "Sin decidir" }[m] || m;
 }
@@ -335,6 +380,7 @@ function mostrar(d) {
   $("resultado").hidden = false;
   $("nombre-archivo").textContent = d.nombre;
   pintarDecision(d);
+  pintarAlternativas(d);
   pintarEnrutador(d);
   $("v-recuperada").disabled = !d.constelacion;
   if (!d.constelacion) cambiarVista("entrada", false);
